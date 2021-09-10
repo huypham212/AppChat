@@ -92,7 +92,7 @@ export function LoginScreen({navigation}) {
             title={'ĐĂNG KÝ'}
             type={'outline'}
             onPress={() => {
-              console.log('Đăng kí');
+              navigation.navigate('Signup');
             }}></Button>
         </View>
       </View>
