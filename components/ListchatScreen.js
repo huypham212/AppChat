@@ -18,7 +18,7 @@ import {
   ListItem,
   Button,
   Avatar,
-  Swipeable,
+  SearchBar,
 } from 'react-native-elements';
 
 const list = [
@@ -54,7 +54,7 @@ export function ListChatScr({navigation}) {
           leftIcon={{
             type: 'font-awesome-5',
             name: 'search',
-            color: 'grey',
+            color: '#b3b3b3',
             style: {marginLeft: 10},
             size: 18,
           }}
