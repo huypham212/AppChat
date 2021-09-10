@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, SafeAreaView} from 'react-native';
 import {Input} from 'react-native-elements';
 
@@ -22,36 +22,49 @@ const userList = [
     activeState: false,
   },
 ];
-export function LoginScreen() {
-  const [loginName, setLoginName] = useState('');
-  const [password, setPassword] = useState('');
 
-  Login = (inputUserName, inputPassword) => {
-    userList.forEach(element => {
-      if (inputUserName == element.userName) {
-        if (inputPassword == element.password) {
-          alert('Login Successed' + element.id);
+export function SignUpScreen() {
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+  const [cfrPassword, setCfrPassword] = useState('');
+
+  SignUp = (inputUserName, inputPassword) => {
+    if (inputPassword == cfrPassword) {
+      userList.forEach(element => {
+        if (element.userName == inputUserName) {
+          alert('Username exsits!');
         } else {
-          alert('Wrong Password');
+          alert('Sign up success!');
         }
-      } else {
-        alert('User name invalid!');
-      }
-    });
+      });
+    } else {
+      alert('Password does not match!');
+    }
   };
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>ĐĂNG NHẬP</Text>
-      {/* r */}
-      <Text style={styles.content1}>Email</Text>
+    <SafeAreaView>
+      <Text style={styles.header}>ĐĂNG KÝ</Text>
+
+      <Text style={styles.content1}>Tên đăng nhập</Text>
       <Input
-        textContentType="username"
+        textContentType="nickname"
         numberOfLines={1}
         autoCorrect={false}
         leftIcon={{type: 'font-awesome', name: 'user'}}
-        onChangeText={setLoginName}
-        value={loginName}
+        onChangeText={setUserName}
+        value={userName}
       />
+
+      {/* <Text style={styles.content1}>Email</Text>
+      <Input
+        textContentType="emailAddress"
+        numberOfLines={1}
+        autoCompleteType="email"
+        autoCorrect={false}
+        leftIcon={{type: 'font-awesome', name: ''}}
+        onChangeText={setEmail}
+        value={emailState}
+      /> */}
 
       <Text style={styles.content1}>Mật khẩu</Text>
       <Input
@@ -66,28 +79,23 @@ export function LoginScreen() {
         value={password}
       />
 
-      <Text style={styles.content2}>Quên mật khẩu?</Text>
+      <Text style={styles.content1}>Xác nhận mật khẩu</Text>
+      <Input
+        textContentType="password"
+        secureTextEntry={true}
+        numberOfLines={1}
+        placehoder="Confirm password"
+        leftIcon={{type: 'font-awesome', name: 'lock'}}
+        rightIcon={{type: 'font-awesome', name: 'eye'}}
+        onChangeText={setCfrPassword}
+        value={cfrPassword}
+      />
 
-      <View style={styles.loginBtn}>
+      <View style={styles.signinBtn}>
         <Button
-          title={'ĐĂNG NHẬP'}
-          type={'solid'}
-          onPress={() => Login(loginName, password)}></Button>
-
-        <View style={styles.signinBtn}>
-          <Button
-            title={'ĐĂNG KÝ'}
-            type={'outline'}
-            onPress={() => {
-              console.log('Đăng kí');
-            }}></Button>
-        </View>
-
-        <Divider orientation="center">OR</Divider>
-
-        <View style={styles.anotherLogin}>
-          <FAB style={styles.fbBtn} icon="facebook" label="Facebook" />
-        </View>
+          title={'ĐĂNG KÝ'}
+          type={'outline'}
+          onPress={() => SignUp(userName, password)}></Button>
       </View>
     </SafeAreaView>
   );
@@ -130,29 +138,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
   },
-  loginBtn: {
-    margin: 25,
-  },
+  // loginBtn: {
+  //   margin: 25,
+  // },
   signinBtn: {
     marginTop: 15,
-    marginBottom: 15,
-  },
-  anotherLogin: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  fbBtn: {
-    backgroundColor: '#1877f2',
-    alignItems: 'center',
-    width: 150,
-    borderRadius: 0,
-    marginRight: 15,
-    marginLeft: 5,
-    paddingTop: 2,
-  },
-  ggBtn: {
-    backgroundColor: '#FFFFFF',
-    width: 150,
-    borderRadius: 0,
   },
 });
