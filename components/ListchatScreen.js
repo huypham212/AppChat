@@ -7,6 +7,7 @@ import {
   Text,
   StatusBar,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -17,6 +18,7 @@ import {
   ListItem,
   Button,
   Avatar,
+  Swipeable,
 } from 'react-native-elements';
 
 const list = [
@@ -43,7 +45,7 @@ const list = [
   },
 ];
 
-export function ListChatScr() {
+export function ListChatScr({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -60,30 +62,18 @@ export function ListChatScr() {
             borderRadius: 50,
             backgroundColor: '#e6e6e6',
             borderBottomWidth: 0,
+            height: 40,
           }}
-          containerStyle={{marginTop: 5}}
+          containerStyle={{marginTop: 5, height: 50}}
         />
         <View>
           {list.map((l, i) => (
-            <ListItem.Swipeable
+            <ListItem
               key={i}
-              onPress={() => {
-                alert(l.id);
-              }}
-              leftContent={
-                <Button
-                  title="Info"
-                  icon={{name: 'info', color: 'white'}}
-                  buttonStyle={{minHeight: '100%'}}
-                />
-              }
-              rightContent={
-                <Button
-                  title="Xóa"
-                  icon={{name: 'delete', color: 'white'}}
-                  buttonStyle={{minHeight: '100%', backgroundColor: 'red'}}
-                />
-              }>
+              onPress={() => navigation.navigate('chat')}
+              onLongPress={() => {
+                Alert.alert('Thông báo', l.id);
+              }}>
               <Avatar rounded source={{uri: l.ava}} size={50}>
                 {l.state ? (
                   <Avatar.Accessory
@@ -98,7 +88,7 @@ export function ListChatScr() {
                 <ListItem.Title>{l.name}</ListItem.Title>
                 <ListItem.Subtitle>{l.content}</ListItem.Subtitle>
               </ListItem.Content>
-            </ListItem.Swipeable>
+            </ListItem>
           ))}
         </View>
       </ScrollView>

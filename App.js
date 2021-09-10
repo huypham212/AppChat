@@ -2,9 +2,10 @@ import * as React from 'react';
 import {Text, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Icon, Image} from 'react-native-elements';
 import {ListChatScr} from './components/ListchatScreen';
-
+import {ChatScr} from './components/ChatScreen';
 function SettingsScreen() {
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -17,6 +18,55 @@ function SettingsScreen() {
         onPress={() => alert('hello')}
       />
     </View>
+  );
+}
+
+const Stack = createNativeStackNavigator();
+function MyStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <Image
+              source={{
+                uri: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=be92db73e7fde3f00d379c1edf595945&oe=613FDA66',
+              }}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 100,
+                marginRight: 15,
+              }}
+            />
+          ),
+          headerRight: () => (
+            <View style={{flexDirection: 'row'}}>
+              <Icon
+                name="camera"
+                type="font-awesome-5"
+                color="black"
+                raised
+                size={18}
+                solid={true}
+              />
+              <Icon
+                name="pen"
+                type="font-awesome-5"
+                color="black"
+                raised
+                size={18}
+                solid={true}
+              />
+            </View>
+          ),
+        }}
+        name="listchat"
+        component={ListChatScr}
+      />
+      <Stack.Screen name="chat" component={ChatScr} />
+      <Stack.Screen name="setting" component={SettingsScreen} />
+    </Stack.Navigator>
   );
 }
 
@@ -36,42 +86,10 @@ export default function App() {
           keyboardHidesTabBar: true,
         }}>
         <Tab.Screen
-          name="Chat"
-          component={ListChatScr}
+          name="home"
+          component={MyStack}
           options={{
-            headerLeft: props => (
-              <Image
-                source={{
-                  uri: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=be92db73e7fde3f00d379c1edf595945&oe=613FDA66',
-                }}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 100,
-                  marginLeft: 10,
-                }}
-              />
-            ),
-            headerRight: props => (
-              <View style={{flex: 1, flexDirection: 'row'}}>
-                <Icon
-                  name="camera"
-                  type="font-awesome-5"
-                  color="black"
-                  raised
-                  size={18}
-                  solid={true}
-                />
-                <Icon
-                  name="pen"
-                  type="font-awesome-5"
-                  color="black"
-                  raised
-                  size={18}
-                  solid={true}
-                />
-              </View>
-            ),
+            headerShown: false,
             tabBarIcon: ({focused, color, size}) => (
               <View>
                 <Icon
