@@ -30,7 +30,10 @@ export function LoginScreen() {
     userList.forEach(element => {
       if (inputUserName == element.userName) {
         if (inputPassword == element.password) {
-          alert('Login Successed' + element.id);
+          element.activeState = true;
+          alert(
+            'Login Successed' + element.id + '. Status: ' + element.activeState,
+          );
         } else {
           alert('Wrong Password');
         }
