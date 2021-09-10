@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, SafeAreaView} from 'react-native';
-import {Input} from 'react-native-elements';
+import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
+import {Input, Button} from 'react-native-elements';
 
 const userList = [
   {

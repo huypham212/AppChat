@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
 import {Input, Button} from 'react-native-elements';
-import {ListChatScr} from './ListchatScreen';
+
 const userList = [
   {
     id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',
-    userName: 'HoangTuGio',
+    userName: 'longluu',
     password: 'long1234',
     activeState: false,
   },
@@ -27,23 +27,30 @@ export function LoginScreen({navigation}) {
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
   const [loginState, setLoginState] = useState(true);
-  Login = (inputUserName, inputPassword) => {
+  function Login(inputUserName, inputPassword) {
     userList.forEach(element => {
-      if (inputUserName == element.userName) {
-        if (inputPassword == element.password) {
-          element.activeState = true;
-          alert(
-            'Login Successed' + element.id + '. Status: ' + element.activeState,
-          );
-          navigation.navigate('tabmain');
+      if (inputUserName != '' && inputPassword != '') {
+        if (inputUserName == element.userName) {
+          if (inputPassword == element.password) {
+            element.activeState = true;
+            alert(
+              'Login Successed' +
+                element.id +
+                '. Status: ' +
+                element.activeState,
+            );
+            navigation.navigate('tabmain');
+          } else {
+            alert('Wrong Password');
+          }
         } else {
-          alert('Wrong Password');
+          alert('User name invalid!');
         }
       } else {
-        alert('User name invalid!');
+        alert('Tài khoản mật khẩu không được trống');
       }
     });
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container}>
