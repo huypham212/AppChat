@@ -70,7 +70,7 @@ export function ListChatScr({navigation}) {
           {list.map((l, i) => (
             <ListItem
               key={i}
-              onPress={() => navigation.navigate('chat')}
+              onPress={() => navigation.navigate('chat', {name: l.name})}
               onLongPress={() => {
                 Alert.alert('Thông báo', l.id);
               }}>

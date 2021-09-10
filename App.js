@@ -36,7 +36,15 @@ function MyStack() {
         name="tabmain"
         component={TabMain}
       />
-      <Stack.Screen name="chat" component={ChatScr} />
+      <Stack.Screen
+        name="chat"
+        component={ChatScr}
+        options={({route}) => ({
+          title: route.params.name,
+          headerTintColor: 'white',
+          headerStyle: {backgroundColor: '#1a1a1a'},
+        })}
+      />
       <Stack.Screen name="setting" component={SettingsScreen} />
     </Stack.Navigator>
   );
