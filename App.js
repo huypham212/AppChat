@@ -6,6 +6,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Icon, Image} from 'react-native-elements';
 import {ListChatScr} from './components/ListchatScreen';
 import {ChatScr} from './components/ChatScreen';
+import {LoginScreen} from './components/LoginScreen';
 function SettingsScreen() {
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -25,6 +26,7 @@ const Stack = createNativeStackNavigator();
 function MyStack() {
   return (
     <Stack.Navigator>
+      <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen
         options={{
           headerShown: false,

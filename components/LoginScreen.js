@@ -1,8 +1,7 @@
-import React from 'react';
-import {View, StyleSheet, SafeAreaView} from 'react-native';
-import {Input} from 'react-native-elements';
-import Login from '../../../../Android/AppNavigation/components/Login';
-
+import React, {useState} from 'react';
+import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
+import {Input, Button} from 'react-native-elements';
+import {ListChatScr} from './ListchatScreen';
 const userList = [
   {
     id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',
@@ -23,15 +22,17 @@ const userList = [
     activeState: false,
   },
 ];
-export function LoginScreen() {
+
+export function LoginScreen({navigation}) {
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
-
+  const [loginState, setLoginState] = useState(true);
   Login = (inputUserName, inputPassword) => {
     userList.forEach(element => {
       if (inputUserName == element.userName) {
         if (inputPassword == element.password) {
           alert('Login Successed' + element.id);
+          navigation.navigate('tabmain');
         } else {
           alert('Wrong Password');
         }
@@ -40,6 +41,7 @@ export function LoginScreen() {
       }
     });
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>ĐĂNG NHẬP</Text>
@@ -82,12 +84,6 @@ export function LoginScreen() {
             onPress={() => {
               console.log('Đăng kí');
             }}></Button>
-        </View>
-
-        <Divider orientation="center">OR</Divider>
-
-        <View style={styles.anotherLogin}>
-          <FAB style={styles.fbBtn} icon="facebook" label="Facebook" />
         </View>
       </View>
     </SafeAreaView>
