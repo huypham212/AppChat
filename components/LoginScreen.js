@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {Input, Button} from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage';
 import {AuthContext} from './Context';
 //import firebase from 'firebase';
 import config from '../config/dbConfig';
