@@ -4,6 +4,7 @@ import {Input, Button} from 'react-native-elements';
 import firebase from 'firebase';
 import uuid from 'react-native-uuid';
 import config from '../config/dbConfig';
+import {KeyboardAwareScrollView} from '@codler/react-native-keyboard-aware-scroll-view';
 
 // Initialize Firebase
 if (!firebase.apps.length) {
@@ -36,22 +37,10 @@ export function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [cfrPassword, setCfrPassword] = useState('');
   const [userEmail, setUserEmail] = useState('');
-
-  SignUp = (inputUserName, inputEmail, inputPassword) => {
-    // if (inputPassword == cfrPassword) {
-    //   userList.forEach(element => {
-    //     if (element.userName == inputUserName) {
-    //       alert('Username exsits!');
-    //     } else {
-    //       alert('Sign up success!');
-    //     }
-    //   });
-    // } else {
-    //   alert('Password does not match!');
-    // }
-
+  const [errorEmail, setErrorEmail] = useState('');
+  function SignUp(inputUserName, inputEmail, inputPassword) {
     if (inputEmail == '') {
-      alert('Please input your email!');
+      setErrorEmail('Email không được trống');
     } else {
       if (inputPassword <= 6) {
         alert('Password must have 6 characters!');
@@ -111,63 +100,69 @@ export function SignUpScreen() {
         }
       }
     }
-  };
+  }
   return (
     <SafeAreaView>
-      <Text style={styles.header}>ĐĂNG KÝ</Text>
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        enableAutomaticScroll={Platform.OS === 'ios'}>
+        <Text style={styles.header}>ĐĂNG KÝ</Text>
 
-      <Text style={styles.content1}>Tên đăng nhập</Text>
-      <Input
-        textContentType="nickname"
-        numberOfLines={1}
-        autoCorrect={false}
-        leftIcon={{type: 'font-awesome', name: 'user'}}
-        onChangeText={setUserName}
-        value={userName}
-      />
+        <Text style={styles.content1}>Tên đăng nhập</Text>
+        <Input
+          textContentType="nickname"
+          numberOfLines={1}
+          autoCorrect={false}
+          leftIcon={{type: 'font-awesome', name: 'user'}}
+          onChangeText={setUserName}
+          value={userName}
+        />
 
-      <Text style={styles.content1}>Email</Text>
-      <Input
-        textContentType="emailAddress"
-        numberOfLines={1}
-        autoCompleteType="email"
-        autoCorrect={false}
-        leftIcon={{type: 'font-awesome', name: 'envelope'}}
-        onChangeText={setUserEmail}
-        value={userEmail}
-      />
+        <Text style={styles.content1}>Email</Text>
+        <Input
+          textContentType="emailAddress"
+          numberOfLines={1}
+          autoCompleteType="email"
+          autoCorrect={false}
+          leftIcon={{type: 'font-awesome', name: 'envelope'}}
+          onChangeText={setUserEmail}
+          value={userEmail}
+          errorMessage={errorEmail}
+        />
 
-      <Text style={styles.content1}>Mật khẩu</Text>
-      <Input
-        textContentType="password"
-        secureTextEntry={true}
-        numberOfLines={1}
-        autoCorrect={false}
-        placehoder="Password"
-        leftIcon={{type: 'font-awesome', name: 'lock'}}
-        rightIcon={{type: 'font-awesome', name: 'eye'}}
-        onChangeText={setPassword}
-        value={password}
-      />
+        <Text style={styles.content1}>Mật khẩu</Text>
+        <Input
+          textContentType="password"
+          secureTextEntry={true}
+          numberOfLines={1}
+          autoCorrect={false}
+          placehoder="Password"
+          leftIcon={{type: 'font-awesome', name: 'lock'}}
+          rightIcon={{type: 'font-awesome', name: 'eye'}}
+          onChangeText={setPassword}
+          value={password}
+        />
 
-      <Text style={styles.content1}>Xác nhận mật khẩu</Text>
-      <Input
-        textContentType="password"
-        secureTextEntry={true}
-        numberOfLines={1}
-        placehoder="Confirm password"
-        leftIcon={{type: 'font-awesome', name: 'lock'}}
-        rightIcon={{type: 'font-awesome', name: 'eye'}}
-        onChangeText={setCfrPassword}
-        value={cfrPassword}
-      />
+        <Text style={styles.content1}>Xác nhận mật khẩu</Text>
+        <Input
+          textContentType="password"
+          secureTextEntry={true}
+          numberOfLines={1}
+          placehoder="Confirm password"
+          leftIcon={{type: 'font-awesome', name: 'lock'}}
+          rightIcon={{type: 'font-awesome', name: 'eye'}}
+          onChangeText={setCfrPassword}
+          value={cfrPassword}
+        />
 
-      <View style={styles.signinBtn}>
-        <Button
-          title={'ĐĂNG KÝ'}
-          type={'outline'}
-          onPress={() => SignUp(userName, userEmail, password)}></Button>
-      </View>
+        <View style={styles.signinBtn}>
+          <Button
+            title={'ĐĂNG KÝ'}
+            type={'outline'}
+            onPress={() => SignUp(userName, userEmail, password)}
+          />
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
