@@ -9,7 +9,7 @@ import {ChatScr} from './components/ChatScreen';
 import {LoginScreen} from './components/LoginScreen';
 import {SignUpScreen} from './components/SignUpScreen';
 import {AuthContext} from './components/Context';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function SettingsScreen() {
   const {signOut} = React.useContext(AuthContext);
