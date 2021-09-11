@@ -46,11 +46,11 @@ const list = [
 ];
 
 export function ListChatScr({navigation}) {
-  const {user, setUser} = React.useContext(AuthContext);
+  const {user} = React.useContext(AuthContext);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        {user.uid != null ? <Text>{user.uid}</Text> : null}
+        {user != null ? <Text>{user.uid}</Text> : null}
         <Input
           placeholder="Tìm kiếm"
           leftIcon={{
