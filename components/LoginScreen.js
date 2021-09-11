@@ -1,7 +1,15 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
+import React, {useState, useEffect, useMemo} from 'react';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import {Input, Button} from 'react-native-elements';
-
+import AsyncStorage from '@react-native-community/async-storage';
+import {AuthContext} from './Context';
 const userList = [
   {
     id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',
@@ -26,30 +34,30 @@ const userList = [
 export function LoginScreen({navigation}) {
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
-  const [loginState, setLoginState] = useState(true);
+  const {signIn} = React.useContext(AuthContext);
+  let count = 0;
+
   function Login(inputUserName, inputPassword) {
-    userList.forEach(element => {
-      if (inputUserName != '' && inputPassword != '') {
+    if (inputUserName != '' && inputPassword != '') {
+      userList.forEach(element => {
         if (inputUserName == element.userName) {
           if (inputPassword == element.password) {
             element.activeState = true;
-            alert(
-              'Login Successed' +
-                element.id +
-                '. Status: ' +
-                element.activeState,
-            );
-            navigation.navigate('tabmain');
-          } else {
-            alert('Wrong Password');
+            count++;
+            signIn(element.userName);
           }
-        } else {
-          alert('User name invalid!');
         }
-      } else {
-        alert('Tài khoản mật khẩu không được trống');
+      });
+      if (count == 0) {
+        Alert.alert(
+          'Đăng nhập không thành công',
+          'Sai tài khoản hoặc mật khẩu',
+        );
       }
-    });
+    } else {
+      count = 0;
+      alert('Tài khoản mật khẩu không được trống');
+    }
   }
 
   return (
