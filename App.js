@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from 'react';
+import React, {useState, useMemo, useEffect, useContext} from 'react';
 import {Text, View, ActivityIndicator, Alert} from 'react-native';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -10,9 +10,11 @@ import {LoginScreen} from './components/LoginScreen';
 import {SignUpScreen} from './components/SignUpScreen';
 import {AuthContext} from './components/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
 
 function SettingsScreen() {
   const {signOut} = React.useContext(AuthContext);
+
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <Text>Settings!</Text>
@@ -186,8 +188,9 @@ function TabMain({navigation}) {
   );
 }
 export default function App() {
-  // const [isLoading, setIsLoading] = useState(true);
-  // const [userToken, setUserToken] = useState(null);
+  const [user, setUser] = useState(null);
+
+  // Handle user state changes
 
   const initLoginState = {
     isLoading: true,
@@ -217,6 +220,13 @@ export default function App() {
           userToken: null,
           isLoading: false,
         };
+      case 'ISLOADING':
+        return {
+          ...prevState,
+          userName: null,
+          userToken: null,
+          isLoading: true,
+        };
       // case 'SIGNUP':
       //   return {
       //     ...prevState,
@@ -228,24 +238,59 @@ export default function App() {
   }
 
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
+  function onAuthStateChanged(user) {
+    setUser(user);
+  }
 
   const authContext = useMemo(() => ({
-    signIn: async userName => {
-      let userToken = 'hihi';
+    user,
+    setUser,
+    signIn: async (email, password) => {
+      dispatch({type: 'ISLOADING'});
       try {
-        await AsyncStorage.setItem('userToken', userToken);
+        await auth()
+          .signInWithEmailAndPassword(email, password)
+          .then(userCredential => {
+            dispatch({
+              type: 'LOGIN',
+              id: email,
+              token: userCredential.user.uid,
+            });
+            AsyncStorage.setItem('userToken', userCredential.user.uid);
+          });
       } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          Alert.alert('Lỗi đăng nhập', 'Email này đã được sử dụng');
+        }
+        if (error.code === 'auth/wrong-password') {
+          Alert.alert('Lỗi đăng nhập', 'Sai tài khoản hoặc mật khẩu');
+        }
+        if (error.code === 'auth/user-not-found') {
+          Alert.alert('Lỗi đăng nhập', 'Không tìm thấy tài khoản này');
+        }
+        if (error.code === 'auth/user-not-found') {
+          Alert.alert('Lỗi đăng nhập', 'Không tìm thấy tài khoản này');
+        }
+        if (error.code === 'auth/too-many-requests') {
+          Alert.alert(
+            'Lỗi đăng nhập',
+            'Chúng tôi đã chặn tất cả các yêu cầu từ thiết bị này do hoạt động bất thường. Thử lại sau.',
+          );
+        }
+        dispatch({type: 'RETRIEVE_TOKEN', token: null});
         console.log(error);
       }
-      dispatch({type: 'LOGIN', id: userName, token: userToken});
     },
+
     signOut: async () => {
       try {
-        await AsyncStorage.removeItem('userToken');
-      } catch (error) {
-        console.log(error);
-      }
-      dispatch({type: 'LOGOUT'});
+        await auth()
+          .signOut()
+          .then(() => {
+            AsyncStorage.removeItem('userToken');
+            dispatch({type: 'LOGOUT'});
+          });
+      } catch (error) {}
     },
     // signUp: () => {},
   }));
@@ -254,12 +299,14 @@ export default function App() {
     setTimeout(async () => {
       let userToken;
       userToken = null;
+      const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
       try {
         userToken = await AsyncStorage.getItem('userToken');
       } catch (error) {
         console.log(error);
       }
       dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
+      return subscriber;
     }, 200);
   }, []);
 

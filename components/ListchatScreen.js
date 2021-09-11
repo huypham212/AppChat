@@ -20,7 +20,7 @@ import {
   Avatar,
   SearchBar,
 } from 'react-native-elements';
-
+import {AuthContext} from './Context';
 const list = [
   {
     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -46,9 +46,11 @@ const list = [
 ];
 
 export function ListChatScr({navigation}) {
+  const {user, setUser} = React.useContext(AuthContext);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        {user.uid != null ? <Text>{user.uid}</Text> : null}
         <Input
           placeholder="Tìm kiếm"
           leftIcon={{

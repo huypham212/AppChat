@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "814833587172",
+    "firebase_url": "https://appchat-4cedc-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "appchat-4cedc",
+    "storage_bucket": "appchat-4cedc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814833587172:android:35a93dd7b534b2b5b26df1",
+        "android_client_info": {
+          "package_name": "com.appchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814833587172-e0n8dh1fv095v7hr5ham2e8h73mtugot.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSa02DyqD1ub-faW4VTj09Szs_a76mFgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814833587172-e0n8dh1fv095v7hr5ham2e8h73mtugot.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -47,21 +47,7 @@ export function LoginScreen({navigation}) {
 
   function Login(inputUserName, inputPassword) {
     if (inputUserName != '' && inputPassword != '') {
-      userList.forEach(element => {
-        if (inputUserName == element.userName) {
-          if (inputPassword == element.password) {
-            element.activeState = true;
-            count++;
-            signIn(element.userName);
-          }
-        }
-      });
-      if (count == 0) {
-        Alert.alert(
-          'Đăng nhập không thành công',
-          'Sai tài khoản hoặc mật khẩu',
-        );
-      }
+      signIn(inputUserName, inputPassword);
     } else {
       count = 0;
       alert('Tài khoản mật khẩu không được trống');
