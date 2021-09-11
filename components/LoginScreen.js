@@ -10,6 +10,14 @@ import {
 import {Input, Button} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import {AuthContext} from './Context';
+//import firebase from 'firebase';
+import config from '../config/dbConfig';
+
+// // Initialize Firebase
+// if (!firebase.apps.length) {
+//   firebase.initializeApp(config.firebaseConfig);
+// }
+
 const userList = [
   {
     id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',

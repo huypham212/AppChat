@@ -1,6 +1,14 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
 import {Input, Button} from 'react-native-elements';
+import firebase from 'firebase';
+import uuid from 'react-native-uuid';
+import config from '../config/dbConfig';
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(config.firebaseConfig);
+}
 
 const userList = [
   {
@@ -27,18 +35,81 @@ export function SignUpScreen() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [cfrPassword, setCfrPassword] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
-  SignUp = (inputUserName, inputPassword) => {
-    if (inputPassword == cfrPassword) {
-      userList.forEach(element => {
-        if (element.userName == inputUserName) {
-          alert('Username exsits!');
-        } else {
-          alert('Sign up success!');
-        }
-      });
+  SignUp = (inputUserName, inputEmail, inputPassword) => {
+    // if (inputPassword == cfrPassword) {
+    //   userList.forEach(element => {
+    //     if (element.userName == inputUserName) {
+    //       alert('Username exsits!');
+    //     } else {
+    //       alert('Sign up success!');
+    //     }
+    //   });
+    // } else {
+    //   alert('Password does not match!');
+    // }
+
+    if (inputEmail == '') {
+      alert('Please input your email!');
     } else {
-      alert('Password does not match!');
+      if (inputPassword <= 6) {
+        alert('Password must have 6 characters!');
+      } else {
+        if (inputPassword != cfrPassword) {
+          alert("Password dosen't matched!");
+        } else {
+          try {
+            firebase
+              .auth()
+              .createUserWithEmailAndPassword(inputEmail, inputPassword)
+              .then(user => {
+                if (user == null) {
+                  alert('Sign up failed!');
+                } else {
+                  let uid = uuid.v4();
+                  if (inputUserName == '') {
+                    try {
+                      firebase
+                        .database()
+                        .ref('user/' + uid)
+                        .set({
+                          email: inputEmail,
+                          username: inputEmail,
+                          password: inputPassword,
+                          friendList: [],
+                          stateActive: false,
+                        });
+                    } catch (error) {
+                      alert(error);
+                    }
+
+                    alert('Sign up successed!');
+                  } else {
+                    try {
+                      firebase
+                        .database()
+                        .ref('user/' + uid)
+                        .set({
+                          email: inputEmail,
+                          username: inputUserName,
+                          password: inputPassword,
+                          friendList: [],
+                          stateActive: false,
+                        });
+                    } catch (error) {
+                      alert(error);
+                    }
+
+                    alert('Sign up successed!');
+                  }
+                }
+              });
+          } catch (error) {
+            alert(error);
+          }
+        }
+      }
     }
   };
   return (
@@ -55,16 +126,16 @@ export function SignUpScreen() {
         value={userName}
       />
 
-      {/* <Text style={styles.content1}>Email</Text>
+      <Text style={styles.content1}>Email</Text>
       <Input
         textContentType="emailAddress"
         numberOfLines={1}
         autoCompleteType="email"
         autoCorrect={false}
-        leftIcon={{type: 'font-awesome', name: ''}}
-        onChangeText={setEmail}
-        value={emailState}
-      /> */}
+        leftIcon={{type: 'font-awesome', name: 'envelope'}}
+        onChangeText={setUserEmail}
+        value={userEmail}
+      />
 
       <Text style={styles.content1}>Mật khẩu</Text>
       <Input
@@ -95,7 +166,7 @@ export function SignUpScreen() {
         <Button
           title={'ĐĂNG KÝ'}
           type={'outline'}
-          onPress={() => SignUp(userName, password)}></Button>
+          onPress={() => SignUp(userName, userEmail, password)}></Button>
       </View>
     </SafeAreaView>
   );
