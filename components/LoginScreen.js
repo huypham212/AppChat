@@ -7,7 +7,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import {Input, Button} from 'react-native-elements';
+import {Input, Button, Icon} from 'react-native-elements';
 import {AuthContext} from './Context';
 //import firebase from 'firebase';
 import config from '../config/dbConfig';
@@ -42,6 +42,7 @@ export function LoginScreen({navigation}) {
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
   const {signIn} = React.useContext(AuthContext);
+  const [showPass, setShowPass] = useState(true);
   let count = 0;
 
   function Login(inputUserName, inputPassword) {
@@ -83,13 +84,20 @@ export function LoginScreen({navigation}) {
 
       <Text style={styles.content1}>Mật khẩu</Text>
       <Input
-        textContentType="password"
-        secureTextEntry={true}
+        secureTextEntry={showPass}
         numberOfLines={1}
         autoCorrect={false}
         placehoder="Password"
         leftIcon={{type: 'font-awesome', name: 'lock'}}
-        rightIcon={{type: 'font-awesome', name: 'eye'}}
+        rightIcon={
+          <Icon
+            type="font-awesome"
+            name="eye"
+            onPress={() => {
+              setShowPass(!showPass);
+            }}
+          />
+        }
         onChangeText={setPassword}
         value={password}
       />
