@@ -56,7 +56,8 @@ export function SignUpScreen() {
                 if (user == null) {
                   alert('Sign up failed!');
                 } else {
-                  let uid = uuid.v4();
+                  let uid = user.user.uid;
+                  console.log(user.user.uid);
                   if (inputUserName == '') {
                     try {
                       firebase
