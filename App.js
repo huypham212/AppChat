@@ -110,7 +110,7 @@ function RootStack() {
 const Tab = createBottomTabNavigator();
 function TabMain({navigation}) {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{tabBarShowLabel: false}}>
       <Tab.Screen
         name="listchat"
         component={ListChatScr}
@@ -200,7 +200,6 @@ export default function App() {
       case 'RETRIEVE_TOKEN':
         return {
           ...prevState,
-          // userName: null,
           userToken: action.token,
           isLoading: false,
         };
@@ -218,13 +217,13 @@ export default function App() {
           userToken: null,
           isLoading: false,
         };
-      case 'SIGNUP':
-        return {
-          ...prevState,
-          userName: action.id,
-          userToken: action.token,
-          isLoading: false,
-        };
+      // case 'SIGNUP':
+      //   return {
+      //     ...prevState,
+      //     userName: action.id,
+      //     userToken: action.token,
+      //     isLoading: false,
+      //   };
     }
   }
 
@@ -248,7 +247,7 @@ export default function App() {
       }
       dispatch({type: 'LOGOUT'});
     },
-    signUp: () => {},
+    // signUp: () => {},
   }));
 
   useEffect(() => {
@@ -261,7 +260,7 @@ export default function App() {
         console.log(error);
       }
       dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-    }, 1000);
+    }, 200);
   }, []);
 
   if (loginState.isLoading) {
