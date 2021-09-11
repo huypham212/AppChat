@@ -11,6 +11,7 @@ import {SignUpScreen} from './components/SignUpScreen';
 import {AuthContext} from './components/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 function SettingsScreen() {
   const {signOut} = React.useContext(AuthContext);
@@ -49,13 +50,14 @@ function ListFriendsScreen() {
 }
 
 function headerLeft({navigation}) {
+  const {user} = useContext(AuthContext);
   return (
     <Image
       onPress={() => {
         navigation.navigate('setting');
       }}
       source={{
-        uri: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=be92db73e7fde3f00d379c1edf595945&oe=613FDA66',
+        uri: user != null ? user.avatar : null,
       }}
       style={{
         width: 40,
@@ -238,15 +240,25 @@ export default function App() {
   }
 
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
+
   function onAuthStateChanged(user) {
-    setUser(user);
+    if (user != null) {
+      let ref = '/user/' + user.uid;
+      // console.log(ref);
+      database()
+        .ref(ref)
+        .on('value', snapshot => {
+          setUser(snapshot.val());
+          // console.log('User data: ', snapshot.val());
+        });
+    } else setUser(user);
   }
 
   const authContext = useMemo(() => ({
     user,
     setUser,
     signIn: async (email, password) => {
-      dispatch({type: 'ISLOADING'});
+      //dispatch({type: 'ISLOADING'});
       try {
         await auth()
           .signInWithEmailAndPassword(email, password)
@@ -277,7 +289,7 @@ export default function App() {
             'Chúng tôi đã chặn tất cả các yêu cầu từ thiết bị này do hoạt động bất thường. Thử lại sau.',
           );
         }
-        dispatch({type: 'RETRIEVE_TOKEN', token: null});
+        //dispatch({type: 'RETRIEVE_TOKEN', token: null});
         console.log(error);
       }
     },
