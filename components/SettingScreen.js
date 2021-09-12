@@ -34,7 +34,14 @@ export default function SettingsScreen() {
     return (
       <View>
         <View style={{alignItems: 'center', margin: 20}}>
-          <Avatar rounded source={{uri: user.avatar}} size={120}></Avatar>
+          <Avatar rounded source={{uri: user.avatar}} size={120}>
+            <Avatar.Accessory
+              size={30}
+              color="gray"
+              style={{backgroundColor: 'white'}}
+              onPress={() => alert('hihi')}
+            />
+          </Avatar>
           <Text style={{fontSize: 25, marginTop: 10}}>{user.name}</Text>
         </View>
         {listSettings.map((l, i) => (

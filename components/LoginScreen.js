@@ -17,26 +17,26 @@ import config from '../config/dbConfig';
 //   firebase.initializeApp(config.firebaseConfig);
 // }
 
-const userList = [
-  {
-    id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',
-    userName: 'longluu',
-    password: 'long1234',
-    activeState: false,
-  },
-  {
-    id: 'c8b3cb69-c607-44ad-aeb1-7c7cf2385606',
-    userName: 'GinPham',
-    password: 'gin1234',
-    activeState: false,
-  },
-  {
-    id: '12ade2b2-5a3b-44c1-834e-e78ebdc9be74',
-    userName: 'HaiThu',
-    password: 'hai1234',
-    activeState: false,
-  },
-];
+// const userList = [
+//   {
+//     id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',
+//     userName: 'longluu',
+//     password: 'long1234',
+//     activeState: false,
+//   },
+//   {
+//     id: 'c8b3cb69-c607-44ad-aeb1-7c7cf2385606',
+//     userName: 'GinPham',
+//     password: 'gin1234',
+//     activeState: false,
+//   },
+//   {
+//     id: '12ade2b2-5a3b-44c1-834e-e78ebdc9be74',
+//     userName: 'HaiThu',
+//     password: 'hai1234',
+//     activeState: false,
+//   },
+// ];
 
 export function LoginScreen({navigation}) {
   const [loginName, setLoginName] = useState('');
@@ -50,16 +50,16 @@ export function LoginScreen({navigation}) {
       signIn(inputUserName, inputPassword);
     } else {
       count = 0;
-      alert('Tài khoản mật khẩu không được trống');
+      Alert.alert('Thông báo', 'Tài khoản mật khẩu không được để trống');
     }
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>ĐĂNG NHẬP</Text>
-      {/* r */}
-      <Text style={styles.content1}>Email</Text>
       <Input
+        label="Email"
+        labelStyle={{color: 'black', fontSize: 24, fontWeight: 'normal'}}
         textContentType="username"
         numberOfLines={1}
         autoCorrect={false}
@@ -68,8 +68,13 @@ export function LoginScreen({navigation}) {
         value={loginName}
       />
 
-      <Text style={styles.content1}>Mật khẩu</Text>
       <Input
+        label="Mật khẩu"
+        labelStyle={{
+          color: 'black',
+          fontSize: 24,
+          fontWeight: 'normal',
+        }}
         secureTextEntry={showPass}
         numberOfLines={1}
         autoCorrect={false}
@@ -92,13 +97,20 @@ export function LoginScreen({navigation}) {
 
       <View style={styles.loginBtn}>
         <Button
+          buttonStyle={{borderRadius: 10, height: 45}}
           title={'ĐĂNG NHẬP'}
           type={'solid'}
           onPress={() => Login(loginName, password)}></Button>
 
         <View style={styles.signinBtn}>
           <Button
+            buttonStyle={{
+              borderWidth: 3,
+              borderColor: '#ff3300',
+              borderRadius: 10,
+            }}
             title={'ĐĂNG KÝ'}
+            titleStyle={{color: '#ff3300'}}
             type={'outline'}
             onPress={() => {
               navigation.navigate('Signup');
@@ -123,6 +135,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
+    margin: 10,
   },
   image: {
     width: 100,

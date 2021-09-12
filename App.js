@@ -99,7 +99,11 @@ function RootStack() {
         component={LoginScreen}
         options={{headerShown: false}}
       />
-      <Stack.Screen name="Signup" component={SignUpScreen} />
+      <Stack.Screen
+        name="Signup"
+        component={SignUpScreen}
+        options={{title: 'Đăng ký'}}
+      />
     </Stack.Navigator>
   );
 }
@@ -333,7 +337,7 @@ export default function App() {
     setTimeout(async () => {
       let userToken;
       userToken = null;
-      const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+      const subscriber = await auth().onAuthStateChanged(onAuthStateChanged);
       try {
         userToken = await AsyncStorage.getItem('userToken');
       } catch (error) {
