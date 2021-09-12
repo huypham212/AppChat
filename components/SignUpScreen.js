@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import {Input, Button} from 'react-native-elements';
 // import firebase from 'firebase';
 // import uuid from 'react-native-uuid';
@@ -33,6 +40,7 @@ import {Icon} from 'react-native-elements/dist/icons/Icon';
 //   },
 // ];
 
+const window = Dimensions.get('window');
 export function SignUpScreen() {
   const [showPass, setShowPass] = useState(true);
   const [showRePass, setShowRePass] = useState(true);
@@ -41,7 +49,9 @@ export function SignUpScreen() {
   const [cfrPassword, setCfrPassword] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
+  const [isLoading, setIsloading] = useState(false);
   const {signUp} = React.useContext(AuthContext);
+
   function SignUp(inputUserName, inputEmail, inputPassword) {
     if (inputEmail == '') {
       setErrorEmail('Email không được trống');
@@ -52,13 +62,23 @@ export function SignUpScreen() {
         if (inputPassword != cfrPassword) {
           alert("Password dosen't matched!");
         } else {
-          signUp(inputEmail, inputPassword, inputUserName);
+          setIsloading(signUp(inputEmail, inputPassword, inputUserName));
         }
       }
     }
   }
   return (
     <SafeAreaView>
+      {isLoading ? (
+        <View
+          style={{
+            position: 'absolute',
+            left: window.width / 2 - 20,
+            top: window.height / 4,
+          }}>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : null}
       <KeyboardAwareScrollView
         enableOnAndroid={true}
         enableAutomaticScroll={Platform.OS === 'ios'}>

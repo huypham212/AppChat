@@ -6,12 +6,13 @@ import {
   Text,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import {Input, Button, Icon} from 'react-native-elements';
 import {AuthContext} from './Context';
 //import firebase from 'firebase';
 import config from '../config/dbConfig';
-
+const window = Dimensions.get('window');
 // // Initialize Firebase
 // if (!firebase.apps.length) {
 //   firebase.initializeApp(config.firebaseConfig);
@@ -43,78 +44,89 @@ export function LoginScreen({navigation}) {
   const [password, setPassword] = useState('');
   const {signIn} = React.useContext(AuthContext);
   const [showPass, setShowPass] = useState(true);
+  const [isLoading, setIsloading] = useState(false);
   let count = 0;
 
   function Login(inputUserName, inputPassword) {
     if (inputUserName != '' && inputPassword != '') {
-      signIn(inputUserName, inputPassword);
+      setIsloading(signIn(inputUserName, inputPassword));
     } else {
       count = 0;
+      setIsloading(false);
       Alert.alert('Thông báo', 'Tài khoản mật khẩu không được để trống');
     }
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>ĐĂNG NHẬP</Text>
-      <Input
-        label="Email"
-        labelStyle={{color: 'black', fontSize: 24, fontWeight: 'normal'}}
-        textContentType="username"
-        numberOfLines={1}
-        autoCorrect={false}
-        leftIcon={{type: 'font-awesome', name: 'user'}}
-        onChangeText={setLoginName}
-        value={loginName}
-      />
-
-      <Input
-        label="Mật khẩu"
-        labelStyle={{
-          color: 'black',
-          fontSize: 24,
-          fontWeight: 'normal',
-        }}
-        secureTextEntry={showPass}
-        numberOfLines={1}
-        autoCorrect={false}
-        placehoder="Password"
-        leftIcon={{type: 'font-awesome', name: 'lock'}}
-        rightIcon={
-          <Icon
-            type="font-awesome"
-            name="eye"
-            onPress={() => {
-              setShowPass(!showPass);
-            }}
-          />
-        }
-        onChangeText={setPassword}
-        value={password}
-      />
-
-      <Text style={styles.content2}>Quên mật khẩu?</Text>
-
-      <View style={styles.loginBtn}>
-        <Button
-          buttonStyle={{borderRadius: 10, height: 45}}
-          title={'ĐĂNG NHẬP'}
-          type={'solid'}
-          onPress={() => Login(loginName, password)}></Button>
-
-        <View style={styles.signinBtn}>
+      <View>
+        {isLoading ? (
+          <View
+            style={{
+              position: 'absolute',
+              left: window.width / 2 - 20,
+              top: window.height / 4,
+            }}>
+            <ActivityIndicator size="large" />
+          </View>
+        ) : null}
+        <Text style={styles.header}>ĐĂNG NHẬP</Text>
+        <Input
+          label="Email"
+          labelStyle={{color: 'black', fontSize: 24, fontWeight: 'normal'}}
+          textContentType="username"
+          numberOfLines={1}
+          autoCorrect={false}
+          leftIcon={{type: 'font-awesome', name: 'user'}}
+          onChangeText={setLoginName}
+          value={loginName}
+        />
+        <Input
+          label="Mật khẩu"
+          labelStyle={{
+            color: 'black',
+            fontSize: 24,
+            fontWeight: 'normal',
+          }}
+          secureTextEntry={showPass}
+          numberOfLines={1}
+          autoCorrect={false}
+          placehoder="Password"
+          leftIcon={{type: 'font-awesome', name: 'lock'}}
+          rightIcon={
+            <Icon
+              type="font-awesome"
+              name="eye"
+              onPress={() => {
+                setShowPass(!showPass);
+              }}
+            />
+          }
+          onChangeText={setPassword}
+          value={password}
+        />
+        <Text style={styles.content2}>Quên mật khẩu?</Text>
+        <View style={styles.loginBtn}>
           <Button
-            buttonStyle={{
-              borderWidth: 3,
-              borderColor: '#ff3300',
-              borderRadius: 10,
-            }}
-            title={'ĐĂNG KÝ'}
-            titleStyle={{color: '#ff3300'}}
-            type={'outline'}
-            onPress={() => {
-              navigation.navigate('Signup');
-            }}></Button>
+            buttonStyle={{borderRadius: 10, height: 45}}
+            title={'ĐĂNG NHẬP'}
+            type={'solid'}
+            onPress={() => Login(loginName, password)}></Button>
+
+          <View style={styles.signinBtn}>
+            <Button
+              buttonStyle={{
+                borderWidth: 3,
+                borderColor: '#ff3300',
+                borderRadius: 10,
+              }}
+              title={'ĐĂNG KÝ'}
+              titleStyle={{color: '#ff3300'}}
+              type={'outline'}
+              onPress={() => {
+                navigation.navigate('Signup');
+              }}></Button>
+          </View>
         </View>
       </View>
     </SafeAreaView>

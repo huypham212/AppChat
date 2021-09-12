@@ -256,7 +256,6 @@ export default function App() {
     user,
     setUser,
     signIn: async (email, password) => {
-      //dispatch({type: 'ISLOADING'});
       try {
         await auth()
           .signInWithEmailAndPassword(email, password)
@@ -266,6 +265,7 @@ export default function App() {
               token: user.user.uid,
             });
             AsyncStorage.setItem('userToken', user.user.uid);
+            return false;
           });
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
@@ -286,8 +286,9 @@ export default function App() {
             'Chúng tôi đã chặn tất cả các yêu cầu từ thiết bị này do hoạt động bất thường. Thử lại sau.',
           );
         }
-        //dispatch({type: 'RETRIEVE_TOKEN', token: null});
+
         console.log(error);
+        return true;
       }
     },
 
@@ -323,14 +324,15 @@ export default function App() {
                 token: user.user.uid,
               });
               AsyncStorage.setItem('userToken', user.user.uid);
+              return false;
             } catch (error) {
               console.log(error);
             }
           });
       } catch (error) {
-        //dispatch({type: 'RETRIEVE_TOKEN', token: null});
         console.log(error);
       }
+      return true;
     },
   }));
 
