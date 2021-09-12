@@ -3,7 +3,7 @@ import {Text, View, ActivityIndicator, Alert} from 'react-native';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Icon, Image, Switch} from 'react-native-elements';
+import {Icon, Avatar} from 'react-native-elements';
 import {ListChatScr} from './components/ListchatScreen';
 import {ChatScr} from './components/ChatScreen';
 import {LoginScreen} from './components/LoginScreen';
@@ -12,27 +12,8 @@ import {AuthContext} from './components/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-
-function SettingsScreen() {
-  const {signOut} = React.useContext(AuthContext);
-
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Settings!</Text>
-      <Switch />
-      <Icon
-        raised
-        name="sign-out-alt"
-        type="font-awesome-5"
-        color="#f50"
-        onPress={() => {
-          Alert.alert('Đăng xuất', 'Bạn đã đăng xuất');
-          signOut();
-        }}
-      />
-    </View>
-  );
-}
+import firestore from '@react-native-firebase/firestore';
+import SettingsScreen from './components/SettingScreen';
 
 function ListFriendsScreen() {
   return (
@@ -49,26 +30,37 @@ function ListFriendsScreen() {
   );
 }
 
+// header bên trái của tab navigation
 function headerLeft({navigation}) {
   const {user} = useContext(AuthContext);
   return (
-    <Image
-      onPress={() => {
-        navigation.navigate('setting');
-      }}
-      source={{
-        uri: user != null ? user.avatar : null,
-      }}
-      style={{
-        width: 40,
-        height: 40,
-        borderRadius: 100,
-        marginLeft: 10,
-      }}
-    />
+    <View>
+      {user != null && user.avatar != undefined ? (
+        <Avatar
+          onPress={() => navigation.navigate('setting')}
+          size={50}
+          containerStyle={{marginLeft: 10}}
+          rounded
+          source={{
+            uri: user.avatar,
+          }}
+        />
+      ) : (
+        <Avatar
+          onPress={() => navigation.navigate('setting')}
+          size={50}
+          containerStyle={{marginLeft: 10}}
+          rounded
+          source={{
+            uri: 'https://dongthanhphat.vn//userfiles/images/Partner/anh-dai-dien-FB-200.jpg',
+          }}
+        />
+      )}
+    </View>
   );
 }
 
+// Stack khi đăng nhập thành côn
 const Stack = createNativeStackNavigator();
 function MyStack() {
   return (
@@ -98,6 +90,7 @@ function MyStack() {
   );
 }
 
+//Stack khi chưa đăng nhập
 function RootStack() {
   return (
     <Stack.Navigator>
@@ -111,6 +104,7 @@ function RootStack() {
   );
 }
 
+//Tab navigation
 const Tab = createBottomTabNavigator();
 function TabMain({navigation}) {
   return (
@@ -189,6 +183,8 @@ function TabMain({navigation}) {
     </Tab.Navigator>
   );
 }
+
+//Main
 export default function App() {
   const [user, setUser] = useState(null);
 
@@ -211,21 +207,18 @@ export default function App() {
       case 'LOGIN':
         return {
           ...prevState,
-          userName: action.id,
           userToken: action.token,
           isLoading: false,
         };
       case 'LOGOUT':
         return {
           ...prevState,
-          userName: null,
           userToken: null,
           isLoading: false,
         };
       case 'ISLOADING':
         return {
           ...prevState,
-          userName: null,
           userToken: null,
           isLoading: true,
         };
@@ -243,7 +236,7 @@ export default function App() {
 
   function onAuthStateChanged(user) {
     if (user != null) {
-      let ref = '/user/' + user.uid;
+      let ref = '/users/' + user.uid;
       // console.log(ref);
       database()
         .ref(ref)
@@ -262,13 +255,12 @@ export default function App() {
       try {
         await auth()
           .signInWithEmailAndPassword(email, password)
-          .then(userCredential => {
+          .then(user => {
             dispatch({
               type: 'LOGIN',
-              id: email,
-              token: userCredential.user.uid,
+              token: user.user.uid,
             });
-            AsyncStorage.setItem('userToken', userCredential.user.uid);
+            AsyncStorage.setItem('userToken', user.user.uid);
           });
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
@@ -304,7 +296,37 @@ export default function App() {
           });
       } catch (error) {}
     },
-    // signUp: () => {},
+    signUp: async (email, password, name) => {
+      try {
+        await auth()
+          .createUserWithEmailAndPassword(email, password)
+          .then(user => {
+            try {
+              database()
+                .ref('users/' + user.user.uid)
+                .set({
+                  createdAt: firestore.Timestamp.fromDate(new Date()),
+                  email: email,
+                  name: name,
+                  avatar:
+                    'https://dongthanhphat.vn//userfiles/images/Partner/anh-dai-dien-FB-200.jpg',
+                  isOnline: false,
+                });
+              Alert.alert('Thông báo', 'Đăng ký thành công');
+              dispatch({
+                type: 'LOGIN',
+                token: user.user.uid,
+              });
+              AsyncStorage.setItem('userToken', user.user.uid);
+            } catch (error) {
+              console.log(error);
+            }
+          });
+      } catch (error) {
+        //dispatch({type: 'RETRIEVE_TOKEN', token: null});
+        console.log(error);
+      }
+    },
   }));
 
   useEffect(() => {
@@ -329,6 +351,7 @@ export default function App() {
       </View>
     );
   }
+
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>

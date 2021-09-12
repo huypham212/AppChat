@@ -50,7 +50,6 @@ export function ListChatScr({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        {user != null ? <Text>{user.username}</Text> : null}
         <Input
           placeholder="Tìm kiếm"
           leftIcon={{

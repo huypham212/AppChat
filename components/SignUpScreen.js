@@ -5,7 +5,7 @@ import firebase from 'firebase';
 import uuid from 'react-native-uuid';
 import config from '../config/dbConfig';
 import {KeyboardAwareScrollView} from '@codler/react-native-keyboard-aware-scroll-view';
-
+import {AuthContext} from './Context';
 // Initialize Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(config.firebaseConfig);
@@ -38,6 +38,7 @@ export function SignUpScreen() {
   const [cfrPassword, setCfrPassword] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
+  const {signUp} = React.useContext(AuthContext);
   function SignUp(inputUserName, inputEmail, inputPassword) {
     if (inputEmail == '') {
       setErrorEmail('Email không được trống');
@@ -48,56 +49,7 @@ export function SignUpScreen() {
         if (inputPassword != cfrPassword) {
           alert("Password dosen't matched!");
         } else {
-          try {
-            firebase
-              .auth()
-              .createUserWithEmailAndPassword(inputEmail, inputPassword)
-              .then(user => {
-                if (user == null) {
-                  alert('Sign up failed!');
-                } else {
-                  let uid = user.user.uid;
-                  console.log(user.user.uid);
-                  if (inputUserName == '') {
-                    try {
-                      firebase
-                        .database()
-                        .ref('user/' + uid)
-                        .set({
-                          email: inputEmail,
-                          username: inputEmail,
-                          password: inputPassword,
-                          friendList: [],
-                          stateActive: false,
-                        });
-                    } catch (error) {
-                      alert(error);
-                    }
-
-                    alert('Sign up successed!');
-                  } else {
-                    try {
-                      firebase
-                        .database()
-                        .ref('user/' + uid)
-                        .set({
-                          email: inputEmail,
-                          username: inputUserName,
-                          password: inputPassword,
-                          friendList: [],
-                          stateActive: false,
-                        });
-                    } catch (error) {
-                      alert(error);
-                    }
-
-                    alert('Sign up successed!');
-                  }
-                }
-              });
-          } catch (error) {
-            alert(error);
-          }
+          signUp(inputEmail, inputPassword, inputUserName);
         }
       }
     }
