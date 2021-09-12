@@ -239,6 +239,7 @@ export default function App() {
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
 
   function onAuthStateChanged(user) {
+    console.log('update data user:', user);
     if (user != null) {
       let ref = '/users/' + user.uid;
       // console.log(ref);
