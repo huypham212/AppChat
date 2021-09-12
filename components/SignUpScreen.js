@@ -62,7 +62,10 @@ export function SignUpScreen() {
         if (inputPassword != cfrPassword) {
           alert("Password dosen't matched!");
         } else {
-          setIsloading(signUp(inputEmail, inputPassword, inputUserName));
+          setIsloading(true);
+          signUp(inputEmail, inputPassword, inputUserName).then(() => {
+            setIsloading(false);
+          });
         }
       }
     }
@@ -73,10 +76,10 @@ export function SignUpScreen() {
         <View
           style={{
             position: 'absolute',
-            left: window.width / 2 - 20,
+            left: window.width / 2 - 35,
             top: window.height / 4,
           }}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size={60} color="#00ff00" />
         </View>
       ) : null}
       <KeyboardAwareScrollView

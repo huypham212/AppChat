@@ -42,17 +42,20 @@ const window = Dimensions.get('window');
 export function LoginScreen({navigation}) {
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
-  const {signIn} = React.useContext(AuthContext);
+  const {signIn, user} = React.useContext(AuthContext);
   const [showPass, setShowPass] = useState(true);
   const [isLoading, setIsloading] = useState(false);
   let count = 0;
 
   function Login(inputUserName, inputPassword) {
     if (inputUserName != '' && inputPassword != '') {
-      setIsloading(signIn(inputUserName, inputPassword));
+      setIsloading(true);
+      signIn(inputUserName, inputPassword).then(() => {
+        setIsloading(false);
+      });
     } else {
       count = 0;
-      setIsloading(false);
+
       Alert.alert('Thông báo', 'Tài khoản mật khẩu không được để trống');
     }
   }
@@ -64,10 +67,10 @@ export function LoginScreen({navigation}) {
           <View
             style={{
               position: 'absolute',
-              left: window.width / 2 - 20,
+              left: window.width / 2 - 35,
               top: window.height / 4,
             }}>
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size={60} color="#00ff00" />
           </View>
         ) : null}
         <Text style={styles.header}>ĐĂNG NHẬP</Text>

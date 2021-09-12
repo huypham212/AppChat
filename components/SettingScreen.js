@@ -44,18 +44,20 @@ export default function SettingsScreen() {
           </Avatar>
           <Text style={{fontSize: 25, marginTop: 10}}>{user.name}</Text>
         </View>
-        {listSettings.map((l, i) => (
-          <ListItem
-            containerStyle={{marginHorizontal: 10}}
-            key={i}
-            bottomDivider
-            onPress={l.action}>
-            <Icon name={l.icon} type="font-awesome-5" />
-            <ListItem.Content>
-              <ListItem.Title>{l.title}</ListItem.Title>
-            </ListItem.Content>
-          </ListItem>
-        ))}
+        <View>
+          {listSettings.map((l, i) => (
+            <ListItem
+              containerStyle={{marginHorizontal: 10}}
+              key={i}
+              bottomDivider
+              onPress={l.action}>
+              <Icon name={l.icon} type="font-awesome-5" />
+              <ListItem.Content>
+                <ListItem.Title>{l.title}</ListItem.Title>
+              </ListItem.Content>
+            </ListItem>
+          ))}
+        </View>
       </View>
     );
   }

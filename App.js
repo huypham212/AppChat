@@ -238,12 +238,11 @@ export default function App() {
 
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
 
-  function onAuthStateChanged(user) {
-    console.log('update data user:', user);
+  async function onAuthStateChanged(user) {
     if (user != null) {
       let ref = '/users/' + user.uid;
-      // console.log(ref);
-      database()
+
+      await database()
         .ref(ref)
         .on('value', snapshot => {
           setUser(snapshot.val());
@@ -265,7 +264,6 @@ export default function App() {
               token: user.user.uid,
             });
             AsyncStorage.setItem('userToken', user.user.uid);
-            return false;
           });
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
@@ -280,6 +278,9 @@ export default function App() {
         if (error.code === 'auth/user-not-found') {
           Alert.alert('Lỗi đăng nhập', 'Không tìm thấy tài khoản này');
         }
+        if (error.code === 'auth/invalid-email') {
+          Alert.alert('Lỗi đăng nhập', 'Email không hợp lệ');
+        }
         if (error.code === 'auth/too-many-requests') {
           Alert.alert(
             'Lỗi đăng nhập',
@@ -288,7 +289,6 @@ export default function App() {
         }
 
         console.log(error);
-        return true;
       }
     },
 
@@ -302,6 +302,7 @@ export default function App() {
           });
       } catch (error) {}
     },
+
     signUp: async (email, password, name) => {
       try {
         await auth()
@@ -324,7 +325,6 @@ export default function App() {
                 token: user.user.uid,
               });
               AsyncStorage.setItem('userToken', user.user.uid);
-              return false;
             } catch (error) {
               console.log(error);
             }
@@ -332,7 +332,6 @@ export default function App() {
       } catch (error) {
         console.log(error);
       }
-      return true;
     },
   }));
 
