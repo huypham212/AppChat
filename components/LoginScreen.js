@@ -11,7 +11,7 @@ import {
 import {Input, Button, Icon} from 'react-native-elements';
 import {AuthContext} from './Context';
 //import firebase from 'firebase';
-import config from '../config/dbConfig';
+
 const window = Dimensions.get('window');
 // // Initialize Firebase
 // if (!firebase.apps.length) {

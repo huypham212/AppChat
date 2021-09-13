@@ -7,11 +7,12 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import firestore from '@react-native-firebase/firestore';
 import {MyStack, RootStack} from './components/Navigation';
-
+import NetInfo from '@react-native-community/netinfo';
 //Main
 export default function App() {
   const [user, setUser] = useState(null);
   const [uid, setUid] = useState(null);
+
   // Handle user state changes
 
   const initLoginState = {
@@ -98,9 +99,13 @@ export default function App() {
     },
 
     signOut: async () => {
-      let uid;
+      let ref = '/users/' + uid;
       try {
-        setUid(await AsyncStorage.getItem('userToken'));
+        setUser(null);
+        database()
+          .ref(ref)
+          .update({isOnline: false})
+          .then(() => console.log('update log out'));
         await auth()
           .signOut()
           .then(async () => {
@@ -109,6 +114,7 @@ export default function App() {
               .ref('/users/' + uid)
               .off();
             AsyncStorage.removeItem('userToken');
+            setUid(null);
           });
       } catch (error) {}
     },
@@ -159,6 +165,11 @@ export default function App() {
             setUser(snapshot.val());
             console.log('Current user', snapshot.val().name);
           });
+
+        database()
+          .ref(ref + '/isOnline')
+          .onDisconnect()
+          .set(false);
       } catch (e) {
         console.log(e);
       }
@@ -174,13 +185,37 @@ export default function App() {
         setUid(userToken);
 
         dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-        console.log('UID:', uid);
+
         return subscriber;
       } catch (error) {
         console.log(error);
       }
     }, 1000);
   }, []);
+
+  setTimeout(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      //console.log('Connection type', state.type);
+      //console.log('Is connected?', state.isConnected);
+      let ref = '/users/' + uid;
+      console.log(ref);
+      if (uid != null && user != null) {
+        if (state.isConnected) {
+          database()
+            .ref(ref)
+            .update({isOnline: true})
+            .then(() => console.log('update login'));
+        } else {
+          database()
+            .ref(ref)
+            .update({isOnline: false})
+            .then(() => console.log('update login'));
+        }
+      }
+    });
+    // Unsubscribe
+    unsubscribe();
+  }, 3000);
 
   if (loginState.isLoading) {
     return (

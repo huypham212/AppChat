@@ -45,7 +45,7 @@ export function ListFriendsScreen({navigation}) {
                   database()
                     .ref(refup)
                     .update(snapshot.val())
-                    .then(() => console.log('da update'));
+                    .then(() => console.log('update listfriends'));
                 }
               });
             return () => database().ref(ref).off('value', a);
