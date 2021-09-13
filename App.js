@@ -160,7 +160,7 @@ function TabMain({navigation}) {
           headerRight: props => (
             <View style={{flex: 1, flexDirection: 'row'}}>
               <Icon
-                name="pen"
+                name="address-book"
                 type="font-awesome-5"
                 color="black"
                 raised
@@ -277,11 +277,16 @@ export default function App() {
     },
 
     signOut: async () => {
+      let uid;
       try {
+        uid = await AsyncStorage.getItem('userToken');
         await auth()
           .signOut()
           .then(async () => {
             dispatch({type: 'LOGOUT'});
+            database()
+              .ref('/users/' + uid)
+              .off();
             AsyncStorage.removeItem('userToken');
           });
       } catch (error) {}
@@ -323,33 +328,35 @@ export default function App() {
     },
   }));
 
-  async function onAuthStateChanged(user) {
-    if (user != null) {
-      let ref = '/users/' + user.uid;
+  function onAuthStateChanged(newuser) {
+    if (newuser != null) {
+      let ref = '/users/' + newuser.uid;
       try {
-        await database()
+        database()
           .ref(ref)
-          .once('value', snapshot => {
+          .on('value', snapshot => {
             setUser(snapshot.val());
+            console.log('Current user', snapshot.val().name);
           });
       } catch (e) {
         console.log(e);
       }
-    } else setUser(user);
+    }
   }
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     setTimeout(async () => {
       try {
         let userToken = null;
+        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         userToken = await AsyncStorage.getItem('userToken');
+
         dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
+        return subscriber;
       } catch (error) {
         console.log(error);
       }
     }, 1000);
-    return subscriber;
   }, []);
 
   if (loginState.isLoading) {

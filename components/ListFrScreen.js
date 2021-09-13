@@ -29,7 +29,7 @@ export function ListFriendsScreen({navigation}) {
     }
   });
 
-  //console.log(user.listFriend);
+  console.log(user.listFriend);
 
   return (
     <View
@@ -40,27 +40,29 @@ export function ListFriendsScreen({navigation}) {
       }}>
       <ScrollView>
         <View>
+          <Text style={{marginLeft: 10}}>Đang hoạt động</Text>
           {user.listFriend.map((l, i) => (
-            <ListItem
-              key={i}
-              onPress={() => navigation.navigate('chat', {name: l.name})}
-              onLongPress={() => {
-                Alert.alert('Thông báo', l.id);
-              }}>
-              <Avatar rounded source={{uri: l.avatar}} size={50}>
-                {l.state ? (
-                  <Avatar.Accessory
-                    name="circle"
-                    size={20}
-                    color="#00b300"
-                    style={{backgroundColor: 'white'}}
-                  />
-                ) : null}
-              </Avatar>
-              <ListItem.Content>
-                <ListItem.Title>{l.name}</ListItem.Title>
-              </ListItem.Content>
-            </ListItem>
+            <View key={i}>
+              {l.isOnline ? (
+                <ListItem
+                  containerStyle={{height: 60}}
+                  onPress={() => navigation.navigate('chat', {name: l.name})}>
+                  <Avatar rounded source={{uri: l.avatar}} size={50}>
+                    {l.isOnline ? (
+                      <Avatar.Accessory
+                        name="circle"
+                        size={20}
+                        color="#00b300"
+                        style={{backgroundColor: 'white'}}
+                      />
+                    ) : null}
+                  </Avatar>
+                  <ListItem.Content>
+                    <ListItem.Title>{l.name}</ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+              ) : null}
+            </View>
           ))}
         </View>
       </ScrollView>
