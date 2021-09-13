@@ -21,7 +21,7 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import firestore from '@react-native-firebase/firestore';
 import SettingsScreen from './components/SettingScreen';
-
+import {SearchScr} from './components/SearchScreen';
 function ListFriendsScreen({navigation}) {
   const {user} = useContext(AuthContext);
   //console.log(user.listFriend);
@@ -122,6 +122,11 @@ function MyStack() {
           headerTintColor: 'white',
           headerStyle: {backgroundColor: '#1a1a1a'},
         })}
+      />
+      <Stack.Screen
+        name="search"
+        component={SearchScr}
+        options={{headerShown: false}}
       />
       <Stack.Screen
         name="setting"

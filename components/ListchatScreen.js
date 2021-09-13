@@ -47,25 +47,28 @@ const list = [
 
 export function ListChatScr({navigation}) {
   const {user} = React.useContext(AuthContext);
+  const [search, setSearch] = React.useState();
+  const textInputRef = React.useRef();
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <Input
-          placeholder="Tìm kiếm"
-          leftIcon={{
-            type: 'font-awesome-5',
-            name: 'search',
-            color: '#b3b3b3',
-            style: {marginLeft: 10},
-            size: 18,
+        <SearchBar
+          lightTheme
+          round
+          containerStyle={{
+            backgroundColor: 'white',
           }}
           inputContainerStyle={{
-            borderRadius: 50,
             backgroundColor: '#e6e6e6',
-            borderBottomWidth: 0,
+            borderRadius: 50,
             height: 40,
           }}
-          containerStyle={{marginTop: 5, height: 50}}
+          searchIcon={
+            <Icon name="search" type="font-awesome-5" color="#bfbfbf" />
+          }
+          placeholder="Tìm kiếm"
+          onPressIn={() => navigation.navigate('search')}
         />
         <View>
           {list.map((l, i) => (
