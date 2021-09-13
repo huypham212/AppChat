@@ -17,20 +17,15 @@ import {
   Input,
   SearchBar,
 } from 'react-native-elements';
+import database from '@react-native-firebase/database';
 
 export function ListFriendsScreen({navigation}) {
   const {user} = useContext(AuthContext);
-  //console.log(user.listFriend);
 
-  user.listFriend.forEach(element => {
-    if (element == null) {
-      var i = user.listFriend.indexOf(element);
-      user.listFriend.splice(i, 1);
-    }
+  //console.log('chưa lọc', user.listFriend);
+  const listFriend = user.listFriend.filter(e => {
+    return e != null;
   });
-
-  console.log(user.listFriend);
-
   return (
     <View
       style={{
@@ -41,7 +36,7 @@ export function ListFriendsScreen({navigation}) {
       <ScrollView>
         <View>
           <Text style={{marginLeft: 10}}>Đang hoạt động</Text>
-          {user.listFriend.map((l, i) => (
+          {listFriend.map((l, i) => (
             <View key={i}>
               {l.isOnline ? (
                 <ListItem
