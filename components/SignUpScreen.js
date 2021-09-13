@@ -63,8 +63,10 @@ export function SignUpScreen() {
           alert("Password dosen't matched!");
         } else {
           setIsloading(true);
-          signUp(inputEmail, inputPassword, inputUserName).then(() => {
-            setIsloading(false);
+          signUp(inputEmail, inputPassword, inputUserName).then(result => {
+            if (result != true) {
+              setIsloading(false);
+            }
           });
         }
       }

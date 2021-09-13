@@ -50,8 +50,10 @@ export function LoginScreen({navigation}) {
   function Login(inputUserName, inputPassword) {
     if (inputUserName != '' && inputPassword != '') {
       setIsloading(true);
-      signIn(inputUserName, inputPassword).then(() => {
-        setIsloading(false);
+      signIn(inputUserName, inputPassword).then(result => {
+        if (result != true) {
+          setIsloading(false);
+        }
       });
     } else {
       count = 0;

@@ -38,7 +38,7 @@ function headerLeft({navigation}) {
       {user != null && user.avatar != undefined ? (
         <Avatar
           onPress={() => navigation.navigate('setting')}
-          size={50}
+          size={45}
           containerStyle={{marginLeft: 10}}
           rounded
           source={{
@@ -191,7 +191,7 @@ function TabMain({navigation}) {
 //Main
 export default function App() {
   const [user, setUser] = useState(null);
-
+  const [uid, setUid] = useState(null);
   // Handle user state changes
 
   const initLoginState = {
@@ -226,45 +226,29 @@ export default function App() {
           userToken: null,
           isLoading: true,
         };
-      // case 'SIGNUP':
-      //   return {
-      //     ...prevState,
-      //     userName: action.id,
-      //     userToken: action.token,
-      //     isLoading: false,
-      //   };
     }
   }
 
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
 
-  async function onAuthStateChanged(user) {
-    if (user != null) {
-      let ref = '/users/' + user.uid;
-
-      await database()
-        .ref(ref)
-        .on('value', snapshot => {
-          setUser(snapshot.val());
-          // console.log('User data: ', snapshot.val());
-        });
-    } else setUser(user);
-  }
-
   const authContext = useMemo(() => ({
+    uid,
     user,
-    setUser,
     signIn: async (email, password) => {
+      let result = false;
       try {
         await auth()
           .signInWithEmailAndPassword(email, password)
-          .then(user => {
+          .then(async user => {
             dispatch({
               type: 'LOGIN',
               token: user.user.uid,
             });
-            AsyncStorage.setItem('userToken', user.user.uid);
+            setUid(user.user.uid);
+            await AsyncStorage.setItem('userToken', user.user.uid);
+            result = true;
           });
+        return result;
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
           Alert.alert('Lỗi đăng nhập', 'Email này đã được sử dụng');
@@ -289,6 +273,7 @@ export default function App() {
         }
 
         console.log(error);
+        return result;
       }
     },
 
@@ -296,14 +281,15 @@ export default function App() {
       try {
         await auth()
           .signOut()
-          .then(() => {
-            AsyncStorage.removeItem('userToken');
+          .then(async () => {
             dispatch({type: 'LOGOUT'});
+            AsyncStorage.removeItem('userToken');
           });
       } catch (error) {}
     },
 
     signUp: async (email, password, name) => {
+      let result = false;
       try {
         await auth()
           .createUserWithEmailAndPassword(email, password)
@@ -325,29 +311,46 @@ export default function App() {
                 token: user.user.uid,
               });
               AsyncStorage.setItem('userToken', user.user.uid);
+              result = true;
+              return result;
             } catch (error) {
               console.log(error);
             }
           });
       } catch (error) {
         console.log(error);
+        return result;
       }
     },
   }));
 
-  useEffect(() => {
-    setTimeout(async () => {
-      let userToken;
-      userToken = null;
-      const subscriber = await auth().onAuthStateChanged(onAuthStateChanged);
+  async function onAuthStateChanged(user) {
+    if (user != null) {
+      let ref = '/users/' + user.uid;
       try {
+        await database()
+          .ref(ref)
+          .once('value', snapshot => {
+            setUser(snapshot.val());
+          });
+      } catch (e) {
+        console.log(e);
+      }
+    } else setUser(user);
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    setTimeout(async () => {
+      try {
+        let userToken = null;
         userToken = await AsyncStorage.getItem('userToken');
+        dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
       } catch (error) {
         console.log(error);
       }
-      dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-      return subscriber;
-    }, 200);
+    }, 1000);
+    return subscriber;
   }, []);
 
   if (loginState.isLoading) {
