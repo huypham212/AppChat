@@ -1,9 +1,16 @@
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {Text, View, ActivityIndicator, Alert} from 'react-native';
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  StatusBar,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Icon, Avatar} from 'react-native-elements';
+import {Icon, Avatar, ListItem} from 'react-native-elements';
 import {ListChatScr} from './components/ListchatScreen';
 import {ChatScr} from './components/ChatScreen';
 import {LoginScreen} from './components/LoginScreen';
@@ -15,17 +22,52 @@ import database from '@react-native-firebase/database';
 import firestore from '@react-native-firebase/firestore';
 import SettingsScreen from './components/SettingScreen';
 
-function ListFriendsScreen() {
+function ListFriendsScreen({navigation}) {
+  const {user} = useContext(AuthContext);
+  //console.log(user.listFriend);
+
+  user.listFriend.forEach(element => {
+    if (element == null) {
+      var i = user.listFriend.indexOf(element);
+      user.listFriend.splice(i, 1);
+    }
+  });
+
+  //console.log(user.listFriend);
+
   return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>ListFr!</Text>
-      <Icon
-        raised
-        name="users"
-        type="font-awesome-5"
-        color="#f50"
-        onPress={() => alert('hello')}
-      />
+    <View
+      style={{
+        flex: 1,
+        marginTop: StatusBar.currentHeight - 20 || 0,
+        backgroundColor: 'white',
+      }}>
+      <ScrollView>
+        <View>
+          {user.listFriend.map((l, i) => (
+            <ListItem
+              key={i}
+              onPress={() => navigation.navigate('chat', {name: l.name})}
+              onLongPress={() => {
+                Alert.alert('Thông báo', l.id);
+              }}>
+              <Avatar rounded source={{uri: l.avatar}} size={50}>
+                {l.state ? (
+                  <Avatar.Accessory
+                    name="circle"
+                    size={20}
+                    color="#00b300"
+                    style={{backgroundColor: 'white'}}
+                  />
+                ) : null}
+              </Avatar>
+              <ListItem.Content>
+                <ListItem.Title>{l.name}</ListItem.Title>
+              </ListItem.Content>
+            </ListItem>
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
