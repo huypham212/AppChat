@@ -100,7 +100,7 @@ export default function App() {
     signOut: async () => {
       let uid;
       try {
-        uid = await AsyncStorage.getItem('userToken');
+        setUid(await AsyncStorage.getItem('userToken'));
         await auth()
           .signOut()
           .then(async () => {
@@ -171,8 +171,10 @@ export default function App() {
         let userToken = null;
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         userToken = await AsyncStorage.getItem('userToken');
+        setUid(userToken);
 
         dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
+        console.log('UID:', uid);
         return subscriber;
       } catch (error) {
         console.log(error);

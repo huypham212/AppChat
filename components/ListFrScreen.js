@@ -21,11 +21,42 @@ import database from '@react-native-firebase/database';
 
 export function ListFriendsScreen({navigation}) {
   const {user} = useContext(AuthContext);
+  const {uid} = useContext(AuthContext);
+  let list = Object.values(user.listFriend);
 
-  //console.log('chưa lọc', user.listFriend);
-  const listFriend = user.listFriend.filter(e => {
-    return e != null;
+  let obj = user.listFriend;
+  let listFriend = Object.keys(obj);
+  listFriend.forEach(key => {
+    console.log(key, ':', obj[key].name);
   });
+
+  useEffect(() => {
+    setTimeout(() => {
+      try {
+        listFriend.forEach(e => {
+          if (uid != null) {
+            let ref = '/users/' + e.replace(' ', '');
+            let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
+            console.log(ref, '\n', refup);
+            const a = database()
+              .ref(ref)
+              .on('value', snapshot => {
+                if (snapshot.val() != null) {
+                  database()
+                    .ref(refup)
+                    .update(snapshot.val())
+                    .then(() => console.log('da update'));
+                }
+              });
+            return () => database().ref(ref).off('value', a);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }, 1000);
+  }, []);
+
   return (
     <View
       style={{
@@ -36,7 +67,7 @@ export function ListFriendsScreen({navigation}) {
       <ScrollView>
         <View>
           <Text style={{marginLeft: 10}}>Đang hoạt động</Text>
-          {listFriend.map((l, i) => (
+          {list.map((l, i) => (
             <View key={i}>
               {l.isOnline ? (
                 <ListItem
