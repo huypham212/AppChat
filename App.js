@@ -101,10 +101,11 @@ export default function App() {
 
     signOut: async () => {
       let ref = '/users/' + currentUser.uid;
+
       try {
         setUser(null);
         database()
-          .ref(ref)
+          .ref(ref + '/info')
           .update({isOnline: false})
           .then(() => console.log('update log out'));
         await auth()
@@ -129,14 +130,13 @@ export default function App() {
           .then(user => {
             try {
               database()
-                .ref('users/' + user.user.uid)
+                .ref('users/' + user.user.uid + '/info')
                 .set({
-                  createdAt: firestore.Timestamp.fromDate(new Date()),
                   email: email,
                   name: name,
                   avatar:
                     'https://dongthanhphat.vn//userfiles/images/Partner/anh-dai-dien-FB-200.jpg',
-                  isOnline: false,
+                  isOnline: true,
                 });
               Alert.alert('Thông báo', 'Đăng ký thành công');
               dispatch({
@@ -162,7 +162,7 @@ export default function App() {
       let ref = '/users/' + newuser.uid;
       try {
         database()
-          .ref(ref + '/isOnline')
+          .ref(ref + '/info/isOnline')
           .onDisconnect()
           .set(false);
         database()
@@ -171,9 +171,9 @@ export default function App() {
             let a = snapshot.val();
             await AsyncStorage.setItem('currentUser', JSON.stringify(a));
             setUser(a);
-            if (snapshot.val().isOnline == false) {
+            if (snapshot.val().info.isOnline == false) {
               database()
-                .ref(ref)
+                .ref(ref + '/info')
                 .update({isOnline: true})
                 .then(() => {
                   console.log('update login');
@@ -197,7 +197,7 @@ export default function App() {
         //console.log(c);
         if (c != null) {
           setUser(JSON.parse(c));
-          console.log('current User:', JSON.parse(c).name);
+          console.log('current User:', JSON.parse(c).info.name);
         } else {
           setUser(null);
         }

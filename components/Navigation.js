@@ -17,14 +17,14 @@ function headerLeft({navigation}) {
   const {user} = useContext(AuthContext);
   return (
     <View>
-      {user != null && user.avatar != null ? (
+      {user != null && user.info.avatar != null ? (
         <Avatar
           onPress={() => navigation.navigate('setting')}
           size={45}
           containerStyle={{marginLeft: 10}}
           rounded
           source={{
-            uri: user.avatar,
+            uri: user.info.avatar,
           }}
         />
       ) : (

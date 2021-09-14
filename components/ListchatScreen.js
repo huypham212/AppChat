@@ -48,8 +48,6 @@ const list = [
 
 export function ListChatScr({navigation}) {
   const {user} = React.useContext(AuthContext);
-  const [search, setSearch] = React.useState();
-  const textInputRef = React.useRef();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,7 +70,7 @@ export function ListChatScr({navigation}) {
               name="search"
               type="font-awesome-5"
               color="#bfbfbf"
-              size={20}
+              size={15}
             />
           }
           placeholder="Tìm kiếm"

@@ -43,9 +43,9 @@ export function ListFriendsScreen({navigation}) {
       try {
         listFriend.forEach(e => {
           if (uid != null) {
-            let ref = '/users/' + e.replace(' ', '');
+            let ref = '/users/' + e.replace(' ', '') + '/info';
             let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
-            //console.log(ref, '\n', refup);
+            console.log(ref, '\n', refup);
             const a = database()
               .ref(ref)
               .on('value', snapshot => {
@@ -54,7 +54,6 @@ export function ListFriendsScreen({navigation}) {
                     .ref(refup)
                     .update(snapshot.val())
                     .then(() => {
-                      console.log(snapshot.val());
                       console.log('update listfriends');
                     });
                 }
