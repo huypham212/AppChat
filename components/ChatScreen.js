@@ -79,6 +79,7 @@ export function ChatScr({navigation, route}) {
   return (
     <View style={{backgroundColor: '#1a1a1a', flex: 1}}>
       <GiftedChat
+        isLoadingEarlier={true}
         messages={messages}
         onSend={messages => onSend(messages)}
         user={{
@@ -88,11 +89,23 @@ export function ChatScr({navigation, route}) {
           return (
             <Send {...props}>
               <View style={{marginRight: 10, marginBottom: 10}}>
-                <Icon name="send" type="font-awsome-5" />
+                <Icon name="send" type="font-awsome-5" color="white" />
               </View>
             </Send>
           );
         }}
+        renderInputToolbar={props => {
+          return (
+            <InputToolbar
+              {...props}
+              containerStyle={{
+                backgroundColor: 'black',
+                borderTopWidth: 0,
+              }}
+            />
+          );
+        }}
+        textInputStyle={{color: 'white'}}
         renderBubble={props => {
           return (
             <Bubble
@@ -113,6 +126,7 @@ export function ChatScr({navigation, route}) {
             />
           );
         }}
+        dateFormat="DD/MM/YYYY"
         timeFormat="HH:mm"
         renderActions={props => {
           return (
@@ -120,6 +134,7 @@ export function ChatScr({navigation, route}) {
               <Icon
                 name="camera"
                 type="font-awesome-5"
+                color="white"
                 onPress={() => alert('hihi')}
               />
             </View>
