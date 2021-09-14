@@ -17,7 +17,7 @@ function headerLeft({navigation}) {
   const {user} = useContext(AuthContext);
   return (
     <View>
-      {user != null && user.avatar != undefined ? (
+      {user != null && user.avatar != null ? (
         <Avatar
           onPress={() => navigation.navigate('setting')}
           size={45}

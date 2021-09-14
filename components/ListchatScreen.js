@@ -20,6 +20,7 @@ import {
   Avatar,
   SearchBar,
 } from 'react-native-elements';
+import auth from '@react-native-firebase/auth';
 import {AuthContext} from './Context';
 const list = [
   {
@@ -40,7 +41,7 @@ const list = [
     id: '58694a0f-3da1-471f-bd96-145571e29d72',
     name: 'Lưu Hoàng Long',
     content: 'huhu',
-    ava: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=be92db73e7fde3f00d379c1edf595945&oe=613FDA66',
+    ava: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=95fcb8502f1473535ab8c10e77d863bd&oe=6141D4A6',
     state: false,
   },
 ];
@@ -58,6 +59,8 @@ export function ListChatScr({navigation}) {
           round
           containerStyle={{
             backgroundColor: 'white',
+            borderTopWidth: 0,
+            borderBottomWidth: 0,
           }}
           inputContainerStyle={{
             backgroundColor: '#e6e6e6',
@@ -65,7 +68,12 @@ export function ListChatScr({navigation}) {
             height: 40,
           }}
           searchIcon={
-            <Icon name="search" type="font-awesome-5" color="#bfbfbf" />
+            <Icon
+              name="search"
+              type="font-awesome-5"
+              color="#bfbfbf"
+              size={20}
+            />
           }
           placeholder="Tìm kiếm"
           onPressIn={() => navigation.navigate('search')}
@@ -103,7 +111,6 @@ export function ListChatScr({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight - 20 || 0,
     backgroundColor: 'white',
   },
   item: {

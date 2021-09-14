@@ -61,7 +61,6 @@ export function ListFriendsScreen({navigation}) {
     <View
       style={{
         flex: 1,
-        marginTop: StatusBar.currentHeight - 20 || 0,
         backgroundColor: 'white',
       }}>
       <ScrollView>

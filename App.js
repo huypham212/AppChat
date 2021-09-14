@@ -7,18 +7,16 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import firestore from '@react-native-firebase/firestore';
 import {MyStack, RootStack} from './components/Navigation';
-import NetInfo from '@react-native-community/netinfo';
+
 //Main
 export default function App() {
   const [user, setUser] = useState(null);
   const [uid, setUid] = useState(null);
-
+  const currentUser = auth().currentUser;
   // Handle user state changes
 
   const initLoginState = {
     isLoading: true,
-    userName: null,
-    userToken: null,
   };
 
   function loginReducer(prevState, action) {
@@ -26,26 +24,27 @@ export default function App() {
       case 'RETRIEVE_TOKEN':
         return {
           ...prevState,
-          userToken: action.token,
           isLoading: false,
         };
       case 'LOGIN':
         return {
           ...prevState,
-          userToken: action.token,
           isLoading: false,
         };
       case 'LOGOUT':
         return {
           ...prevState,
-          userToken: null,
           isLoading: false,
         };
       case 'ISLOADING':
         return {
           ...prevState,
-          userToken: null,
           isLoading: true,
+        };
+      case 'STOPLOADING':
+        return {
+          ...prevState,
+          isLoading: false,
         };
     }
   }
@@ -53,7 +52,7 @@ export default function App() {
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
 
   const authContext = useMemo(() => ({
-    uid,
+    //uid,
     user,
     signIn: async (email, password) => {
       let result = false;
@@ -63,16 +62,18 @@ export default function App() {
           .then(async user => {
             dispatch({
               type: 'LOGIN',
-              token: user.user.uid,
             });
-            setUid(user.user.uid);
-            await AsyncStorage.setItem('userToken', user.user.uid);
+            //setUid(user.user.uid);
+            //await AsyncStorage.setItem('userToken', user.user.uid);
             result = true;
           });
         return result;
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
           Alert.alert('Lỗi đăng nhập', 'Email này đã được sử dụng');
+        }
+        if (error.code === 'auth/network-request-failed') {
+          Alert.alert('Lỗi đăng nhập', 'Không thể kết nối Internet');
         }
         if (error.code === 'auth/wrong-password') {
           Alert.alert('Lỗi đăng nhập', 'Sai tài khoản hoặc mật khẩu');
@@ -99,7 +100,7 @@ export default function App() {
     },
 
     signOut: async () => {
-      let ref = '/users/' + uid;
+      let ref = '/users/' + currentUser.uid;
       try {
         setUser(null);
         database()
@@ -111,10 +112,11 @@ export default function App() {
           .then(async () => {
             dispatch({type: 'LOGOUT'});
             database()
-              .ref('/users/' + uid)
+              .ref('/users/' + currentUser.uid)
               .off();
-            AsyncStorage.removeItem('userToken');
-            setUid(null);
+            await AsyncStorage.removeItem('currentUser');
+            //await AsyncStorage.removeItem('userToken');
+            //setUid(null);
           });
       } catch (error) {}
     },
@@ -141,7 +143,7 @@ export default function App() {
                 type: 'LOGIN',
                 token: user.user.uid,
               });
-              AsyncStorage.setItem('userToken', user.user.uid);
+              //  AsyncStorage.setItem('userToken', user.user.uid);
               result = true;
               return result;
             } catch (error) {
@@ -160,16 +162,23 @@ export default function App() {
       let ref = '/users/' + newuser.uid;
       try {
         database()
-          .ref(ref)
-          .on('value', snapshot => {
-            setUser(snapshot.val());
-            console.log('Current user', snapshot.val().name);
-          });
-
-        database()
           .ref(ref + '/isOnline')
           .onDisconnect()
           .set(false);
+        database()
+          .ref(ref)
+          .on('value', async snapshot => {
+            let a = snapshot.val();
+            await AsyncStorage.setItem('currentUser', JSON.stringify(a));
+            if (snapshot.val().isOnline == false) {
+              database()
+                .ref(ref)
+                .update({isOnline: true})
+                .then(() => {
+                  console.log('update login');
+                });
+            }
+          });
       } catch (e) {
         console.log(e);
       }
@@ -179,13 +188,21 @@ export default function App() {
   useEffect(() => {
     setTimeout(async () => {
       try {
-        let userToken = null;
+        //  let userToken = null;
+
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-        userToken = await AsyncStorage.getItem('userToken');
-        setUid(userToken);
+        // userToken = await AsyncStorage.getItem('userToken');
+        let c = await AsyncStorage.getItem('currentUser');
+        //console.log(c);
+        if (c != null) {
+          setUser(JSON.parse(c));
+          console.log('current User:', JSON.parse(c).name);
+        } else {
+          setUser(null);
+        }
 
-        dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-
+        // setUid(userToken);
+        dispatch({type: 'RETRIEVE_TOKEN'});
         return subscriber;
       } catch (error) {
         console.log(error);
@@ -193,34 +210,10 @@ export default function App() {
     }, 1000);
   }, []);
 
-  setTimeout(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      //console.log('Connection type', state.type);
-      //console.log('Is connected?', state.isConnected);
-      let ref = '/users/' + uid;
-      console.log(ref);
-      if (uid != null && user != null) {
-        if (state.isConnected) {
-          database()
-            .ref(ref)
-            .update({isOnline: true})
-            .then(() => console.log('update login'));
-        } else {
-          database()
-            .ref(ref)
-            .update({isOnline: false})
-            .then(() => console.log('update login'));
-        }
-      }
-    });
-    // Unsubscribe
-    unsubscribe();
-  }, 3000);
-
   if (loginState.isLoading) {
     return (
       <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size={60} color="#00ff00" />
       </View>
     );
   }
@@ -228,7 +221,7 @@ export default function App() {
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
-        {loginState.userToken != null ? <MyStack /> : <RootStack />}
+        {user != null ? <MyStack /> : <RootStack />}
       </NavigationContainer>
     </AuthContext.Provider>
   );
