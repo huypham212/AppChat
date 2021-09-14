@@ -1,5 +1,5 @@
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {Text, View} from 'react-native';
+import {Text, View, StatusBar} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Icon, Avatar, ListItem} from 'react-native-elements';
@@ -59,6 +59,34 @@ export function MyStack() {
         component={ChatScr}
         options={({route}) => ({
           title: route.params.name,
+          headerTitle: () => (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginLeft: -20,
+              }}>
+              <Avatar
+                size={40}
+                containerStyle={{marginRight: 15}}
+                rounded
+                source={{
+                  uri: route.params.ava,
+                }}>
+                {route.params.isOnline ? (
+                  <Avatar.Accessory
+                    name="circle"
+                    size={15}
+                    color="#00b300"
+                    style={{backgroundColor: 'white'}}
+                  />
+                ) : null}
+              </Avatar>
+              <Text style={{fontSize: 20, color: 'white'}}>
+                {route.params.name}
+              </Text>
+            </View>
+          ),
           headerTintColor: 'white',
           headerStyle: {backgroundColor: '#1a1a1a'},
         })}

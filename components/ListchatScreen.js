@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -22,33 +22,36 @@ import {
 } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import {AuthContext} from './Context';
-const list = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    name: 'Uyên Khùng',
-    content: 'Chán quá',
-    ava: 'https://scontent.xx.fbcdn.net/v/t1.6435-1/p100x100/90084631_2545692372385647_1868446112474464256_n.jpg?_nc_cat=111&ccb=1-5&_nc_sid=dbb9e7&_nc_ohc=WXJF2Gwb_SMAX-9tNIt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&oh=1c07add1bf87996c200cea1989d5fdf4&oe=615FF5CC',
-    state: true,
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    name: 'Trà sữa Homita',
-    content: 'hihi',
-    ava: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/p100x100/176486153_463050571650249_170897513256995068_n.jpg?_nc_cat=100&ccb=1-5&_nc_sid=58c789&_nc_ohc=hO7njK5t0GAAX_3poS5&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&oh=c401e694f268bb1536808af18849ab9e&oe=615FAF16',
-    state: true,
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Lưu Hoàng Long',
-    content: 'huhu',
-    ava: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=95fcb8502f1473535ab8c10e77d863bd&oe=6141D4A6',
-    state: false,
-  },
-];
+// const list = [
+//   {
+//     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+//     name: 'Uyên Khùng',
+//     content: 'Chán quá',
+//     ava: 'https://scontent.xx.fbcdn.net/v/t1.6435-1/p100x100/90084631_2545692372385647_1868446112474464256_n.jpg?_nc_cat=111&ccb=1-5&_nc_sid=dbb9e7&_nc_ohc=WXJF2Gwb_SMAX-9tNIt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&oh=1c07add1bf87996c200cea1989d5fdf4&oe=615FF5CC',
+//     state: true,
+//   },
+//   {
+//     id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+//     name: 'Trà sữa Homita',
+//     content: 'hihi',
+//     ava: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/p100x100/176486153_463050571650249_170897513256995068_n.jpg?_nc_cat=100&ccb=1-5&_nc_sid=58c789&_nc_ohc=hO7njK5t0GAAX_3poS5&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&oh=c401e694f268bb1536808af18849ab9e&oe=615FAF16',
+//     state: true,
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-145571e29d72',
+//     name: 'Lưu Hoàng Long',
+//     content: 'huhu',
+//     ava: 'https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/241369928_1860250734153812_7402333133344767277_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=7ZNf6mXAVAoAX_VJ7SJ&tn=L9zqKihI1L2YglTm&_nc_ht=scontent.fsgn2-3.fna&oh=95fcb8502f1473535ab8c10e77d863bd&oe=6141D4A6',
+//     state: false,
+//   },
+// ];
 
 export function ListChatScr({navigation}) {
   const {user} = React.useContext(AuthContext);
+  const list = Object.values(user.listFriend);
+  let keys = Object.keys(user.listFriend);
 
+  useEffect(() => {}, []);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -80,12 +83,19 @@ export function ListChatScr({navigation}) {
           {list.map((l, i) => (
             <ListItem
               key={i}
-              onPress={() => navigation.navigate('chat', {name: l.name})}
+              onPress={() =>
+                navigation.navigate('chat', {
+                  name: l.name,
+                  id: l._id,
+                  ava: l.avatar,
+                  isOnline: l.isOnline,
+                })
+              }
               onLongPress={() => {
-                Alert.alert('Thông báo', l.id);
+                Alert.alert('Thông báo', 'jhjhj');
               }}>
-              <Avatar rounded source={{uri: l.ava}} size={50}>
-                {l.state ? (
+              <Avatar rounded source={{uri: l.avatar}} size={50}>
+                {l.isOnline ? (
                   <Avatar.Accessory
                     name="circle"
                     size={20}
@@ -96,7 +106,7 @@ export function ListChatScr({navigation}) {
               </Avatar>
               <ListItem.Content>
                 <ListItem.Title>{l.name}</ListItem.Title>
-                <ListItem.Subtitle>{l.content}</ListItem.Subtitle>
+                <ListItem.Subtitle>{l.lastMess}</ListItem.Subtitle>
               </ListItem.Content>
             </ListItem>
           ))}

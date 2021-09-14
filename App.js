@@ -1,5 +1,5 @@
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {View, ActivityIndicator, Alert} from 'react-native';
+import {View, ActivityIndicator, Alert, StatusBar} from 'react-native';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {AuthContext} from './components/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -165,10 +165,12 @@ export default function App() {
           .ref(ref + '/info/isOnline')
           .onDisconnect()
           .set(false);
+
         database()
           .ref(ref)
           .on('value', async snapshot => {
             let a = snapshot.val();
+            await AsyncStorage.removeItem('currentUser');
             await AsyncStorage.setItem('currentUser', JSON.stringify(a));
             setUser(a);
             if (snapshot.val().info.isOnline == false) {
