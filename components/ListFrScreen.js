@@ -18,26 +18,34 @@ import {
   SearchBar,
 } from 'react-native-elements';
 import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 
 export function ListFriendsScreen({navigation}) {
   const {user} = useContext(AuthContext);
-  const {uid} = useContext(AuthContext);
-  let list = Object.values(user.listFriend);
 
+  let list = Object.values(user.listFriend);
+  let count = 0;
   let obj = user.listFriend;
   let listFriend = Object.keys(obj);
-  listFriend.forEach(key => {
-    console.log(key, ':', obj[key].name);
+  const uid = auth().currentUser.uid;
+  // listFriend.forEach(key => {
+  //   console.log(key, ':', obj[key].name);
+  // });
+  list.forEach(e => {
+    if (e.isOnline) {
+      count++;
+    }
   });
 
   useEffect(() => {
+    console.log();
     setTimeout(() => {
       try {
         listFriend.forEach(e => {
           if (uid != null) {
             let ref = '/users/' + e.replace(' ', '');
             let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
-            console.log(ref, '\n', refup);
+            //console.log(ref, '\n', refup);
             const a = database()
               .ref(ref)
               .on('value', snapshot => {
@@ -45,7 +53,10 @@ export function ListFriendsScreen({navigation}) {
                   database()
                     .ref(refup)
                     .update(snapshot.val())
-                    .then(() => console.log('update listfriends'));
+                    .then(() => {
+                      console.log(snapshot.val());
+                      console.log('update listfriends');
+                    });
                 }
               });
             return () => database().ref(ref).off('value', a);
@@ -65,7 +76,7 @@ export function ListFriendsScreen({navigation}) {
       }}>
       <ScrollView>
         <View>
-          <Text style={{marginLeft: 10}}>Đang hoạt động</Text>
+          <Text style={{marginLeft: 10}}>Đang hoạt động ({count})</Text>
           {list.map((l, i) => (
             <View key={i}>
               {l.isOnline ? (

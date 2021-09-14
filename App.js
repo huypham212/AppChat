@@ -170,6 +170,7 @@ export default function App() {
           .on('value', async snapshot => {
             let a = snapshot.val();
             await AsyncStorage.setItem('currentUser', JSON.stringify(a));
+            setUser(a);
             if (snapshot.val().isOnline == false) {
               database()
                 .ref(ref)
