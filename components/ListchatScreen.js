@@ -40,6 +40,8 @@ export function ListChatScr({navigation}) {
       let lastMess = a[a.length - 1];
       let lastname = '';
 
+      let lastTime = messages[lastMess].createdAt;
+
       if (messages[lastMess].user._id == auth().currentUser.uid) {
         lastMess = 'Bạn: ' + messages[lastMess].text;
       } else if (
@@ -63,6 +65,7 @@ export function ListChatScr({navigation}) {
         isOnline,
         lastMess,
         messages,
+        lastTime,
       };
       listChat.push(item);
       return item;
@@ -79,7 +82,7 @@ export function ListChatScr({navigation}) {
     let filter = listChat.filter(e => {
       if (e.messages != undefined) return e;
     });
-
+    filter.sort((a, b) => b.lastTime - a.lastTime);
     setL(filter);
   }, [user]);
 
