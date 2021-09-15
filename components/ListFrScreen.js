@@ -25,7 +25,7 @@ export function ListFriendsScreen({navigation}) {
 
   let friends;
   let list = [];
-  let count = 0;
+  let [count, setCount] = useState(0);
 
   let listFriend = [];
   const uid = auth().currentUser.uid;
@@ -62,17 +62,18 @@ export function ListFriendsScreen({navigation}) {
     return item;
   };
 
-  list.forEach(e => {
-    if (e.isOnline) {
-      count++;
-    }
-  });
-
   const filterList = useMemo(() => {
+    let a = 0;
     if (user.listFriend != undefined) {
       friends = user.listFriend;
       list = Object.values(friends);
-      listFriend = Object.keys(friends);
+      listFriend = Object.keys(friends).sort();
+      list.forEach(e => {
+        if (e.isOnline == true) {
+          a++;
+        }
+      });
+      setCount(a);
     }
     listFriend.forEach(e => {
       parseList(e, friends[e]);
