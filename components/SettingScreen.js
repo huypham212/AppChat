@@ -35,7 +35,7 @@ export default function SettingsScreen() {
     return (
       <View>
         <View style={{alignItems: 'center', margin: 20}}>
-          <Avatar rounded source={{uri: currentUser.photoURL}} size={120}>
+          <Avatar rounded source={{uri: user.info.avatar}} size={120}>
             <Avatar.Accessory
               size={30}
               color="gray"

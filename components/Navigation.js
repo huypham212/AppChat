@@ -25,8 +25,16 @@ function headerLeft({navigation}) {
           rounded
           source={{
             uri: user.info.avatar,
-          }}
-        />
+          }}>
+          {user.info.isOnline ? (
+            <Avatar.Accessory
+              name="circle"
+              size={15}
+              color="#00b300"
+              style={{backgroundColor: 'white'}}
+            />
+          ) : null}
+        </Avatar>
       ) : (
         <Avatar
           onPress={() => navigation.navigate('setting')}
