@@ -4,15 +4,18 @@ import {Text, View, ActivityIndicator, Alert} from 'react-native';
 import {Icon, Image, Switch, Avatar, ListItem} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 const currentUser = auth().currentUser;
-export default function SettingsScreen() {
+
+function Setting() {
   const {signOut, user} = React.useContext(AuthContext);
   const listSettings = [
     {
       icon: 'sign-out-alt',
       title: 'Đăng xuất',
       action: () => {
-        Alert.alert('Đăng xuất', 'Bạn đã đăng xuất');
-        signOut();
+        Alert.alert('Đăng xuất', 'Bạn có chắc muốn đăng xuất', [
+          {text: 'Hủy'},
+          {text: 'OK', onPress: signOut},
+        ]);
       },
     },
     {
@@ -30,43 +33,37 @@ export default function SettingsScreen() {
       },
     },
   ];
-
-  function Setting() {
-    return (
-      <View>
-        <View style={{alignItems: 'center', margin: 20}}>
-          <Avatar rounded source={{uri: user.info.avatar}} size={120}>
-            <Avatar.Accessory
-              size={30}
-              color="gray"
-              style={{backgroundColor: 'white'}}
-              onPress={() => alert('hihi')}
-            />
-          </Avatar>
-          <Text style={{fontSize: 25, marginTop: 10}}>
-            {currentUser.displayName}
-          </Text>
-        </View>
-        <View>
-          {listSettings.map((l, i) => (
-            <ListItem
-              containerStyle={{marginHorizontal: 10}}
-              key={i}
-              bottomDivider
-              onPress={l.action}>
-              <Icon name={l.icon} type="font-awesome-5" />
-              <ListItem.Content>
-                <ListItem.Title>{l.title}</ListItem.Title>
-              </ListItem.Content>
-            </ListItem>
-          ))}
-        </View>
+  return (
+    <View>
+      <View style={{alignItems: 'center', margin: 20}}>
+        <Avatar rounded source={{uri: user.info.avatar}} size={120}>
+          <Avatar.Accessory
+            size={30}
+            color="gray"
+            style={{backgroundColor: 'white'}}
+            onPress={() => alert('hihi')}
+          />
+        </Avatar>
+        <Text style={{fontSize: 25, marginTop: 10}}>{user.info.name}</Text>
       </View>
-    );
-  }
+      <View>
+        {listSettings.map((l, i) => (
+          <ListItem key={i} bottomDivider onPress={l.action}>
+            <Icon name={l.icon} type="font-awesome-5" />
+            <ListItem.Content>
+              <ListItem.Title>{l.title}</ListItem.Title>
+            </ListItem.Content>
+          </ListItem>
+        ))}
+      </View>
+    </View>
+  );
+}
+export default function SettingsScreen() {
+  const {user} = React.useContext(AuthContext);
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
-      {currentUser != null ? <Setting /> : null}
+      {user != null ? <Setting /> : null}
     </View>
   );
 }

@@ -149,7 +149,6 @@ export function ListFriendsScreen({navigation}) {
         if (uid != null) {
           let ref = '/users/' + e.replace(' ', '') + '/info';
           let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
-          //console.log(ref, '\n', refup);
           const a = database()
             .ref(ref)
             .on('value', snapshot => {

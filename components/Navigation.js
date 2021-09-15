@@ -177,7 +177,7 @@ export function TabMain({navigation}) {
         }}
       />
       <Tab.Screen
-        name="Danh bạ"
+        name="Bạn bè"
         component={ListFriendsScreen}
         options={{
           headerLeft: props => headerLeft({navigation}),
@@ -202,7 +202,7 @@ export function TabMain({navigation}) {
                 solid={true}
                 size={20}
               />
-              <Text style={{color: focused ? '#0066ff' : 'grey'}}>Danh bạ</Text>
+              <Text style={{color: focused ? '#0066ff' : 'grey'}}>Bạn bè</Text>
             </View>
           ),
         }}
