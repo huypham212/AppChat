@@ -1,4 +1,10 @@
-import React, {useState, useCallback, useEffect, useContext} from 'react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useContext,
+  useMemo,
+} from 'react';
 import {
   SafeAreaView,
   View,
@@ -20,15 +26,56 @@ export function ChatScr({navigation, route}) {
   const {user} = useContext(AuthContext);
   const id = route.params.id;
   const ava = route.params.ava;
-  let ref =
-    '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
+
   const createdAt = () => {
     return database.ServerValue.TIMESTAMP;
   };
+  let ref =
+    '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
+  // const parse = snapshot => {
+  //   let {createdAt: numberStamp, text, user} = snapshot.val();
+  //   const {key: _id} = snapshot;
+  //   user = {_id: user._id, name: user.name, avatar: ava};
+  //   const createdAt = new Date(numberStamp);
+  //   const message = {
+  //     _id,
+  //     createdAt,
+  //     text,
+  //     user,
+  //   };
+  //   let count = 0;
 
-  const parse = snapshot => {
-    let {createdAt: numberStamp, text, user} = snapshot.val();
-    const {key: _id} = snapshot;
+  //   messages.find(e => {
+  //     if (e._id == _id) {
+  //       count++;
+  //     }
+  //   });
+
+  //   if (count == 0) {
+  //     setMessages(previousMessages =>
+  //       GiftedChat.append(previousMessages, message),
+  //     );
+  //   }
+  //   return message;
+  // };
+
+  // useEffect(() => {
+  //   setMessages([]);
+  //   const b = database()
+  //     .ref(ref)
+  //     .on('child_added', snapshot => {
+  //       if (snapshot != null) {
+  //         parse(snapshot);
+  //       }
+  //     });
+  //   return () => {
+  //     database().ref(ref).off('child_added', b);
+  //   };
+  // }, []);
+
+  const parse = (key, snapshot) => {
+    let {createdAt: numberStamp, text, user} = snapshot;
+    const _id = key;
     user = {_id: user._id, name: user.name, avatar: ava};
     const createdAt = new Date(numberStamp);
     const message = {
@@ -53,19 +100,15 @@ export function ChatScr({navigation, route}) {
     return message;
   };
 
-  useEffect(() => {
-    setMessages([]);
-    const b = database()
-      .ref(ref)
-      .on('child_added', snapshot => {
-        if (snapshot != null) {
-          parse(snapshot);
-        }
-      });
-    return () => {
-      database().ref(ref).off('child_added', b);
-    };
-  }, []);
+  let listMess = user.listFriend[id].messages;
+
+  const loadMess = useMemo(() => {
+    let keys = Object.keys(listMess).sort();
+    keys.forEach(e => {
+      parse(e, listMess[e]);
+    });
+    //console.log(messages);
+  }, [user]);
 
   const append = message => {
     database().ref(ref).push(message);
@@ -77,7 +120,7 @@ export function ChatScr({navigation, route}) {
   }, []);
 
   return (
-    <View style={{backgroundColor: '#1a1a1a', flex: 1}}>
+    <View style={{backgroundColor: 'black', flex: 1}}>
       <GiftedChat
         isLoadingEarlier={true}
         messages={messages}
@@ -105,7 +148,14 @@ export function ChatScr({navigation, route}) {
             />
           );
         }}
-        textInputStyle={{color: 'white'}}
+        placeholder="Nhập tin nhắn..."
+        textInputStyle={{
+          color: 'white',
+          marginRight: 10,
+          borderRadius: 20,
+          borderWidth: 2,
+          borderColor: '#333333',
+        }}
         renderBubble={props => {
           return (
             <Bubble
@@ -117,10 +167,10 @@ export function ChatScr({navigation, route}) {
               }}
               wrapperStyle={{
                 right: {
-                  backgroundColor: '#000000',
+                  backgroundColor: '#333333',
                 },
                 left: {
-                  backgroundColor: '#333333',
+                  backgroundColor: '#595959',
                 },
               }}
             />

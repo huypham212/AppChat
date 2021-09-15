@@ -88,7 +88,7 @@ export function MyStack() {
             </View>
           ),
           headerTintColor: 'white',
-          headerStyle: {backgroundColor: '#1a1a1a'},
+          headerStyle: {backgroundColor: 'black'},
         })}
       />
       <Stack.Screen

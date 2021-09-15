@@ -45,7 +45,8 @@ export function ListFriendsScreen({navigation}) {
           if (uid != null) {
             let ref = '/users/' + e.replace(' ', '') + '/info';
             let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
-            console.log(ref, '\n', refup);
+            //console.log(ref, '\n', refup);
+
             const a = database()
               .ref(ref)
               .on('value', snapshot => {
@@ -81,7 +82,9 @@ export function ListFriendsScreen({navigation}) {
               {l.isOnline ? (
                 <ListItem
                   containerStyle={{height: 60}}
-                  onPress={() => navigation.navigate('chat', {name: l.name})}>
+                  onPress={() =>
+                    navigation.navigate('chat', {name: l.name, id: l._id})
+                  }>
                   <Avatar rounded source={{uri: l.avatar}} size={50}>
                     {l.isOnline ? (
                       <Avatar.Accessory
