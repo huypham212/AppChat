@@ -78,37 +78,35 @@ export function ListFriendsScreen({navigation}) {
       parseList(e, friends[e]);
     });
     setL(listChat);
-    // console.log(listChat);
+
+    try {
+      listFriend.forEach(e => {
+        if (uid != null) {
+          let ref = '/users/' + e.replace(' ', '') + '/info';
+          let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
+          //console.log(ref, '\n', refup);
+          const a = database()
+            .ref(ref)
+            .on('value', snapshot => {
+              if (snapshot.val() != null) {
+                database()
+                  .ref(refup)
+                  .update(snapshot.val())
+                  .then(() => {
+                    console.log('update listfriends');
+                  });
+              }
+            });
+          return () => database().ref(ref).off('value', a);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }, [user]);
 
   useEffect(() => {
     filterList;
-    setTimeout(() => {
-      try {
-        listFriend.forEach(e => {
-          if (uid != null) {
-            let ref = '/users/' + e.replace(' ', '') + '/info';
-            let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
-            //console.log(ref, '\n', refup);
-            const a = database()
-              .ref(ref)
-              .on('value', snapshot => {
-                if (snapshot.val() != null) {
-                  database()
-                    .ref(refup)
-                    .update(snapshot.val())
-                    .then(() => {
-                      console.log('update listfriends');
-                    });
-                }
-              });
-            return () => database().ref(ref).off('value', a);
-          }
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }, 1000);
   }, []);
 
   return (
