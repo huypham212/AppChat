@@ -37,7 +37,12 @@ export function ListChatScr({navigation}) {
       let _id = key;
       let a = Object.keys(messages).sort();
       let lastMess = a[a.length - 1];
-      lastMess = messages[lastMess].text;
+      if (messages[lastMess].user._id == auth().currentUser.uid) {
+        lastMess = 'Bạn: ' + messages[lastMess].text;
+      } else {
+        lastMess = messages[lastMess].text;
+      }
+
       const item = {
         _id,
         avatar,

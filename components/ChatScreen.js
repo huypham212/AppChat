@@ -24,67 +24,45 @@ import database from '@react-native-firebase/database';
 export function ChatScr({navigation, route}) {
   const [messages, setMessages] = useState([]);
   const {user} = useContext(AuthContext);
+  const [showName, setShowName] = useState(false);
   const id = route.params.id;
-  const ava = route.params.ava;
+
+  const currentFriend = user.listFriend[id];
+  //const ava = currentFriend.avatar;
 
   const createdAt = () => {
     return database.ServerValue.TIMESTAMP;
   };
+
   let ref =
     '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
   let refup =
     '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
-  // const parse = snapshot => {
-  //   let {createdAt: numberStamp, text, user} = snapshot.val();
-  //   const {key: _id} = snapshot;
-  //   user = {_id: user._id, name: user.name, avatar: ava};
-  //   const createdAt = new Date(numberStamp);
-  //   const message = {
-  //     _id,
-  //     createdAt,
-  //     text,
-  //     user,
-  //   };
-  //   let count = 0;
-
-  //   messages.find(e => {
-  //     if (e._id == _id) {
-  //       count++;
-  //     }
-  //   });
-
-  //   if (count == 0) {
-  //     setMessages(previousMessages =>
-  //       GiftedChat.append(previousMessages, message),
-  //     );
-  //   }
-  //   return message;
-  // };
-
-  // useEffect(() => {
-  //   setMessages([]);
-  //   const b = database()
-  //     .ref(ref)
-  //     .on('child_added', snapshot => {
-  //       if (snapshot != null) {
-  //         parse(snapshot);
-  //       }
-  //     });
-  //   return () => {
-  //     database().ref(ref).off('child_added', b);
-  //   };
-  // }, []);
 
   const parse = (key, snapshot) => {
     let {createdAt: numberStamp, text, user} = snapshot;
-    const _id = key;
-    user = {_id: user._id, name: user.name, avatar: ava};
     const createdAt = new Date(numberStamp);
+    const _id = key;
+    let ava;
+    if (user.avatar != undefined) {
+      ava = user.avatar;
+    }
+
+    user = {_id: user._id, name: user.name, avatar: ava};
+
+    let image;
+    if (snapshot.image != undefined) {
+      image = snapshot.image;
+    }
+
+    console.log(snapshot.user.avatar);
+
     const message = {
       _id,
       createdAt,
       text,
       user,
+      image,
     };
     let count = 0;
 
@@ -105,20 +83,34 @@ export function ChatScr({navigation, route}) {
   let listMess = [];
 
   const loadMess = useMemo(() => {
-    console.log(user.listFriend[id]);
-    if (user.listFriend[id].messages != undefined) {
-      listMess = user.listFriend[id].messages;
+    if (currentFriend.messages != undefined) {
+      listMess = currentFriend.messages;
     }
+
     let keys = Object.keys(listMess).sort();
     keys.forEach(e => {
       parse(e, listMess[e]);
     });
-    //console.log(messages);
   }, [user]);
+
+  useEffect(() => {
+    if (currentFriend.member != undefined) {
+      setShowName(true);
+    }
+  }, []);
 
   const append = message => {
     database().ref(ref).push(message);
-    database().ref(refup).push(message);
+    if (currentFriend.member == undefined) {
+      database().ref(refup).push(message);
+    } else {
+      let member = Object.keys(currentFriend.member);
+      member.forEach(e => {
+        let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
+        database().ref(refmem).push(message);
+      });
+      console.log(member);
+    }
   };
   const onSend = useCallback((messages = []) => {
     const {text, user} = messages[0];
@@ -129,11 +121,14 @@ export function ChatScr({navigation, route}) {
   return (
     <View style={{backgroundColor: 'black', flex: 1}}>
       <GiftedChat
+        renderUsernameOnMessage={showName}
         isLoadingEarlier={true}
         messages={messages}
         onSend={messages => onSend(messages)}
         user={{
           _id: auth().currentUser.uid,
+          name: user.info.name,
+          avatar: user.info.avatar,
         }}
         renderSend={props => {
           return (

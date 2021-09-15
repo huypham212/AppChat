@@ -36,7 +36,7 @@ export function ListFriendsScreen({navigation}) {
   let listChat = [];
 
   const parseList = (key, value) => {
-    console.log(value);
+    //console.log(value);
     let avatar, name, isOnline, messages, lastMess;
     avatar = value.avatar;
     name = value.name;
@@ -59,7 +59,7 @@ export function ListFriendsScreen({navigation}) {
       messages,
     };
     listChat.push(item);
-    console.log('Item:', item);
+    // console.log('Item:', item);
     return item;
   };
 
@@ -74,7 +74,7 @@ export function ListFriendsScreen({navigation}) {
       parseList(e, user.listFriend[e]);
     });
     setL(listChat);
-    console.log(listChat);
+    // console.log(listChat);
   }, [user]);
 
   useEffect(() => {
