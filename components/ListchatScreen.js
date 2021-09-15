@@ -38,8 +38,20 @@ export function ListChatScr({navigation}) {
       let _id = key;
       let a = Object.keys(messages).sort();
       let lastMess = a[a.length - 1];
+      let lastname = '';
+
       if (messages[lastMess].user._id == auth().currentUser.uid) {
         lastMess = 'Bạn: ' + messages[lastMess].text;
+      } else if (
+        messages[lastMess].user.name != undefined &&
+        value.member != undefined
+      ) {
+        lastname = messages[lastMess].user.name;
+        lastname = lastname.substring(
+          lastname.lastIndexOf(' '),
+          lastname.length,
+        );
+        lastMess = lastname + ': ' + messages[lastMess].text;
       } else {
         lastMess = messages[lastMess].text;
       }

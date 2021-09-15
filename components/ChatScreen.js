@@ -54,8 +54,6 @@ export function ChatScr({navigation, route}) {
       image = snapshot.image;
     }
 
-    console.log(snapshot.user.avatar);
-
     const message = {
       _id,
       createdAt,
@@ -108,7 +106,6 @@ export function ChatScr({navigation, route}) {
         let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
         database().ref(refmem).push(message);
       });
-      console.log(member);
     }
   };
   const onSend = useCallback((messages = []) => {
