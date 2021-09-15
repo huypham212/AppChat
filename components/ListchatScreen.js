@@ -25,7 +25,8 @@ import {AuthContext} from './Context';
 
 export function ListChatScr({navigation}) {
   const {user} = React.useContext(AuthContext);
-  let keys = Object.keys(user.listFriend);
+  let keys = [];
+  let friends;
 
   const [l, setL] = useState([]);
 
@@ -57,7 +58,7 @@ export function ListChatScr({navigation}) {
   };
   const filterList = useMemo(() => {
     keys.forEach(e => {
-      parseList(e, user.listFriend[e]);
+      parseList(e, friends[e]);
     });
     let filter = listChat.filter(e => {
       if (e.messages != undefined) return e;
@@ -67,6 +68,11 @@ export function ListChatScr({navigation}) {
   }, [user]);
 
   useEffect(() => {
+    if (user.listFriend != undefined) {
+      friends = user.listFriend;
+      keys = Object.keys(friends);
+    }
+
     filterList;
   }, []);
 

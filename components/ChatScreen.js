@@ -28,7 +28,6 @@ export function ChatScr({navigation, route}) {
   const id = route.params.id;
 
   const currentFriend = user.listFriend[id];
-  //const ava = currentFriend.avatar;
 
   const createdAt = () => {
     return database.ServerValue.TIMESTAMP;

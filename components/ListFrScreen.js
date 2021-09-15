@@ -23,13 +23,12 @@ import auth from '@react-native-firebase/auth';
 export function ListFriendsScreen({navigation}) {
   const {user} = useContext(AuthContext);
 
-  let list = Object.values(user.listFriend);
+  let friends;
+  let list = [];
   let count = 0;
 
-  let listFriend = Object.keys(user.listFriend);
+  let listFriend = [];
   const uid = auth().currentUser.uid;
-
-  //let keys = Object.keys(user.listFriend);
 
   const [l, setL] = useState([]);
 
@@ -70,8 +69,13 @@ export function ListFriendsScreen({navigation}) {
   });
 
   const filterList = useMemo(() => {
+    if (user.listFriend != undefined) {
+      friends = user.listFriend;
+      list = Object.values(friends);
+      listFriend = Object.keys(friends);
+    }
     listFriend.forEach(e => {
-      parseList(e, user.listFriend[e]);
+      parseList(e, friends[e]);
     });
     setL(listChat);
     // console.log(listChat);
