@@ -57,6 +57,10 @@ export function ListChatScr({navigation}) {
     }
   };
   const filterList = useMemo(() => {
+    if (user.listFriend != undefined) {
+      friends = user.listFriend;
+      keys = Object.keys(friends);
+    }
     keys.forEach(e => {
       parseList(e, friends[e]);
     });
@@ -68,11 +72,6 @@ export function ListChatScr({navigation}) {
   }, [user]);
 
   useEffect(() => {
-    if (user.listFriend != undefined) {
-      friends = user.listFriend;
-      keys = Object.keys(friends);
-    }
-
     filterList;
   }, []);
 
