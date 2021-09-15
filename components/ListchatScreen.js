@@ -57,7 +57,7 @@ export function ListChatScr({navigation}) {
       } else {
         lastMess = messages[lastMess].text;
       }
-
+      console.log(avatar);
       const item = {
         _id,
         avatar,

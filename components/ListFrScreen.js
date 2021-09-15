@@ -16,13 +16,74 @@ import {
   ListItem,
   Input,
   SearchBar,
+  Button,
 } from 'react-native-elements';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 
+function ListForm({l, navigation}) {
+  return (
+    <View>
+      {l.isOnline ? (
+        <ListItem
+          containerStyle={{height: 60}}
+          onPress={() =>
+            navigation.navigate('chat', {
+              name: l.name,
+              id: l._id,
+              ava: l.avatar,
+            })
+          }>
+          <Avatar rounded source={{uri: l.avatar}} size={50}>
+            {l.isOnline ? (
+              <Avatar.Accessory
+                name="circle"
+                size={15}
+                color="#00b300"
+                style={{backgroundColor: 'white'}}
+              />
+            ) : null}
+          </Avatar>
+          <ListItem.Content>
+            <ListItem.Title>{l.name}</ListItem.Title>
+          </ListItem.Content>
+        </ListItem>
+      ) : null}
+    </View>
+  );
+}
+
+function ShowAll({l, navigation}) {
+  return (
+    <ListItem
+      containerStyle={{height: 60}}
+      onPress={() =>
+        navigation.navigate('chat', {
+          name: l.name,
+          id: l._id,
+          ava: l.avatar,
+        })
+      }>
+      <Avatar rounded source={{uri: l.avatar}} size={50}>
+        {l.isOnline ? (
+          <Avatar.Accessory
+            name="circle"
+            size={15}
+            color="#00b300"
+            style={{backgroundColor: 'white'}}
+          />
+        ) : null}
+      </Avatar>
+      <ListItem.Content>
+        <ListItem.Title>{l.name}</ListItem.Title>
+      </ListItem.Content>
+    </ListItem>
+  );
+}
+
 export function ListFriendsScreen({navigation}) {
   const {user} = useContext(AuthContext);
-
+  const [showAll, setShowAll] = useState(false);
   let friends;
   let list = [];
   let [count, setCount] = useState(0);
@@ -30,7 +91,7 @@ export function ListFriendsScreen({navigation}) {
   let listFriend = [];
   const uid = auth().currentUser.uid;
 
-  const [l, setL] = useState([]);
+  const [li, setL] = useState([]);
 
   let listChat = [];
 
@@ -116,36 +177,53 @@ export function ListFriendsScreen({navigation}) {
         flex: 1,
         backgroundColor: 'white',
       }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+        }}>
+        <Button
+          title={'Đang hoạt động(' + count + ')'}
+          type={showAll ? 'outline' : 'solid'}
+          titleStyle={{color: showAll ? 'black' : 'white'}}
+          buttonStyle={{
+            backgroundColor: showAll ? 'white' : 'black',
+            borderColor: 'black',
+            borderWidth: 2,
+            margin: 10,
+            borderRadius: 20,
+            width: 180,
+          }}
+          onPress={() => {
+            setShowAll(false);
+          }}
+        />
+        <Button
+          title="Tất cả mọi người"
+          type={showAll ? 'solid' : 'outline'}
+          titleStyle={{color: showAll ? 'white' : 'black'}}
+          buttonStyle={{
+            backgroundColor: showAll ? 'black' : 'white',
+            borderColor: 'black',
+            borderWidth: 2,
+            margin: 10,
+            width: 180,
+            borderRadius: 20,
+          }}
+          onPress={() => {
+            setShowAll(true);
+          }}
+        />
+      </View>
       <ScrollView>
         <View>
-          <Text style={{marginLeft: 10}}>Đang hoạt động ({count})</Text>
-          {l.map((l, i) => (
+          {li.map((l, i) => (
             <View key={i}>
-              {l.isOnline ? (
-                <ListItem
-                  containerStyle={{height: 60}}
-                  onPress={() =>
-                    navigation.navigate('chat', {
-                      name: l.name,
-                      id: l._id,
-                      ava: l.avatar,
-                    })
-                  }>
-                  <Avatar rounded source={{uri: l.avatar}} size={50}>
-                    {l.isOnline ? (
-                      <Avatar.Accessory
-                        name="circle"
-                        size={15}
-                        color="#00b300"
-                        style={{backgroundColor: 'white'}}
-                      />
-                    ) : null}
-                  </Avatar>
-                  <ListItem.Content>
-                    <ListItem.Title>{l.name}</ListItem.Title>
-                  </ListItem.Content>
-                </ListItem>
-              ) : null}
+              {showAll ? (
+                <ShowAll l={l} navigation={navigation} />
+              ) : (
+                <ListForm l={l} navigation={navigation} />
+              )}
             </View>
           ))}
         </View>

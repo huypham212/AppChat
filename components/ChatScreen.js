@@ -116,6 +116,7 @@ export function ChatScr({navigation, route}) {
 
   return (
     <View style={{backgroundColor: 'black', flex: 1}}>
+      <StatusBar barStyle="light-content" backgroundColor="black" />
       <GiftedChat
         renderUsernameOnMessage={showName}
         isLoadingEarlier={true}

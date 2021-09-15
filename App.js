@@ -223,6 +223,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={authContext}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
       <NavigationContainer>
         {user != null ? <MyStack /> : <RootStack />}
       </NavigationContainer>
