@@ -7,6 +7,7 @@ import {
   StatusBar,
   ScrollView,
   Alert,
+  Dimensions,
 } from 'react-native';
 import {
   Icon,
@@ -20,6 +21,8 @@ import {
 } from 'react-native-elements';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
+
+const window = Dimensions.get('window');
 
 function ListForm({l, navigation}) {
   return (
@@ -192,7 +195,7 @@ export function ListFriendsScreen({navigation}) {
             borderWidth: 2,
             margin: 10,
             borderRadius: 20,
-            width: 180,
+            width: window.width / 2 - 20,
           }}
           onPress={() => {
             setShowAll(false);
@@ -207,7 +210,7 @@ export function ListFriendsScreen({navigation}) {
             borderColor: 'black',
             borderWidth: 2,
             margin: 10,
-            width: 180,
+            width: window.width / 2 - 20,
             borderRadius: 20,
           }}
           onPress={() => {
