@@ -25,20 +25,60 @@ export function ListFriendsScreen({navigation}) {
 
   let list = Object.values(user.listFriend);
   let count = 0;
-  let obj = user.listFriend;
-  let listFriend = Object.keys(obj);
+
+  let listFriend = Object.keys(user.listFriend);
   const uid = auth().currentUser.uid;
-  // listFriend.forEach(key => {
-  //   console.log(key, ':', obj[key].name);
-  // });
+
+  //let keys = Object.keys(user.listFriend);
+
+  const [l, setL] = useState([]);
+
+  let listChat = [];
+
+  const parseList = (key, value) => {
+    console.log(value);
+    let avatar, name, isOnline, messages, lastMess;
+    avatar = value.avatar;
+    name = value.name;
+    isOnline = value.isOnline;
+    if (value.messages != undefined) {
+      messages = value.messages;
+      let a = Object.keys(messages).sort();
+      lastMess = a[a.length - 1];
+      lastMess = messages[lastMess].text;
+    }
+    messages = [];
+    let _id = key;
+
+    const item = {
+      _id,
+      avatar,
+      name,
+      isOnline,
+      lastMess,
+      messages,
+    };
+    listChat.push(item);
+    console.log('Item:', item);
+    return item;
+  };
+
   list.forEach(e => {
     if (e.isOnline) {
       count++;
     }
   });
 
+  const filterList = useMemo(() => {
+    listFriend.forEach(e => {
+      parseList(e, user.listFriend[e]);
+    });
+    setL(listChat);
+    console.log(listChat);
+  }, [user]);
+
   useEffect(() => {
-    console.log();
+    filterList;
     setTimeout(() => {
       try {
         listFriend.forEach(e => {
@@ -46,7 +86,6 @@ export function ListFriendsScreen({navigation}) {
             let ref = '/users/' + e.replace(' ', '') + '/info';
             let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
             //console.log(ref, '\n', refup);
-
             const a = database()
               .ref(ref)
               .on('value', snapshot => {
@@ -77,13 +116,17 @@ export function ListFriendsScreen({navigation}) {
       <ScrollView>
         <View>
           <Text style={{marginLeft: 10}}>Đang hoạt động ({count})</Text>
-          {list.map((l, i) => (
+          {l.map((l, i) => (
             <View key={i}>
               {l.isOnline ? (
                 <ListItem
                   containerStyle={{height: 60}}
                   onPress={() =>
-                    navigation.navigate('chat', {name: l.name, id: l._id})
+                    navigation.navigate('chat', {
+                      name: l.name,
+                      id: l._id,
+                      ava: l.avatar,
+                    })
                   }>
                   <Avatar rounded source={{uri: l.avatar}} size={50}>
                     {l.isOnline ? (

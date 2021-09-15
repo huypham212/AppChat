@@ -32,6 +32,8 @@ export function ChatScr({navigation, route}) {
   };
   let ref =
     '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
+  let refup =
+    '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
   // const parse = snapshot => {
   //   let {createdAt: numberStamp, text, user} = snapshot.val();
   //   const {key: _id} = snapshot;
@@ -100,9 +102,13 @@ export function ChatScr({navigation, route}) {
     return message;
   };
 
-  let listMess = user.listFriend[id].messages;
+  let listMess = [];
 
   const loadMess = useMemo(() => {
+    console.log(user.listFriend[id]);
+    if (user.listFriend[id].messages != undefined) {
+      listMess = user.listFriend[id].messages;
+    }
     let keys = Object.keys(listMess).sort();
     keys.forEach(e => {
       parse(e, listMess[e]);
@@ -112,6 +118,7 @@ export function ChatScr({navigation, route}) {
 
   const append = message => {
     database().ref(ref).push(message);
+    database().ref(refup).push(message);
   };
   const onSend = useCallback((messages = []) => {
     const {text, user} = messages[0];

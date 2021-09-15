@@ -32,22 +32,23 @@ export function ListChatScr({navigation}) {
   let listChat = [];
 
   const parseList = (key, value) => {
-    let {avatar, name, isOnline, messages} = value;
-    let _id = key;
-    let a = Object.keys(messages).sort();
-    let lastMess = a[a.length - 1];
-    lastMess = messages[lastMess].text;
-    const item = {
-      _id,
-      avatar,
-      name,
-      isOnline,
-      lastMess,
-      messages,
-    };
-    listChat.push(item);
-
-    return item;
+    if (value.messages != undefined) {
+      let {avatar, name, isOnline, messages} = value;
+      let _id = key;
+      let a = Object.keys(messages).sort();
+      let lastMess = a[a.length - 1];
+      lastMess = messages[lastMess].text;
+      const item = {
+        _id,
+        avatar,
+        name,
+        isOnline,
+        lastMess,
+        messages,
+      };
+      listChat.push(item);
+      return item;
+    }
   };
   const filterList = useMemo(() => {
     keys.forEach(e => {
@@ -59,6 +60,10 @@ export function ListChatScr({navigation}) {
 
     setL(filter);
   }, [user]);
+
+  useEffect(() => {
+    filterList;
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
