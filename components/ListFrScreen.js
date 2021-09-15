@@ -135,7 +135,7 @@ export function ListFriendsScreen({navigation}) {
                     {l.isOnline ? (
                       <Avatar.Accessory
                         name="circle"
-                        size={20}
+                        size={15}
                         color="#00b300"
                         style={{backgroundColor: 'white'}}
                       />
