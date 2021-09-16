@@ -61,6 +61,9 @@ export function ListChatScr({navigation}) {
       } else {
         lastMess = messages[lastMess].text;
       }
+      if (lastMess.length > 20) {
+        lastMess = lastMess.substr(0, 20) + '...';
+      }
 
       const item = {
         _id,
