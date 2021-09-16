@@ -14,6 +14,7 @@ import {
   StatusBar,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {Icon} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
@@ -48,6 +49,7 @@ export function ChatScr({navigation, route}) {
       received = false,
       seen = false,
       pending = false;
+
     if (user.avatar != undefined) {
       ava = user.avatar;
     }
@@ -70,7 +72,10 @@ export function ChatScr({navigation, route}) {
     if (snapshot.image != undefined) {
       image = snapshot.image;
     }
-
+    let avafr;
+    if (currentFriend.avatar != undefined) {
+      avafr = currentFriend.avatar;
+    }
     const message = {
       _id,
       createdAt,
@@ -81,6 +86,7 @@ export function ChatScr({navigation, route}) {
       received,
       seen,
       pending,
+      avafr,
     };
     let count = 0;
 
@@ -110,16 +116,32 @@ export function ChatScr({navigation, route}) {
     let keys = Object.keys(listMess).sort();
     keys.forEach(e => {
       parse(e, listMess[e]);
+      if (e.seen == undefined || e.seen != true) {
+        let ref =
+          '/users/' +
+          auth().currentUser.uid +
+          '/listFriend/' +
+          id +
+          '/messages/' +
+          e;
+        console.log(ref);
+        let seen = currentFriend.seen;
+        if (seen == true) {
+          database().ref(ref).update({seen: true});
+        }
+      }
     });
   }, [user.listFriend[id].messages]);
 
   useEffect(() => {
+    let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
     if (currentFriend.member != undefined) {
       setShowName(true);
     }
+
+    database().ref(ref).update({seen: true});
     return () => {
-      let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
-      database().ref(ref).update({isTyping: false});
+      database().ref(ref).update({isTyping: false, seen: false});
     };
   }, []);
 
@@ -177,6 +199,7 @@ export function ChatScr({navigation, route}) {
 
   const onSend = useCallback((messages = []) => {
     const {text, user} = messages[0];
+
     const mess = {
       text,
       user,
@@ -200,6 +223,12 @@ export function ChatScr({navigation, route}) {
     <View style={{backgroundColor: 'black', flex: 1}}>
       <StatusBar barStyle="light-content" backgroundColor="black" />
       <GiftedChat
+        renderLoading={() => (
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        )}
         alwaysShowSend
         infiniteScroll
         onInputTextChanged={onTextChanged}
