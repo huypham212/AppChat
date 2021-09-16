@@ -41,7 +41,10 @@ export function ListChatScr({navigation}) {
       let lastname = '';
 
       let lastTime = messages[lastMess].createdAt;
-
+      let seen = false;
+      if (messages[lastMess].seen != undefined) {
+        seen = messages[lastMess].seen;
+      }
       if (messages[lastMess].user._id == auth().currentUser.uid) {
         lastMess = 'Bạn: ' + messages[lastMess].text;
       } else if (
@@ -57,6 +60,7 @@ export function ListChatScr({navigation}) {
       } else {
         lastMess = messages[lastMess].text;
       }
+
       const item = {
         _id,
         avatar,
@@ -65,6 +69,7 @@ export function ListChatScr({navigation}) {
         lastMess,
         messages,
         lastTime,
+        seen,
       };
       listChat.push(item);
       return item;
@@ -141,9 +146,13 @@ export function ListChatScr({navigation}) {
                   />
                 ) : null}
               </Avatar>
-              <ListItem.Content>
-                <ListItem.Title>{l.name}</ListItem.Title>
-                <ListItem.Subtitle>{l.lastMess}</ListItem.Subtitle>
+              <ListItem.Content h1>
+                <Text style={l.seen ? styles.normal : styles.bold}>
+                  {l.name}
+                </Text>
+                <Text style={l.seen ? styles.normalsub : styles.bold}>
+                  {l.lastMess}
+                </Text>
               </ListItem.Content>
             </ListItem>
           ))}
@@ -169,4 +178,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
   },
+  bold: {fontWeight: 'bold', fontSize: 16, color: 'black'},
+  normal: {fontWeight: 'normal', color: 'black'},
+  normalsub: {fontWeight: 'normal', color: 'grey'},
 });

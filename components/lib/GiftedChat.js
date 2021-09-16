@@ -23,6 +23,8 @@ import Send from './Send';
 import Time from './Time';
 import GiftedAvatar from './GiftedAvatar';
 import { MIN_COMPOSER_HEIGHT, MAX_COMPOSER_HEIGHT, DEFAULT_PLACEHOLDER, TIME_FORMAT, DATE_FORMAT, } from './Constant';
+
+
 dayjs.extend(localizedFormat);
 class GiftedChat extends React.Component {
     constructor(props) {
@@ -181,16 +183,25 @@ class GiftedChat extends React.Component {
         }
         if(inverted)
             {
+                currentMessages.forEach((e,i)=>{
+                    if(messages[0].seen && messages[0].user._id == messages[0].myid  )
+                    {
+                        currentMessages[i].avafr = null
+                    }
+                    })
                 let count=0
                 currentMessages.forEach((e,i)=>{
                     if(e._id == messages[0]._id)
                     {
                         count++
                         currentMessages[i] = messages[0]
+                        
                     }
+                   
                 })
                 if(count==0)
                 {
+                    
                     currentMessages = messages.concat(currentMessages)
                 } 
             }
@@ -203,7 +214,6 @@ class GiftedChat extends React.Component {
                         count++
                         currentMessages[i] = messages[0]  
                     }
-           
                 })
                 if(count==0)
                 {

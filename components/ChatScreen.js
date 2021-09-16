@@ -40,7 +40,7 @@ export function ChatScr({navigation, route}) {
   let refup =
     '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
 
-  const parse = (key, snapshot) => {
+  const parse = (key, snapshot, index) => {
     let {createdAt: numberStamp, text, user} = snapshot;
     const createdAt = new Date(numberStamp);
     const _id = key;
@@ -76,6 +76,7 @@ export function ChatScr({navigation, route}) {
     if (currentFriend.avatar != undefined) {
       avafr = currentFriend.avatar;
     }
+
     const message = {
       _id,
       createdAt,
@@ -87,6 +88,7 @@ export function ChatScr({navigation, route}) {
       seen,
       pending,
       avafr,
+      myid: auth().currentUser.uid,
     };
     let count = 0;
 
@@ -117,8 +119,8 @@ export function ChatScr({navigation, route}) {
     }
 
     let keys = Object.keys(listMess).sort();
-    keys.forEach(e => {
-      parse(e, listMess[e]);
+    keys.forEach((e, i) => {
+      parse(e, listMess[e], i);
       if (e.seen == undefined || e.seen != true) {
         let ref =
           '/users/' +
@@ -138,15 +140,24 @@ export function ChatScr({navigation, route}) {
 
   useEffect(() => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
+
     if (currentFriend.member != undefined) {
       setShowName(true);
     }
+    //Cập nhập trạng thái đọc tin nhắn phía bạn bè
     if (currentFriend.member == undefined) {
-      database().ref(ref).update({seen: true});
+      database()
+        .ref(ref)
+        .on('value', snapshot => {
+          if (snapshot.val().seen == false) {
+            database().ref(ref).update({seen: true});
+          }
+        });
     }
     return () => {
       if (currentFriend.member == undefined) {
-        database().ref(ref).update({isTyping: false, seen: false});
+        database().ref(ref).off();
+        database().ref(ref).update({isTyping: false});
       }
     };
   }, []);
@@ -211,7 +222,13 @@ export function ChatScr({navigation, route}) {
       user,
       createdAt: createdAt(),
       pending: true,
+      seen: false,
+      received: false,
     };
+    let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
+    if (currentFriend.member == undefined) {
+      database().ref(ref).update({seen: false});
+    }
 
     append(mess);
   }, []);
