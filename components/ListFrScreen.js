@@ -157,7 +157,7 @@ export function ListFriendsScreen({navigation}) {
                   .ref(refup)
                   .update(snapshot.val())
                   .then(() => {
-                    console.log('update listfriends');
+                    console.log('update ');
                   });
               }
             });

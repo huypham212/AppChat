@@ -25,6 +25,7 @@ export function ChatScr({navigation, route}) {
   const [messages, setMessages] = useState([]);
   const {user} = useContext(AuthContext);
   const [showName, setShowName] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const id = route.params.id;
 
   const currentFriend = user.listFriend[id];
@@ -42,9 +43,21 @@ export function ChatScr({navigation, route}) {
     let {createdAt: numberStamp, text, user} = snapshot;
     const createdAt = new Date(numberStamp);
     const _id = key;
-    let ava;
+    let ava,
+      sent = false,
+      received = false,
+      seen = false;
     if (user.avatar != undefined) {
       ava = user.avatar;
+    }
+    if (snapshot.sent != undefined) {
+      sent = snapshot.sent;
+    }
+    if (snapshot.received != undefined) {
+      received = snapshot.received;
+    }
+    if (snapshot.seen != undefined) {
+      seen = snapshot.seen;
     }
 
     user = {_id: user._id, name: user.name, avatar: ava};
@@ -60,20 +73,30 @@ export function ChatScr({navigation, route}) {
       text,
       user,
       image,
+      sent,
+      received,
+      seen,
     };
     let count = 0;
 
-    messages.find(e => {
+    messages.forEach(e => {
       if (e._id == _id) {
+        e = message;
         count++;
       }
     });
 
-    if (count == 0) {
-      setMessages(previousMessages =>
-        GiftedChat.append(previousMessages, message),
-      );
-    }
+    // if (count == 0) {
+    setMessages(previousMessages =>
+      GiftedChat.append(previousMessages, message),
+    );
+    //}
+    //  else {
+    //   setMessages(previousMessages =>
+    //     GiftedChat.setTed(previousMessages, message),
+    //   );
+    // }
+
     return message;
   };
 
@@ -83,41 +106,75 @@ export function ChatScr({navigation, route}) {
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
     }
+    if (currentFriend.isTyping != undefined) {
+      setIsTyping(currentFriend.isTyping);
+    }
 
     let keys = Object.keys(listMess).sort();
     keys.forEach(e => {
       parse(e, listMess[e]);
     });
-  }, [user]);
+  }, [user.listFriend[id].messages]);
 
   useEffect(() => {
     if (currentFriend.member != undefined) {
       setShowName(true);
     }
+    return () => {
+      let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
+      database().ref(ref).update({isTyping: false});
+    };
   }, []);
 
   const append = message => {
-    database().ref(ref).push(message);
+    let me = database().ref(ref).push(message);
+
     if (currentFriend.member == undefined) {
-      database().ref(refup).push(message);
+      let a = database()
+        .ref(refup)
+        .push(message, () => {
+          me.update({
+            received: true,
+          }).then(console.log('Bạn bè nhận tin'));
+        });
     } else {
       let member = Object.keys(currentFriend.member);
       member.forEach(e => {
         let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
-        database().ref(refmem).push(message);
+        database()
+          .ref(refmem)
+          .push(message, () => {
+            me.update({
+              received: true,
+            }).then(console.log('Nhóm nhận tin'));
+          });
       });
     }
   };
+
   const onSend = useCallback((messages = []) => {
     const {text, user} = messages[0];
-    const mess = {text, user, createdAt: createdAt()};
+    const mess = {text, user, createdAt: createdAt(), sent: true};
     append(mess);
   }, []);
+
+  const onTextChanged = value => {
+    let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
+    if (value != '') {
+      database().ref(ref).update({isTyping: true});
+    } else {
+      database().ref(ref).update({isTyping: false});
+    }
+  };
 
   return (
     <View style={{backgroundColor: 'black', flex: 1}}>
       <StatusBar barStyle="light-content" backgroundColor="black" />
       <GiftedChat
+        alwaysShowSend
+        infiniteScroll
+        onInputTextChanged={onTextChanged}
+        isTyping={isTyping}
         renderUsernameOnMessage={showName}
         isLoadingEarlier={true}
         messages={messages}
@@ -184,7 +241,7 @@ export function ChatScr({navigation, route}) {
                 name="camera"
                 type="font-awesome-5"
                 color="white"
-                onPress={() => alert('hihi')}
+                onPress={() => alert('Chưa dùng được nha')}
               />
             </View>
           );
