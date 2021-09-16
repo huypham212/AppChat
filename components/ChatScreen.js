@@ -109,7 +109,10 @@ export function ChatScr({navigation, route}) {
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
     }
-    if (currentFriend.isTyping != undefined) {
+    if (
+      currentFriend.isTyping != undefined &&
+      currentFriend.member == undefined
+    ) {
       setIsTyping(currentFriend.isTyping);
     }
 
@@ -124,7 +127,7 @@ export function ChatScr({navigation, route}) {
           id +
           '/messages/' +
           e;
-        console.log(ref);
+
         let seen = currentFriend.seen;
         if (seen == true) {
           database().ref(ref).update({seen: true});
@@ -138,10 +141,13 @@ export function ChatScr({navigation, route}) {
     if (currentFriend.member != undefined) {
       setShowName(true);
     }
-
-    database().ref(ref).update({seen: true});
+    if (currentFriend.member == undefined) {
+      database().ref(ref).update({seen: true});
+    }
     return () => {
-      database().ref(ref).update({isTyping: false, seen: false});
+      if (currentFriend.member == undefined) {
+        database().ref(ref).update({isTyping: false, seen: false});
+      }
     };
   }, []);
 
@@ -212,10 +218,12 @@ export function ChatScr({navigation, route}) {
 
   const onTextChanged = value => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
-    if (value != '') {
-      database().ref(ref).update({isTyping: true});
-    } else {
-      database().ref(ref).update({isTyping: false});
+    if (currentFriend.member == undefined) {
+      if (value != '') {
+        database().ref(ref).update({isTyping: true});
+      } else {
+        database().ref(ref).update({isTyping: false});
+      }
     }
   };
 
