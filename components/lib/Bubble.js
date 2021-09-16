@@ -16,6 +16,7 @@ import Time from "./Time";
 import Color from "./Color";
 import { StylePropType, isSameUser, isSameDay } from "./utils";
 import { Icon } from "react-native-elements/dist/icons/Icon";
+import { Avatar } from "react-native-elements";
 const styles = {
   left: StyleSheet.create({
     container: {
@@ -243,15 +244,22 @@ export default class Bubble extends React.Component {
     ) {
       return null;
     }
-    if (currentMessage && currentMessage.pending) {
+
+    if (currentMessage && currentMessage.seen) {
       return (
         <View style={styles.content.tickView}>
-          {!!currentMessage.sent && (
-            <Icon size={15} name="circle" type="font-awesome-5" color="white" />
+          {!!currentMessage.received && (
+            <Avatar
+              size={15}
+              source ={{uri: currentMessage.avafr}}
+              rounded
+            />
           )}
         </View>
       );
-    } else if (currentMessage && currentMessage.received) {
+    } 
+   
+     if (currentMessage && currentMessage.received) {
       return (
         <View style={styles.content.tickView}>
           {!!currentMessage.received && (
@@ -265,7 +273,8 @@ export default class Bubble extends React.Component {
           )}
         </View>
       );
-    } else if (currentMessage && currentMessage.sent) {
+    } 
+     if (currentMessage && currentMessage.sent) {
       return (
         <View style={styles.content.tickView}>
           {!!currentMessage.sent && (
@@ -279,6 +288,16 @@ export default class Bubble extends React.Component {
         </View>
       );
     }
+
+    if (currentMessage && currentMessage.pending) {
+      return (
+        <View style={styles.content.tickView}>
+          {!!currentMessage.pending &&(
+            <Icon size={15} name="circle" type="font-awesome-5" color="white" />
+          )}
+        </View>
+      );
+    } 
 
     return null;
   }
@@ -358,7 +377,7 @@ export default class Bubble extends React.Component {
               wrapperStyle && wrapperStyle[position],
               {
                 marginRight:
-                  currentMessage.sent && position == "right" ? 5 : 21,
+                  currentMessage.pending &&  position == "right" ? 5 : 21,
               },
             ]}
           >
