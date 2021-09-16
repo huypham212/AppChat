@@ -46,7 +46,8 @@ export function ChatScr({navigation, route}) {
     let ava,
       sent = false,
       received = false,
-      seen = false;
+      seen = false,
+      pending = false;
     if (user.avatar != undefined) {
       ava = user.avatar;
     }
@@ -58,6 +59,9 @@ export function ChatScr({navigation, route}) {
     }
     if (snapshot.seen != undefined) {
       seen = snapshot.seen;
+    }
+    if (snapshot.pending != undefined) {
+      pending = snapshot.pending;
     }
 
     user = {_id: user._id, name: user.name, avatar: ava};
@@ -76,6 +80,7 @@ export function ChatScr({navigation, route}) {
       sent,
       received,
       seen,
+      pending,
     };
     let count = 0;
 
@@ -86,17 +91,9 @@ export function ChatScr({navigation, route}) {
       }
     });
 
-    // if (count == 0) {
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, message),
     );
-    //}
-    //  else {
-    //   setMessages(previousMessages =>
-    //     GiftedChat.setTed(previousMessages, message),
-    //   );
-    // }
-
     return message;
   };
 
@@ -134,8 +131,21 @@ export function ChatScr({navigation, route}) {
         .ref(refup)
         .push(message, () => {
           me.update({
-            received: true,
-          }).then(console.log('Bạn bè nhận tin'));
+            sent: true,
+          }).then(console.log('đã gửi tin'));
+          let r = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
+          database()
+            .ref(r)
+            .on('value', snapshot => {
+              if (snapshot.val() != null) {
+                if (snapshot.val().isOnline) {
+                  me.update({
+                    received: true,
+                  }).then(console.log('Bạn bè nhận tin'));
+                  database().ref(r).off();
+                }
+              }
+            });
         });
     } else {
       let member = Object.keys(currentFriend.member);
@@ -145,8 +155,21 @@ export function ChatScr({navigation, route}) {
           .ref(refmem)
           .push(message, () => {
             me.update({
-              received: true,
+              sent: true,
             }).then(console.log('Nhóm nhận tin'));
+            let r = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
+            database()
+              .ref(r)
+              .on('value', snapshot => {
+                if (snapshot.val() != null) {
+                  if (snapshot.val().isOnline) {
+                    me.update({
+                      received: true,
+                    }).then(console.log('Bạn bè nhận tin'));
+                    database().ref(r).off();
+                  }
+                }
+              });
           });
       });
     }
@@ -154,7 +177,13 @@ export function ChatScr({navigation, route}) {
 
   const onSend = useCallback((messages = []) => {
     const {text, user} = messages[0];
-    const mess = {text, user, createdAt: createdAt(), sent: true};
+    const mess = {
+      text,
+      user,
+      createdAt: createdAt(),
+      pending: true,
+    };
+
     append(mess);
   }, []);
 
