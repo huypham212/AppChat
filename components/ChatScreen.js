@@ -180,8 +180,7 @@ export function ChatScr({navigation, route}) {
                 if (snapshot.val().isOnline) {
                   me.update({
                     received: true,
-                  }).then(console.log('Bạn bè nhận tin'));
-                  database().ref(r).off();
+                  }).then(database().ref(r).off());
                 }
               }
             });
@@ -204,8 +203,7 @@ export function ChatScr({navigation, route}) {
                   if (snapshot.val().isOnline) {
                     me.update({
                       received: true,
-                    }).then(console.log('Bạn bè nhận tin'));
-                    database().ref(r).off();
+                    }).then(database().ref(r).off());
                   }
                 }
               });

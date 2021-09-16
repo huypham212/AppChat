@@ -143,30 +143,6 @@ export function ListFriendsScreen({navigation}) {
       parseList(e, friends[e]);
     });
     setL(listChat);
-
-    try {
-      listFriend.forEach(e => {
-        if (uid != null) {
-          let ref = '/users/' + e.replace(' ', '') + '/info';
-          let refup = '/users/' + uid + '/listFriend/' + e.replace(' ', '');
-          const a = database()
-            .ref(ref)
-            .on('value', snapshot => {
-              if (snapshot.val() != null) {
-                database()
-                  .ref(refup)
-                  .update(snapshot.val())
-                  .then(() => {
-                    console.log('update ');
-                  });
-              }
-            });
-          return () => database().ref(ref).off('value', a);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
   }, [user]);
 
   useEffect(() => {

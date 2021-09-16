@@ -21,6 +21,7 @@ import {
   SearchBar,
 } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 import {AuthContext} from './Context';
 
 export function ListChatScr({navigation}) {
@@ -39,9 +40,9 @@ export function ListChatScr({navigation}) {
       let a = Object.keys(messages).sort();
       let lastMess = a[a.length - 1];
       let lastname = '';
-
       let lastTime = messages[lastMess].createdAt;
       let seen = false;
+      let idFr = messages[lastMess].user._id;
       if (messages[lastMess].seen != undefined) {
         seen = messages[lastMess].seen;
       }
@@ -70,16 +71,47 @@ export function ListChatScr({navigation}) {
         messages,
         lastTime,
         seen,
+        idFr,
       };
       listChat.push(item);
       return item;
     }
   };
+  let listFriend = [];
   const filterList = useMemo(() => {
     if (user.listFriend != undefined) {
       friends = user.listFriend;
       keys = Object.keys(friends);
+      listFriend = Object.keys(friends).sort();
+      try {
+        listFriend.forEach(e => {
+          if (auth().currentUser.uid != null) {
+            let ref = '/users/' + e.replace(' ', '') + '/info';
+            let refup =
+              '/users/' +
+              auth().currentUser.uid +
+              '/listFriend/' +
+              e.replace(' ', '');
+            const a = database()
+              .ref(ref)
+              .on('value', snapshot => {
+                if (snapshot.val() != null) {
+                  database()
+                    .ref(refup)
+                    .update(snapshot.val())
+                    .then(() => {
+                      console.log('update ');
+                    });
+                }
+              });
+            return () => database().ref(ref).off('value', a);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
+
     keys.forEach(e => {
       parseList(e, friends[e]);
     });
@@ -147,10 +179,20 @@ export function ListChatScr({navigation}) {
                 ) : null}
               </Avatar>
               <ListItem.Content h1>
-                <Text style={l.seen ? styles.normal : styles.bold}>
+                <Text
+                  style={
+                    l.seen || l.idFr == auth().currentUser.uid
+                      ? styles.normal
+                      : styles.bold
+                  }>
                   {l.name}
                 </Text>
-                <Text style={l.seen ? styles.normalsub : styles.bold}>
+                <Text
+                  style={
+                    l.seen || l.idFr == auth().currentUser.uid
+                      ? styles.normalsub
+                      : styles.bold
+                  }>
                   {l.lastMess}
                 </Text>
               </ListItem.Content>
