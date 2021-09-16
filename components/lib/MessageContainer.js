@@ -228,7 +228,7 @@ export default class MessageContainer extends React.PureComponent {
     }
     render() {
         const { inverted } = this.props;
-        return (<View style={this.props.alignTop ? styles.containerAlignTop : styles.container,{flexDirection:"row"}}>
+        return (<View style={this.props.alignTop ? styles.containerAlignTop : styles.container}>
         {this.state.showScrollBottom && this.props.scrollToBottom
             ? this.renderScrollToBottomWrapper()
             : null}
