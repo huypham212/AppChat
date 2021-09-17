@@ -1,25 +1,7 @@
 import {AuthContext} from './Context';
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {
-  Text,
-  View,
-  ActivityIndicator,
-  StatusBar,
-  ScrollView,
-  Alert,
-  Dimensions,
-} from 'react-native';
-import {
-  Icon,
-  Image,
-  Switch,
-  Avatar,
-  ListItem,
-  Input,
-  SearchBar,
-  Button,
-} from 'react-native-elements';
-import database from '@react-native-firebase/database';
+import {View, ScrollView, Dimensions} from 'react-native';
+import {Avatar, ListItem, Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 
 const window = Dimensions.get('window');
@@ -35,6 +17,7 @@ function ListForm({l, navigation}) {
               name: l.name,
               id: l._id,
               ava: l.avatar,
+              isOnline: l.isOnline,
             })
           }>
           <Avatar rounded source={{uri: l.avatar}} size={50}>
@@ -65,6 +48,7 @@ function ShowAll({l, navigation}) {
           name: l.name,
           id: l._id,
           ava: l.avatar,
+          isOnline: l.isOnline,
         })
       }>
       <Avatar rounded source={{uri: l.avatar}} size={50}>

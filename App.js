@@ -1,11 +1,10 @@
 import React, {useState, useMemo, useEffect, useContext} from 'react';
 import {View, ActivityIndicator, Alert, StatusBar} from 'react-native';
-import {NavigationContainer, DarkTheme} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {AuthContext} from './components/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import firestore from '@react-native-firebase/firestore';
 import {MyStack, RootStack} from './components/Navigation';
 
 //Main
@@ -52,7 +51,6 @@ export default function App() {
   const [loginState, dispatch] = React.useReducer(loginReducer, initLoginState);
 
   const authContext = useMemo(() => ({
-    //uid,
     user,
     signIn: async (email, password) => {
       let result = false;
@@ -63,8 +61,7 @@ export default function App() {
             dispatch({
               type: 'LOGIN',
             });
-            //setUid(user.user.uid);
-            //await AsyncStorage.setItem('userToken', user.user.uid);
+
             result = true;
           });
         return result;
@@ -116,8 +113,6 @@ export default function App() {
               .ref('/users/' + currentUser.uid)
               .off();
             await AsyncStorage.removeItem('currentUser');
-            //await AsyncStorage.removeItem('userToken');
-            //setUid(null);
           });
       } catch (error) {}
     },
@@ -162,11 +157,6 @@ export default function App() {
       let ref = '/users/' + newuser.uid;
       try {
         database()
-          .ref(ref + '/info/isOnline')
-          .onDisconnect()
-          .set(false);
-
-        database()
           .ref(ref)
           .on('value', async snapshot => {
             let a = snapshot.val();
@@ -177,10 +167,12 @@ export default function App() {
               database()
                 .ref(ref + '/info')
                 .update({isOnline: true})
-                .then(() => {
-                  console.log('update login');
-                });
+                .then(() => {});
             }
+            database()
+              .ref(ref + '/info/isOnline')
+              .onDisconnect()
+              .set(false);
           });
       } catch (e) {
         console.log(e);
@@ -191,26 +183,29 @@ export default function App() {
   useEffect(() => {
     setTimeout(async () => {
       try {
-        //  let userToken = null;
-
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-        // userToken = await AsyncStorage.getItem('userToken');
         let c = await AsyncStorage.getItem('currentUser');
-        //console.log(c);
         if (c != null) {
           setUser(JSON.parse(c));
           console.log('current User:', JSON.parse(c).info.name);
         } else {
           setUser(null);
         }
-
-        // setUid(userToken);
         dispatch({type: 'RETRIEVE_TOKEN'});
-        return subscriber;
+        return () => {
+          subscriber;
+        };
       } catch (error) {
         console.log(error);
       }
     }, 1000);
+    return () => {
+      let ref = '/users/' + auth().currentUser.uid;
+      database().ref(ref).off();
+      database()
+        .ref(ref + '/info/')
+        .update({isOnline: false});
+    };
   }, []);
 
   if (loginState.isLoading) {

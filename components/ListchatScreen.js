@@ -2,24 +2,12 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {
   SafeAreaView,
   View,
-  FlatList,
   StyleSheet,
   Text,
-  StatusBar,
   ScrollView,
   Alert,
 } from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  Icon,
-  Image,
-  Input,
-  ListItem,
-  Button,
-  Avatar,
-  SearchBar,
-} from 'react-native-elements';
+import {Icon, ListItem, Button, Avatar, SearchBar} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {AuthContext} from './Context';
@@ -99,12 +87,7 @@ export function ListChatScr({navigation}) {
               .ref(ref)
               .on('value', snapshot => {
                 if (snapshot.val() != null) {
-                  database()
-                    .ref(refup)
-                    .update(snapshot.val())
-                    .then(() => {
-                      console.log('update ');
-                    });
+                  database().ref(refup).update(snapshot.val());
                 }
               });
             return () => database().ref(ref).off('value', a);

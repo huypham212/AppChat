@@ -5,22 +5,13 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import {
-  SafeAreaView,
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  StatusBar,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import {View, StyleSheet, StatusBar, ActivityIndicator} from 'react-native';
 import {Icon} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
 import {AuthContext} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import firestore from '@react-native-firebase/firestore';
 
 export function ChatScr({navigation, route}) {
   const [messages, setMessages] = useState([]);
@@ -75,6 +66,19 @@ export function ChatScr({navigation, route}) {
     let avafr;
     if (currentFriend.avatar != undefined) {
       avafr = currentFriend.avatar;
+    }
+    if (currentFriend.isOnline) {
+      received = true;
+      let r =
+        '/users/' +
+        auth().currentUser.uid +
+        '/listFriend/' +
+        id +
+        '/messages/' +
+        _id;
+      database().ref(r).update({
+        received: true,
+      });
     }
 
     const message = {
@@ -172,18 +176,6 @@ export function ChatScr({navigation, route}) {
           me.update({
             sent: true,
           }).then(console.log('đã gửi tin'));
-          let r = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
-          database()
-            .ref(r)
-            .on('value', snapshot => {
-              if (snapshot.val() != null) {
-                if (snapshot.val().isOnline) {
-                  me.update({
-                    received: true,
-                  }).then(database().ref(r).off());
-                }
-              }
-            });
         });
     } else {
       let member = Object.keys(currentFriend.member);
@@ -195,18 +187,6 @@ export function ChatScr({navigation, route}) {
             me.update({
               sent: true,
             }).then(console.log('Nhóm nhận tin'));
-            let r = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
-            database()
-              .ref(r)
-              .on('value', snapshot => {
-                if (snapshot.val() != null) {
-                  if (snapshot.val().isOnline) {
-                    me.update({
-                      received: true,
-                    }).then(database().ref(r).off());
-                  }
-                }
-              });
           });
       });
     }
