@@ -123,7 +123,7 @@ export function ChatScr({navigation, route}) {
     }
 
     let keys = Object.keys(listMess).sort();
-    keys.forEach((e, i) => {
+    keys.forEach(async (e, i) => {
       parse(e, listMess[e], i);
       if (e.seen == undefined || e.seen != true) {
         let ref =
@@ -136,7 +136,7 @@ export function ChatScr({navigation, route}) {
 
         let seen = currentFriend.seen;
         if (seen == true) {
-          database().ref(ref).update({seen: true});
+          await database().ref(ref).update({seen: true});
         }
       }
     });
@@ -152,16 +152,16 @@ export function ChatScr({navigation, route}) {
     if (currentFriend.member == undefined) {
       database()
         .ref(ref)
-        .on('value', snapshot => {
+        .on('value', async snapshot => {
           if (snapshot.val().seen == false) {
-            database().ref(ref).update({seen: true});
+            await database().ref(ref).update({seen: true});
           }
         });
     }
-    return () => {
+    return async () => {
       if (currentFriend.member == undefined) {
         database().ref(ref).off();
-        database().ref(ref).update({isTyping: false});
+        await database().ref(ref).update({isTyping: false});
       }
     };
   }, []);
@@ -211,13 +211,13 @@ export function ChatScr({navigation, route}) {
     append(mess);
   }, []);
 
-  const onTextChanged = value => {
+  const onTextChanged = async value => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
     if (currentFriend.member == undefined) {
       if (value != '') {
-        database().ref(ref).update({isTyping: true});
+        await database().ref(ref).update({isTyping: true});
       } else {
-        database().ref(ref).update({isTyping: false});
+        await database().ref(ref).update({isTyping: false});
       }
     }
   };

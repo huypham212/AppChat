@@ -12,10 +12,20 @@ PushNotification.configure({
   onRegister: function (token) {
     console.log('TOKEN:', token);
   },
+  onNotification: function (notification) {
+    console.log('NOTIFICATION:', notification);
+    // process the notification
+    //console.log('đã xem thông báo');
+    // (required) Called when a remote is received or opened, or local notification is opened
+    // notification.finish(PushNotificationIOS.FetchResult.NoData);
+  },
 
   onAction: function (notification) {
     console.log('ACTION:', notification.action);
     console.log('NOTIFICATION:', notification);
+    if (notification.action === 'ReplyInput') {
+      console.log('trả lời', notification.reply_text); // this will contain the inline reply text.
+    }
   },
 
   onRegistrationError: function (err) {
@@ -30,7 +40,7 @@ PushNotification.configure({
 
   popInitialNotification: true,
 
-  requestPermissions: Platform.OS === 'ios',
+  requestPermissions: true,
 });
 
 AppRegistry.registerComponent(appName, () => App);

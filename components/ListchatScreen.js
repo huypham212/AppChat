@@ -12,9 +12,11 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {AuthContext} from './Context';
 import PushNotification from 'react-native-push-notification';
+import {useIsFocused} from '@react-navigation/native';
+
 export function ListChatScr({navigation, route}) {
   const {user} = React.useContext(AuthContext);
-
+  const isFocused = useIsFocused(true);
   let friends;
 
   const [l, setL] = useState([]);
@@ -26,17 +28,30 @@ export function ListChatScr({navigation, route}) {
     PushNotification.createChannel({
       channelId: 'channel-id', // (required)
       channelName: 'My channel', // (required)
+      playSound: true, // (optional) default: true
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true,
     });
   };
 
-  const testPush = (id, text, name, avatar) => {
-    console.log(id, text, name, avatar);
+  const NotifyPush = (id, text, name, avatar) => {
+    //console.log(id, text, name, avatar);
     PushNotification.localNotification({
+      priority: 'high',
+      vibrate: true, // (optional) default: true
+      vibration: 1000,
       channelId: 'channel-id',
       title: name,
       message: text,
       largeIconUrl: avatar,
       id: id,
+      actions: ['ReplyInput'],
+      reply_placeholder_text: 'Nhập tin nhắn...', // (required)
+      reply_button_text: 'Trả lời', //
+      playSound: true, // (optional) default: true
+      soundName: 'sound.mp3',
+      invokeApp: false,
     });
   };
 
@@ -89,6 +104,9 @@ export function ListChatScr({navigation, route}) {
   };
   let listFriend = [];
   const filterList = useMemo(() => {
+    if (isFocused) {
+      setIdFr(auth().currentUser.uid);
+    }
     if (user.listFriend != undefined) {
       friends = user.listFriend;
       // keys = Object.keys(friends);
@@ -110,6 +128,7 @@ export function ListChatScr({navigation, route}) {
                 }
               });
 
+            // Thông báo tin nhắn nổi
             if (friends[e].messages != undefined) {
               // console.log(friends[e].messages);
               let list = friends[e].messages;
@@ -123,11 +142,12 @@ export function ListChatScr({navigation, route}) {
 
               if (
                 mess.user._id != auth().currentUser.uid &&
-                mess.user._id != idFr
+                mess.user._id != idFr &&
+                isFocused == false
               ) {
                 if (mess.received != undefined) {
-                  if (mess.received == false) {
-                    testPush(_id, mess.text, name, avatar);
+                  if (mess.received == false && mess.seen == false) {
+                    NotifyPush(_id, mess.text, name, avatar);
                     let ref =
                       '/users/' +
                       auth().currentUser.uid +
@@ -137,6 +157,17 @@ export function ListChatScr({navigation, route}) {
                       key;
                     database().ref(ref).update({received: true});
                   }
+                }
+              } else {
+                if (mess.received == false) {
+                  let ref =
+                    '/users/' +
+                    auth().currentUser.uid +
+                    '/listFriend/' +
+                    e.replace(' ', '') +
+                    '/messages/' +
+                    key;
+                  database().ref(ref).update({received: true});
                 }
               }
             }
