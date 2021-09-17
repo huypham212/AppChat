@@ -11,6 +11,7 @@ import {AuthContext} from './Context';
 import SettingsScreen from './SettingScreen';
 import {SearchScr} from './SearchScreen';
 import {ListFriendsScreen} from './ListFrScreen';
+import {Test} from './test';
 
 // header bên trái của tab navigation
 function headerLeft({navigation}) {
@@ -109,6 +110,7 @@ export function MyStack() {
         component={SettingsScreen}
         options={{title: 'Tôi'}}
       />
+      <Stack.Screen name="test" component={Test} options={{title: 'Tôi'}} />
     </Stack.Navigator>
   );
 }
@@ -159,6 +161,7 @@ export function TabMain({navigation}) {
                 raised
                 size={18}
                 solid={true}
+                onPress={() => navigation.navigate('test')}
               />
             </View>
           ),
