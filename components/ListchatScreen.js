@@ -120,7 +120,7 @@ export function ListChatScr({navigation, route}) {
       // keys = Object.keys(friends);
       listFriend = Object.keys(friends).sort();
       try {
-        listFriend.forEach(e => {
+        listFriend.forEach(async e => {
           if (auth().currentUser.uid != null) {
             let ref = '/users/' + e.replace(' ', '') + '/info';
             let refup =
@@ -128,7 +128,7 @@ export function ListChatScr({navigation, route}) {
               auth().currentUser.uid +
               '/listFriend/' +
               e.replace(' ', '');
-            const a = database()
+            const a = await database()
               .ref(ref)
               .on('value', snapshot => {
                 if (snapshot.val() != null) {
