@@ -154,9 +154,9 @@ export function ChatScr({navigation, route}) {
   const [max, setMax] = useState(0);
   //load tin nhắn lần đầu + tn mới
   const loadMess = useMemo(() => {
+    route.params.isOnline = currentFriend.isOnline;
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
-      route.params.isOnline = !currentFriend.isOnline;
     }
     if (
       currentFriend.isTyping != undefined &&
