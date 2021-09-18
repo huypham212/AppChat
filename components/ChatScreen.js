@@ -14,10 +14,9 @@ import {
 } from 'react-native';
 import {Icon} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
-import {AuthContext} from './Context';
+import {AuthContext, CurrentFr} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import firestore from '@react-native-firebase/firestore';
 
 export const append = (id, currentFriend, message) => {
   let ref =
@@ -170,7 +169,7 @@ export function ChatScr({navigation, route}) {
     keys = keys.slice(num);
     keys.forEach(async (e, i) => {
       parse(e, listMess[e], false);
-      if (e.seen == undefined || e.seen != true) {
+      if (e.seen != true) {
         let ref =
           '/users/' +
           auth().currentUser.uid +

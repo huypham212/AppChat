@@ -12,7 +12,7 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {AuthContext} from './Context';
 import PushNotification, {Importance} from 'react-native-push-notification';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, CommonActions} from '@react-navigation/native';
 import Navigation from './Navigation';
 export function ListChatScr({navigation, route}) {
   const {user} = React.useContext(AuthContext);
@@ -106,9 +106,15 @@ export function ListChatScr({navigation, route}) {
   };
   let listFriend = [];
   const filterList = useMemo(() => {
-    if (isFocused) {
-      setIdFr(auth().currentUser.uid);
+    if (route.params != undefined && route.params.idFr != null) {
+      setIdFr(route.params.idFr);
+      route.params = null;
+    } else {
+      if (isFocused) {
+        setIdFr(null);
+      }
     }
+
     if (user.listFriend != undefined) {
       friends = user.listFriend;
       // keys = Object.keys(friends);

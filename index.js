@@ -25,7 +25,10 @@ PushNotification.configure({
     //console.log('đã xem thông báo');
     // (required) Called when a remote is received or opened, or local notification is opened
     // notification.finish(PushNotificationIOS.FetchResult.NoData);
-    RootNavigation.navigate('tabmain');
+    RootNavigation.navigate('tabmain', {
+      screen: 'listchat',
+      params: {idFr: notification.idFr},
+    });
     RootNavigation.navigate('chat', {
       name: notification.title,
       id: notification.idFr,
@@ -58,6 +61,8 @@ PushNotification.configure({
       let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
       if (currentFriend.member == undefined) {
         database().ref(ref).update({seen: false});
+        ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
+        database().ref(ref).update({seen: true});
       }
       Send.append(id, currentFriend, mess);
     }
