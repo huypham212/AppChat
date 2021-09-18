@@ -138,13 +138,25 @@ export function ListChatScr({navigation, route}) {
               let mess = list[key];
               let {_id, avatar, name} = mess.user;
               let id = _id.charCodeAt(0);
-              if (
-                mess.user._id != auth().currentUser.uid &&
-                mess.user._id != idFr
-              ) {
-                if (mess.received != undefined) {
-                  if (mess.received == false && mess.seen == false) {
-                    NotifyPush(id, mess.text, name, avatar, _id);
+
+              if (mess.user._id != auth().currentUser.uid) {
+                if (mess.user._id != idFr) {
+                  if (mess.received != undefined) {
+                    if (mess.received == false && mess.seen == false) {
+                      NotifyPush(id, mess.text, name, avatar, _id);
+
+                      let ref =
+                        '/users/' +
+                        auth().currentUser.uid +
+                        '/listFriend/' +
+                        e.replace(' ', '') +
+                        '/messages/' +
+                        key;
+                      database().ref(ref).update({received: true});
+                    }
+                  }
+                } else {
+                  if (mess.received == false) {
                     let ref =
                       '/users/' +
                       auth().currentUser.uid +
@@ -154,17 +166,6 @@ export function ListChatScr({navigation, route}) {
                       key;
                     database().ref(ref).update({received: true});
                   }
-                }
-              } else {
-                if (mess.received == false) {
-                  let ref =
-                    '/users/' +
-                    auth().currentUser.uid +
-                    '/listFriend/' +
-                    e.replace(' ', '') +
-                    '/messages/' +
-                    key;
-                  database().ref(ref).update({received: true});
                 }
               }
             }

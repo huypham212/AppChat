@@ -17,10 +17,10 @@ import * as Send from './components/ChatScreen';
 
 PushNotification.configure({
   onRegister: function (token) {
-    console.log('TOKEN:', token);
+    //console.log('TOKEN:', token);
   },
   onNotification: function (notification) {
-    console.log('NOTIFICATION:', notification);
+    //console.log('NOTIFICATION:', notification);
     // process the notification
     //console.log('đã xem thông báo');
     // (required) Called when a remote is received or opened, or local notification is opened

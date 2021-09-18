@@ -183,25 +183,21 @@ class GiftedChat extends React.Component {
         }
         if(inverted)
             {
+                let count=0
                 currentMessages.forEach((e,i)=>{
                     if(messages[0].seen && messages[0].user._id == messages[0].myid  )
                     {
                         currentMessages[i].avafr = null
                     }
-                    })
-                let count=0
-                currentMessages.forEach((e,i)=>{
                     if(e._id == messages[0]._id)
                     {
                         count++
                         currentMessages[i] = messages[0]
                         
                     }
-                   
                 })
                 if(count==0)
                 {
-                    
                     currentMessages = messages.concat(currentMessages)
                 } 
             }
@@ -220,17 +216,31 @@ class GiftedChat extends React.Component {
                     currentMessages = currentMessages.concat(messages)
                 } 
             }
-
         return currentMessages
-            
     }
     static prepend(currentMessages = [], messages, inverted = true) {
         if (!Array.isArray(messages)) {
             messages = [messages];
         }
-        return inverted
-            ? currentMessages.concat(messages)
-            : messages.concat(currentMessages);
+        let count=0
+        currentMessages.forEach((e,i)=>{ 
+            if(currentMessages[i].user._id == currentMessages[i].myid  )
+            { 
+                if(currentMessages[i].seen )
+                messages[0].avafr = null
+            }
+                   
+            if(e._id == messages[0]._id)
+            {
+                count++
+                messages[0] =currentMessages[i]
+            }
+        })
+        if(count==0)
+        {       
+            currentMessages = currentMessages.concat(messages) 
+        } 
+        return currentMessages
     }
     
     getChildContext() {

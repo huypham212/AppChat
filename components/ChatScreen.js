@@ -136,7 +136,7 @@ export function ChatScr({navigation, route}) {
     });
 
     if (prever) {
-      message.avafr = null;
+      //message.avafr = null;
       setMessages(previousMessages =>
         GiftedChat.prepend(previousMessages, message),
       );
