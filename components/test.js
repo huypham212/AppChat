@@ -19,71 +19,48 @@ import {
   Button,
 } from 'react-native-elements';
 import {AuthContext} from './Context';
-import PushNotification from 'react-native-push-notification';
+import PushNotification, {Importance} from 'react-native-push-notification';
 import auth from '@react-native-firebase/auth';
 export function Test() {
-  const {user} = useContext(AuthContext);
-  const create = () => {
-    PushNotification.createChannel({
-      channelId: 'channel-id', // (required)
-      channelName: 'My channel', // (required)
-    });
-  };
+  // const {user} = useContext(AuthContext);
+  // const create = () => {
+  //   PushNotification.createChannel({
+  //     channelId: 'message', // (required)
+  //     channelName: 'Thông báo tin nhắn', // (required)
+  //     channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+  //     importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+  //     vibrate: true, // (optional) default: true. Creates the default vibration patten if true
+  //     vibration: 2000,
+  //     playSound: true, // (optional) default: true
+  //     soundName: 'message_pop.mp3',
+  //   });
+  // };
+  // const push = () => {
+  //   PushNotification.localNotification({
+  //     channelId: 'message', // (required)
+  //     channelName: 'Thông báo tin nhắn',
+  //     message: 'thông báo tin nhắn', // (required)
+  //     actions: ['ReplyInput'],
+  //     reply_placeholder_text: 'Nhập tin nhắn', // (required)
+  //     reply_button_text: 'Trả lời', // (required)
+  //     invokeApp: false,
+  //     group: 'group',
+  //     id: 1,
+  //     vibrate: true,
+  //     vibration: [
+  //       180, 121, 134, 300, 289, 123, 134, 300, 621, 121, 134, 300, 289, 123,
+  //       134, 300,
+  //     ],
+  //   });
+  // };
 
-  useEffect(() => {
-    create();
-  }, []);
-  const testPush = (id, text, name, avatar) => {
-    console.log(id, text, name, avatar);
-    PushNotification.localNotification({
-      channelId: 'channel-id',
-      title: name,
-      message: text,
-      largeIconUrl: avatar,
-      id: id,
-    });
-  };
-  const push = async () => {
-    await PushNotification.localNotificationSchedule({
-      channelId: 'channel-id',
-      title: 'Hahaha',
-      message: 'liu liu',
-      date: new Date(Date.now() + 3000),
-    });
-  };
-  let listFr = [];
-  const Auto = useMemo(() => {
-    if (user.listFriend != undefined) {
-      listFr = user.listFriend;
-      //listmessage = Object.values(listFr);
-      let keys = Object.keys(user.listFriend);
-      keys.forEach((e, i) => {
-        if (listFr[e].messages != undefined) {
-          let length = Object.values(listFr[e].messages).length;
-          console.log(e, ':', length);
-          let mess = Object.values(listFr[e].messages)[length - 1];
-          let {_id, avatar, name} = Object.values(listFr[e].messages)[
-            length - 1
-          ].user;
-          _id = parseInt(_id);
-          if (mess != auth().currentUser.uid) {
-            if (mess.received != undefined) {
-              if (mess.received == false) {
-                testPush(_id, mess.text, name, avatar);
-                // console.log(_id, mess.text, name, avatar);
-              }
-            } else {
-              testPush(_id, mess, name, avatar);
-              //console.log(mess.text);
-            }
-          }
-        }
-      });
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   create();
+  // }, []);
+
   return (
     <View style={{flex: 1}}>
-      <Button title="Push" onPress={push} />
+      {/* <Button title="Push" onPress={push} /> */}
     </View>
   );
 }

@@ -1,12 +1,13 @@
 import React, {useState, useMemo, useEffect, useContext} from 'react';
 import {View, ActivityIndicator, Alert, StatusBar} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+
 import {AuthContext} from './components/Context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {MyStack, RootStack} from './components/Navigation';
-
+import {NavigationContainer} from '@react-navigation/native';
+import {navigationRef} from './components/RootNavigation';
 //Main
 export default function App() {
   const [user, setUser] = useState(null);
@@ -219,7 +220,7 @@ export default function App() {
   return (
     <AuthContext.Provider value={authContext}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         {user != null ? <MyStack /> : <RootStack />}
       </NavigationContainer>
     </AuthContext.Provider>

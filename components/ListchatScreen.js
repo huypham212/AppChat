@@ -11,9 +11,9 @@ import {Icon, ListItem, Button, Avatar, SearchBar} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {AuthContext} from './Context';
-import PushNotification from 'react-native-push-notification';
+import PushNotification, {Importance} from 'react-native-push-notification';
 import {useIsFocused} from '@react-navigation/native';
-
+import Navigation from './Navigation';
 export function ListChatScr({navigation, route}) {
   const {user} = React.useContext(AuthContext);
   const isFocused = useIsFocused(true);
@@ -26,22 +26,23 @@ export function ListChatScr({navigation, route}) {
 
   const create = () => {
     PushNotification.createChannel({
-      channelId: 'channel-id', // (required)
-      channelName: 'My channel', // (required)
+      channelId: 'message', // (required)
+      channelName: 'Thông báo tin nhắn', // (required)
+      channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+      importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true
+      vibration: 1000,
       playSound: true, // (optional) default: true
-      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-      importance: 4, // (optional) default: 4. Int value of the Android notification importance
-      vibrate: true,
+      soundName: 'message_pop.mp3',
     });
   };
 
-  const NotifyPush = (id, text, name, avatar) => {
-    //console.log(id, text, name, avatar);
+  const NotifyPush = (id, text, name, avatar, idFr) => {
     PushNotification.localNotification({
       priority: 'high',
-      vibrate: true, // (optional) default: true
       vibration: 1000,
-      channelId: 'channel-id',
+      channelId: 'message', // (required)
+      channelName: 'Thông báo tin nhắn', // (required)
       title: name,
       message: text,
       largeIconUrl: avatar,
@@ -49,9 +50,10 @@ export function ListChatScr({navigation, route}) {
       actions: ['ReplyInput'],
       reply_placeholder_text: 'Nhập tin nhắn...', // (required)
       reply_button_text: 'Trả lời', //
-      playSound: true, // (optional) default: true
-      soundName: 'sound.mp3',
       invokeApp: false,
+      idFr,
+      currentFriend: user.listFriend[idFr],
+      Me: user.info,
     });
   };
 
@@ -130,16 +132,12 @@ export function ListChatScr({navigation, route}) {
 
             // Thông báo tin nhắn nổi
             if (friends[e].messages != undefined) {
-              // console.log(friends[e].messages);
               let list = friends[e].messages;
               let length = Object.keys(list).length;
               let key = Object.keys(list).sort()[length - 1];
               let mess = list[key];
-              let {_id, avatar, name} = Object.values(friends[e].messages)[
-                length - 1
-              ].user;
-              _id = _id.charCodeAt(0);
-
+              let {_id, avatar, name} = mess.user;
+              let id = _id.charCodeAt(0);
               if (
                 mess.user._id != auth().currentUser.uid &&
                 mess.user._id != idFr &&
@@ -147,7 +145,7 @@ export function ListChatScr({navigation, route}) {
               ) {
                 if (mess.received != undefined) {
                   if (mess.received == false && mess.seen == false) {
-                    NotifyPush(_id, mess.text, name, avatar);
+                    NotifyPush(id, mess.text, name, avatar, _id);
                     let ref =
                       '/users/' +
                       auth().currentUser.uid +
@@ -219,7 +217,9 @@ export function ListChatScr({navigation, route}) {
             />
           }
           placeholder="Tìm kiếm"
-          onPressIn={() => navigation.navigate('search')}
+          onPressIn={() => {
+            navigation.navigate('search');
+          }}
         />
         <View>
           {l.map((l, i) => (

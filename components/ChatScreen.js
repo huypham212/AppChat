@@ -13,23 +13,49 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import firestore from '@react-native-firebase/firestore';
 
+export const append = (id, currentFriend, message) => {
+  let ref =
+    '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
+  let refup =
+    '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
+
+  let me = database().ref(ref).push(message);
+
+  if (currentFriend.member == undefined) {
+    let a = database()
+      .ref(refup)
+      .push(message, () => {
+        me.update({
+          sent: true,
+        }).then(console.log('đã gửi tin'));
+      });
+  } else {
+    let member = Object.keys(currentFriend.member);
+    member.forEach(e => {
+      let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
+      database()
+        .ref(refmem)
+        .push(message, () => {
+          me.update({
+            sent: true,
+          }).then(console.log('Nhóm nhận tin'));
+        });
+    });
+  }
+};
+
 export function ChatScr({navigation, route}) {
   const [messages, setMessages] = useState([]);
   const {user} = useContext(AuthContext);
   const [showName, setShowName] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const id = route.params.id;
+  let id = route.params.id;
 
-  const currentFriend = user.listFriend[id];
+  let currentFriend = user.listFriend[id];
 
   const createdAt = () => {
     return database.ServerValue.TIMESTAMP;
   };
-
-  let ref =
-    '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
-  let refup =
-    '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
 
   const parse = (key, snapshot, index) => {
     let {createdAt: numberStamp, text, user} = snapshot;
@@ -140,7 +166,7 @@ export function ChatScr({navigation, route}) {
         }
       }
     });
-  }, [user.listFriend[id].messages]);
+  }, [user]);
 
   useEffect(() => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
@@ -166,32 +192,6 @@ export function ChatScr({navigation, route}) {
     };
   }, []);
 
-  const append = message => {
-    let me = database().ref(ref).push(message);
-
-    if (currentFriend.member == undefined) {
-      let a = database()
-        .ref(refup)
-        .push(message, () => {
-          me.update({
-            sent: true,
-          }).then(console.log('đã gửi tin'));
-        });
-    } else {
-      let member = Object.keys(currentFriend.member);
-      member.forEach(e => {
-        let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
-        database()
-          .ref(refmem)
-          .push(message, () => {
-            me.update({
-              sent: true,
-            }).then(console.log('Nhóm nhận tin'));
-          });
-      });
-    }
-  };
-
   const onSend = useCallback((messages = []) => {
     const {text, user} = messages[0];
 
@@ -208,7 +208,7 @@ export function ChatScr({navigation, route}) {
       database().ref(ref).update({seen: false});
     }
 
-    append(mess);
+    append(id, currentFriend, mess);
   }, []);
 
   const onTextChanged = async value => {
