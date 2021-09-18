@@ -34,10 +34,10 @@ PushNotification.configure({
   },
 
   onAction: function (notification) {
-    console.log('ACTION:', notification.action);
-    console.log('NOTIFICATION:', notification);
+    // console.log('ACTION:', notification.action);
+    //console.log('NOTIFICATION:', notification);
     if (notification.action === 'ReplyInput') {
-      console.log('trả lời', notification.reply_text); // this will contain the inline reply text.
+      // console.log('trả lời', notification.reply_text); // this will contain the inline reply text.
       let text = notification.reply_text;
       let id = notification.idFr;
       let currentFriend = notification.currentFriend;

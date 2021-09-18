@@ -5,7 +5,13 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import {View, StyleSheet, StatusBar, ActivityIndicator} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import {Icon} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
 import {AuthContext} from './Context';
@@ -143,9 +149,11 @@ export function ChatScr({navigation, route}) {
   };
 
   let listMess = [];
-  let max = 0;
-  const [num, setNum] = useState(-10);
+
+  const [num, setNum] = useState(-20);
   const [fresh, setFresh] = useState(false);
+  const [max, setMax] = useState(0);
+  //load tin nhắn lần đầu + tn mới
   const loadMess = useMemo(() => {
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
@@ -158,7 +166,7 @@ export function ChatScr({navigation, route}) {
     }
 
     let keys = Object.keys(listMess).sort();
-    max = keys.length;
+    setMax(keys.length);
     keys = keys.slice(num);
     keys.forEach(async (e, i) => {
       parse(e, listMess[e], false);
@@ -179,14 +187,15 @@ export function ChatScr({navigation, route}) {
     });
   }, [user]);
 
+  //load tin nhắn cũ
+
+  const [stop, setStop] = useState(false);
   useMemo(() => {
-    if (num != -10) {
+    if (num != -20) {
       if (currentFriend.messages != undefined) {
         listMess = currentFriend.messages;
       }
-
       let keys = Object.keys(listMess).sort();
-      //console.log(keys);
       keys = keys.slice(num).reverse();
       keys.forEach(async (e, i) => {
         parse(e, listMess[e], true);
@@ -225,6 +234,7 @@ export function ChatScr({navigation, route}) {
         });
     }
     return async () => {
+      // setNum(-20);
       if (currentFriend.member == undefined) {
         database().ref(ref).off();
         await database().ref(ref).update({isTyping: false});
@@ -273,13 +283,17 @@ export function ChatScr({navigation, route}) {
             <ActivityIndicator size="large" color="white" />
           </View>
         )}
-        loadEarlier
+        loadEarlier={fresh}
         listViewProps={{
           scrollEventThrottle: 400,
           onScroll: () => {
             setFresh(true);
-            if (fresh) {
+            if (fresh && stop == false) {
               setNum(num - 10);
+              setFresh(false);
+            }
+            if (num < max * -1) {
+              setStop(true);
               setFresh(false);
             }
           },
@@ -354,8 +368,7 @@ export function ChatScr({navigation, route}) {
                 type="font-awesome-5"
                 color="white"
                 onPress={() => {
-                  setNum(num - 10);
-                  console.log(num);
+                  Alert.alert('Liu liu', 'Chưa dùng được nha');
                 }}
               />
             </View>
