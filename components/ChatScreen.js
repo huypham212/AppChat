@@ -156,6 +156,7 @@ export function ChatScr({navigation, route}) {
   const loadMess = useMemo(() => {
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
+      route.params.isOnline = !currentFriend.isOnline;
     }
     if (
       currentFriend.isTyping != undefined &&
