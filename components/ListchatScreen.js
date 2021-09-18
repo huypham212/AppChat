@@ -140,8 +140,7 @@ export function ListChatScr({navigation, route}) {
               let id = _id.charCodeAt(0);
               if (
                 mess.user._id != auth().currentUser.uid &&
-                mess.user._id != idFr &&
-                isFocused == false
+                mess.user._id != idFr
               ) {
                 if (mess.received != undefined) {
                   if (mess.received == false && mess.seen == false) {
