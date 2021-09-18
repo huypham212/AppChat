@@ -17,6 +17,7 @@ import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
 import {AuthContext, CurrentFr} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import {CommonActions} from '@react-navigation/native';
 
 export const append = (id, currentFriend, message) => {
   let ref =
@@ -154,7 +155,6 @@ export function ChatScr({navigation, route}) {
   const [max, setMax] = useState(0);
   //load tin nhắn lần đầu + tn mới
   const loadMess = useMemo(() => {
-    route.params.isOnline = currentFriend.isOnline;
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
     }
@@ -216,6 +216,14 @@ export function ChatScr({navigation, route}) {
       });
     }
   }, [num]);
+
+  useMemo(() => {
+    setTimeout(() => {
+      navigation.dispatch(
+        CommonActions.setParams({isOnline: currentFriend.isOnline}),
+      );
+    }, 1000);
+  }, [currentFriend.isOnline]);
 
   useEffect(() => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
