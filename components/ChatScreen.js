@@ -57,7 +57,7 @@ export function ChatScr({navigation, route}) {
     return database.ServerValue.TIMESTAMP;
   };
 
-  const parse = (key, snapshot, index) => {
+  const parse = (key, snapshot, prever) => {
     let {createdAt: numberStamp, text, user} = snapshot;
     const createdAt = new Date(numberStamp);
     const _id = key;
@@ -129,14 +129,23 @@ export function ChatScr({navigation, route}) {
       }
     });
 
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, message),
-    );
+    if (prever) {
+      message.avafr = null;
+      setMessages(previousMessages =>
+        GiftedChat.prepend(previousMessages, message),
+      );
+    } else {
+      setMessages(previousMessages =>
+        GiftedChat.append(previousMessages, message),
+      );
+    }
     return message;
   };
 
   let listMess = [];
-
+  let max = 0;
+  const [num, setNum] = useState(-10);
+  const [fresh, setFresh] = useState(false);
   const loadMess = useMemo(() => {
     if (currentFriend.messages != undefined) {
       listMess = currentFriend.messages;
@@ -149,8 +158,10 @@ export function ChatScr({navigation, route}) {
     }
 
     let keys = Object.keys(listMess).sort();
+    max = keys.length;
+    keys = keys.slice(num);
     keys.forEach(async (e, i) => {
-      parse(e, listMess[e], i);
+      parse(e, listMess[e], false);
       if (e.seen == undefined || e.seen != true) {
         let ref =
           '/users/' +
@@ -167,6 +178,35 @@ export function ChatScr({navigation, route}) {
       }
     });
   }, [user]);
+
+  useMemo(() => {
+    if (num != -10) {
+      if (currentFriend.messages != undefined) {
+        listMess = currentFriend.messages;
+      }
+
+      let keys = Object.keys(listMess).sort();
+      //console.log(keys);
+      keys = keys.slice(num).reverse();
+      keys.forEach(async (e, i) => {
+        parse(e, listMess[e], true);
+        if (e.seen == undefined || e.seen != true) {
+          let ref =
+            '/users/' +
+            auth().currentUser.uid +
+            '/listFriend/' +
+            id +
+            '/messages/' +
+            e;
+
+          let seen = currentFriend.seen;
+          if (seen == true) {
+            await database().ref(ref).update({seen: true});
+          }
+        }
+      });
+    }
+  }, [num]);
 
   useEffect(() => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
@@ -226,13 +266,24 @@ export function ChatScr({navigation, route}) {
     <View style={{backgroundColor: 'black', flex: 1}}>
       <StatusBar barStyle="light-content" backgroundColor="black" />
       <GiftedChat
+        infiniteScroll
         renderLoading={() => (
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
             <ActivityIndicator size="large" color="white" />
           </View>
         )}
-        alwaysShowSend
+        loadEarlier
+        listViewProps={{
+          scrollEventThrottle: 400,
+          onScroll: () => {
+            setFresh(true);
+            if (fresh) {
+              setNum(num - 10);
+              setFresh(false);
+            }
+          },
+        }}
         infiniteScroll
         onInputTextChanged={onTextChanged}
         isTyping={isTyping}
@@ -302,7 +353,10 @@ export function ChatScr({navigation, route}) {
                 name="camera"
                 type="font-awesome-5"
                 color="white"
-                onPress={() => alert('Chưa dùng được nha')}
+                onPress={() => {
+                  setNum(num - 10);
+                  console.log(num);
+                }}
               />
             </View>
           );
