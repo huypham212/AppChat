@@ -17,6 +17,7 @@ import {
   ListItem,
   Input,
   SearchBar,
+  Button,
 } from 'react-native-elements';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
@@ -31,10 +32,7 @@ export function SearchScr({navigation}) {
   const [keyFriend] = useState([]);
   const [keyNotFriend] = useState([]);
   const currentUser = auth().currentUser;
-  //let keyAllUser = [];
-  //let keyFriend = [];
   let listFriend = [];
-  //let keyNotFriend = [];
   let listNotFriend = [];
 
   //using firestore to get all users
@@ -177,6 +175,51 @@ export function SearchScr({navigation}) {
     }
   };
 
+  const addFriend = id => {
+    //add friend vào currentUser
+    try {
+      database()
+        .ref('users/' + id)
+        .once('value', snapshot => {
+          database()
+            .ref('users/' + currentUser.uid + '/listFriend/' + id)
+            .update({
+              avatar: snapshot.val().info.avatar,
+              name: snapshot.val().info.name,
+              email: snapshot.val().info.email,
+              isOnline: snapshot.val().info.isOnline,
+              isTyping: false,
+              seen: false,
+            });
+        });
+    } catch (error) {
+      console.log('Error from friend to currentUser');
+      console.log(error);
+    }
+
+    let uid = currentUser.uid;
+    //add currentUser vào friend
+    try {
+      database()
+        .ref('users/' + currentUser.uid)
+        .once('value', snapshot => {
+          database()
+            .ref('users/' + id + '/listFriend/' + currentUser.uid)
+            .update({
+              avatar: snapshot.val().info.avatar,
+              name: snapshot.val().info.name,
+              email: snapshot.val().info.email,
+              isOnline: snapshot.val().info.isOnline,
+              isTyping: false,
+              seen: false,
+            });
+        });
+    } catch (error) {
+      console.log('Error from currentUser to friend');
+      console.log(error);
+    }
+  };
+
   const textInputRef = React.useRef();
 
   useEffect(() => {
@@ -232,7 +275,7 @@ export function SearchScr({navigation}) {
                   onPress={() =>
                     navigation.navigate('chat', {
                       name: l.name,
-                      id: l._id,
+                      id: l.id,
                       ava: l.avatar,
                       isOnline: l.isOnline,
                     })
@@ -264,7 +307,7 @@ export function SearchScr({navigation}) {
                   onPress={() =>
                     navigation.navigate('chat', {
                       name: l.name,
-                      id: l._id,
+                      id: l.id,
                       ava: l.avatar,
                       isOnline: l.isOnline,
                     })
@@ -288,11 +331,7 @@ export function SearchScr({navigation}) {
             <Text>Những người khác</Text>
             <View>
               {infoNotFriend.map((l, i) => (
-                <ListItem
-                  key={i}
-                  onPress={() => {
-                    alert('Bạn đã kết bạn với ' + l.id);
-                  }}>
+                <ListItem key={i}>
                   <Avatar rounded source={{uri: l.avatar}} size={50}>
                     {l.isOnline ? (
                       <Avatar.Accessory
@@ -306,6 +345,14 @@ export function SearchScr({navigation}) {
                   <ListItem.Content>
                     <ListItem.Title>{l.name}</ListItem.Title>
                   </ListItem.Content>
+                  <Icon
+                    name="plus"
+                    type="font-awesome"
+                    color="#517fa4"
+                    onPress={() => {
+                      addFriend(l.id);
+                    }}
+                  />
                 </ListItem>
               ))}
             </View>
