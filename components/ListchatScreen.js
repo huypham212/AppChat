@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState, useRef} from 'react';
 import {
   SafeAreaView,
   View,
@@ -6,19 +6,20 @@ import {
   Text,
   ScrollView,
   Alert,
+  Vibration,
+  AppState,
 } from 'react-native';
 import {Icon, ListItem, Button, Avatar, SearchBar} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {AuthContext} from './Context';
 import PushNotification, {Importance} from 'react-native-push-notification';
-import {useIsFocused, CommonActions} from '@react-navigation/native';
-import Navigation from './Navigation';
+import {useIsFocused} from '@react-navigation/native';
+
 export function ListChatScr({navigation, route}) {
   const {user} = React.useContext(AuthContext);
   const isFocused = useIsFocused(true);
   let friends;
-
   const [l, setL] = useState([]);
   const [idFr, setIdFr] = useState(null);
 
@@ -40,6 +41,7 @@ export function ListChatScr({navigation, route}) {
   const NotifyPush = (id, text, name, avatar, idFr) => {
     PushNotification.localNotification({
       priority: 'high',
+      //ignoreInForeground: true,
       vibration: 1000,
       channelId: 'message', // (required)
       channelName: 'Thông báo tin nhắn', // (required)
@@ -105,7 +107,8 @@ export function ListChatScr({navigation, route}) {
     }
   };
   let listFriend = [];
-  const filterList = useMemo(() => {
+
+  const getLisst = useMemo(() => {
     if (route.params != undefined && route.params.idFr != null) {
       setIdFr(route.params.idFr);
       route.params = null;
@@ -118,51 +121,49 @@ export function ListChatScr({navigation, route}) {
     if (user.listFriend != undefined) {
       friends = user.listFriend;
       // keys = Object.keys(friends);
+
       listFriend = Object.keys(friends).sort();
-      try {
-        listFriend.forEach(async e => {
-          if (auth().currentUser.uid != null) {
-            let ref = '/users/' + e.replace(' ', '') + '/info';
-            let refup =
-              '/users/' +
-              auth().currentUser.uid +
-              '/listFriend/' +
-              e.replace(' ', '');
-            const a = await database()
-              .ref(ref)
-              .on('value', snapshot => {
-                if (snapshot.val() != null) {
-                  database().ref(refup).update(snapshot.val());
-                }
-              });
 
-            // Thông báo tin nhắn nổi
-            if (friends[e].messages != undefined) {
-              let list = friends[e].messages;
-              let length = Object.keys(list).length;
-              let key = Object.keys(list).sort()[length - 1];
-              let mess = list[key];
-              let {_id, avatar, name} = mess.user;
-              let id = _id.charCodeAt(0);
+      listFriend.forEach(async e => {
+        if (auth().currentUser.uid != null) {
+          let ref = '/users/' + e.replace(' ', '') + '/info';
+          let refup =
+            '/users/' +
+            auth().currentUser.uid +
+            '/listFriend/' +
+            e.replace(' ', '');
+          const a = await database()
+            .ref(ref)
+            .on('value', snapshot => {
+              if (snapshot.val() != null) {
+                database().ref(refup).update(snapshot.val());
+              }
+            });
 
-              if (mess.user._id != auth().currentUser.uid) {
-                if (mess.user._id != idFr) {
-                  if (mess.received != undefined) {
-                    if (mess.received == false && mess.seen == false) {
-                      NotifyPush(id, mess.text, name, avatar, _id);
+          // Thông báo tin nhắn nổi
+          if (friends[e].messages != undefined) {
+            let list = friends[e].messages;
+            let length = Object.keys(list).length;
+            let key = Object.keys(list).sort()[length - 1];
+            let mess = list[key];
+            let {_id, avatar, name} = mess.user;
+            let id = _id.charCodeAt(0);
 
-                      let ref =
-                        '/users/' +
-                        auth().currentUser.uid +
-                        '/listFriend/' +
-                        e.replace(' ', '') +
-                        '/messages/' +
-                        key;
-                      database().ref(ref).update({received: true});
-                    }
-                  }
-                } else {
+            if (mess.user._id != auth().currentUser.uid) {
+              if (
+                mess.received == false &&
+                AppState.currentState === 'background'
+              ) {
+                NotifyPush(id, mess.text, name, avatar, _id);
+              }
+              if (mess.user._id != idFr) {
+                if (mess.received != undefined) {
                   if (mess.received == false) {
+                    Vibration.vibrate(60);
+                    if (AppState.currentState === 'active') {
+                      if (!isFocused)
+                        NotifyPush(id, mess.text, name, avatar, _id);
+                    }
                     let ref =
                       '/users/' +
                       auth().currentUser.uid +
@@ -173,14 +174,23 @@ export function ListChatScr({navigation, route}) {
                     database().ref(ref).update({received: true});
                   }
                 }
+              } else {
+                if (mess.received == false) {
+                  let ref =
+                    '/users/' +
+                    auth().currentUser.uid +
+                    '/listFriend/' +
+                    e.replace(' ', '') +
+                    '/messages/' +
+                    key;
+                  database().ref(ref).update({received: true});
+                }
               }
             }
-            return () => database().ref(ref).off('value', a);
           }
-        });
-      } catch (error) {
-        console.log(error);
-      }
+          return () => database().ref(ref).off('value', a);
+        }
+      });
     }
 
     listFriend.forEach(e => {
@@ -194,11 +204,7 @@ export function ListChatScr({navigation, route}) {
   }, [user]);
 
   useEffect(() => {
-    filterList;
     create();
-    return () => {
-      setIdFr(null);
-    };
   }, []);
 
   return (
@@ -226,7 +232,7 @@ export function ListChatScr({navigation, route}) {
             />
           }
           placeholder="Tìm kiếm"
-          onPressIn={() => {
+          onPressIn={async () => {
             navigation.navigate('search');
           }}
         />

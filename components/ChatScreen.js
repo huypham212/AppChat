@@ -33,7 +33,8 @@ export const append = (id, currentFriend, message) => {
       .push(message, () => {
         me.update({
           sent: true,
-        }).then(console.log('đã gửi tin'));
+        });
+        //.then(console.log('đã gửi tin'));
       });
   } else {
     let member = Object.keys(currentFriend.member);
