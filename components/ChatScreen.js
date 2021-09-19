@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import {Icon} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
-import {AuthContext, CurrentFr} from './Context';
+import {AuthContext} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {CommonActions} from '@react-navigation/native';
@@ -59,10 +59,6 @@ export function ChatScr({navigation, route}) {
 
   let currentFriend = user.listFriend[id];
 
-  const createdAt = () => {
-    return database.ServerValue.TIMESTAMP;
-  };
-
   const parse = (key, snapshot, prever) => {
     let {createdAt: numberStamp, text, user} = snapshot;
     const createdAt = new Date(numberStamp);
@@ -84,6 +80,9 @@ export function ChatScr({navigation, route}) {
     }
     if (snapshot.seen != undefined) {
       seen = snapshot.seen;
+      if (seen) {
+        received = true;
+      }
     }
     if (snapshot.pending != undefined) {
       pending = snapshot.pending;
@@ -256,7 +255,7 @@ export function ChatScr({navigation, route}) {
     const mess = {
       text,
       user,
-      createdAt: createdAt(),
+      createdAt: database.ServerValue.TIMESTAMP,
       pending: true,
       seen: false,
       received: false,

@@ -196,6 +196,9 @@ export function ListChatScr({navigation, route}) {
   useEffect(() => {
     filterList;
     create();
+    return () => {
+      setIdFr(null);
+    };
   }, []);
 
   return (

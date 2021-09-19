@@ -12,14 +12,18 @@ function ListForm({l, navigation}) {
       {l.isOnline ? (
         <ListItem
           containerStyle={{height: 60}}
-          onPress={() =>
+          onPress={() => {
+            navigation.navigate('tabmain', {
+              screen: 'listchat',
+              params: {idFr: l._id},
+            });
             navigation.navigate('chat', {
               name: l.name,
               id: l._id,
               ava: l.avatar,
               isOnline: l.isOnline,
-            })
-          }>
+            });
+          }}>
           <Avatar rounded source={{uri: l.avatar}} size={50}>
             {l.isOnline ? (
               <Avatar.Accessory
@@ -43,14 +47,18 @@ function ShowAll({l, navigation}) {
   return (
     <ListItem
       containerStyle={{height: 60}}
-      onPress={() =>
+      onPress={() => {
+        navigation.navigate('tabmain', {
+          screen: 'listchat',
+          params: {idFr: l._id},
+        });
         navigation.navigate('chat', {
           name: l.name,
           id: l._id,
           ava: l.avatar,
           isOnline: l.isOnline,
-        })
-      }>
+        });
+      }}>
       <Avatar rounded source={{uri: l.avatar}} size={50}>
         {l.isOnline ? (
           <Avatar.Accessory

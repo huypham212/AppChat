@@ -233,7 +233,7 @@ class GiftedChat extends React.Component {
             if(e._id == messages[0]._id)
             {
                 count++
-                messages[0] =currentMessages[i]
+                //messages[0] =currentMessages[i]
             }
         })
         if(count==0)
