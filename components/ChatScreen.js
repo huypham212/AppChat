@@ -11,13 +11,18 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from 'react-native';
-import {Icon} from 'react-native-elements';
+import {Icon, Avatar} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
 import {AuthContext} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {CommonActions} from '@react-navigation/native';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
+import ImageModal from 'react-native-image-modal';
 
 export const append = (id, currentFriend, message) => {
   let ref =
@@ -249,24 +254,59 @@ export function ChatScr({navigation, route}) {
       }
     };
   }, []);
-
-  const onSend = useCallback((messages = []) => {
+  const [images, setImage] = useState(null);
+  const onSend = useCallback((messages, images = []) => {
     const {text, user} = messages[0];
+    if (images != null) {
+      let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
+      const reference = storage().ref(
+        auth().currentUser.uid + '/listFriend/' + id + '/media/' + name,
+      );
 
-    const mess = {
-      text,
-      user,
-      createdAt: database.ServerValue.TIMESTAMP,
-      pending: true,
-      seen: false,
-      received: false,
-    };
-    let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
-    if (currentFriend.member == undefined) {
-      database().ref(ref).update({seen: false});
+      const task = reference.putFile(images[0].path);
+      task.on('state_changed', taskSnapshot => {
+        console.log(
+          `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
+        );
+      });
+      task.then(() => {
+        console.log('Upload hình thành công');
+        reference.getDownloadURL().then(url => {
+          const mess = {
+            text,
+            user,
+            image: url,
+            createdAt: database.ServerValue.TIMESTAMP,
+            pending: true,
+            seen: false,
+            received: false,
+          };
+          let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
+          if (currentFriend.member == undefined) {
+            database().ref(ref).update({seen: false});
+          }
+
+          append(id, currentFriend, mess);
+          setImage(null);
+        });
+      });
+    } else {
+      const mess = {
+        text,
+        user,
+        image: undefined,
+        createdAt: database.ServerValue.TIMESTAMP,
+        pending: true,
+        seen: false,
+        received: false,
+      };
+      let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
+      if (currentFriend.member == undefined) {
+        database().ref(ref).update({seen: false});
+      }
+
+      append(id, currentFriend, mess);
     }
-
-    append(id, currentFriend, mess);
   }, []);
 
   const onTextChanged = async value => {
@@ -280,11 +320,68 @@ export function ChatScr({navigation, route}) {
     }
   };
 
+  // const openCamera = () => {
+  //   const options = {
+  //     storageOtions: {
+  //       path: 'images',
+  //       mediaType: 'photo',
+  //     },
+  //     includeBase64: true,
+  //   };
+  //   launchCamera(options, res => {
+  //     if (res.didCancel) {
+  //       console.log('tắt camera');
+  //     } else if (res.assets != undefined) {
+  //       let image = {uri: 'data:image/jpeg;base64,' + res.assets[0].base64};
+  //       setImage(image);
+  //     } else console.log(res.errorCode);
+  //   });
+  // };
+  //Chọn ảnh từ thư viện
+  const openGallery = () => {
+    ImagePicker.openPicker({
+      multiple: true,
+      waitAnimationEnd: true,
+      includeExif: true,
+      forceJpg: true,
+      compressImageQuality: 0.8,
+      maxFiles: 10,
+      mediaType: 'image',
+      includeBase64: true,
+      cropping: true,
+    }).then(async images => {
+      await setImage(images);
+    });
+  };
+
+  const renderMessageImage = props => {
+    return (
+      <View
+        style={{
+          borderRadius: 15,
+          padding: 2,
+        }}>
+        <ImageModal
+          resizeMode="contain"
+          style={{
+            width: 200,
+            height: 200,
+            padding: 6,
+            borderRadius: 15,
+            resizeMode: 'cover',
+          }}
+          source={{uri: props.currentMessage.image}}
+        />
+      </View>
+    );
+  };
+
   return (
     <View style={{backgroundColor: 'black', flex: 1}}>
       <StatusBar barStyle="light-content" backgroundColor="black" />
       <GiftedChat
         infiniteScroll
+        renderMessageImage={renderMessageImage}
         renderLoading={() => (
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -312,7 +409,7 @@ export function ChatScr({navigation, route}) {
         renderUsernameOnMessage={showName}
         isLoadingEarlier={true}
         messages={messages}
-        onSend={messages => onSend(messages)}
+        onSend={messages => onSend(messages, images)}
         user={{
           _id: auth().currentUser.uid,
           name: user.info.name,
@@ -375,14 +472,26 @@ export function ChatScr({navigation, route}) {
                 name="camera"
                 type="font-awesome-5"
                 color="white"
-                onPress={() => {
-                  Alert.alert('Liu liu', 'Chưa dùng được nha');
-                }}
+                onPress={openGallery}
               />
             </View>
           );
         }}
       />
+      {images != null ? (
+        <View style={{flexDirection: 'row'}}>
+          <ScrollView horizontal>
+            {images.map((e, i) => (
+              <Avatar
+                containerStyle={{margin: 3}}
+                key={i}
+                size={150}
+                source={{uri: 'data:image/jpeg;base64,' + e.data}}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
     </View>
   );
 }
