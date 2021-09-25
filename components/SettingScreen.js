@@ -1,13 +1,23 @@
 import {AuthContext} from './Context';
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {Text, View, ActivityIndicator, Alert} from 'react-native';
-import {Icon, Image, Switch, Avatar, ListItem} from 'react-native-elements';
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Image,
+  Dimensions,
+} from 'react-native';
+import {Icon, Switch, Avatar, ListItem, Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
-const currentUser = auth().currentUser;
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
+const currentUser = auth().currentUser;
+const window = Dimensions.get('window');
 function Setting() {
   const {signOut, user} = React.useContext(AuthContext);
   const listSettings = [
@@ -37,26 +47,52 @@ function Setting() {
     },
   ];
 
+  const [open, setOpen] = useState(false);
+  const [change, setChange] = useState(false);
   const [image, setImage] = useState(null);
+  // const changeAvatar = () => {
+  //   ImagePicker.openPicker({
+  //     multiple: true,
+  //     waitAnimationEnd: true,
+  //     includeExif: true,
+  //     forceJpg: true,
+  //     compressImageQuality: 0.8,
+  //     maxFiles: 1,
+  //     mediaType: 'image',
+  //     includeBase64: true,
+  //     cropping: true,
+  //   })
+  //     .then(images =>{
+  //   let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
+  //   const reference = storage().ref(
+  //     auth().currentUser.uid + '/avatar/' + name,
+  //   );
 
-  const changeAvatar = () => {
-    ImagePicker.openPicker({
-      multiple: true,
-      waitAnimationEnd: true,
-      includeExif: true,
-      forceJpg: true,
-      compressImageQuality: 0.8,
-      maxFiles: 10,
-      mediaType: 'image',
-      includeBase64: true,
-      cropping: true,
-    }).then(images => {
-      let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
+  //   const task = reference.putFile(images[0].path);
+  //   task.on('state_changed', taskSnapshot => {
+  //     console.log(
+  //       `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
+  //     );
+  //   });
+  //   task.then(() => {
+  //     reference.getDownloadURL().then(url => {
+  //       let ref = '/users/' + auth().currentUser.uid + '/info/';
+  //       database().ref(ref).update({avatar: url});
+  //     });
+  //   });
+  // })
+  //     .catch(e => {
+  //       console.log(e);
+  //     });
+  // };
+
+  function updateAva(images) {
+    {
       const reference = storage().ref(
-        auth().currentUser.uid + '/avatar/' + name,
+        auth().currentUser.uid + '/avatar/myavatar',
       );
 
-      const task = reference.putFile(images[0].path);
+      const task = reference.putFile(images.uri);
       task.on('state_changed', taskSnapshot => {
         console.log(
           `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
@@ -66,22 +102,149 @@ function Setting() {
         reference.getDownloadURL().then(url => {
           let ref = '/users/' + auth().currentUser.uid + '/info/';
           database().ref(ref).update({avatar: url});
+          setChange(false);
+          setImage(null);
         });
       });
+    }
+  }
+  // const openCamera = () => {
+  //     const options = {
+  //       storageOtions: {
+  //         path: 'images',
+  //         mediaType: 'photo',
+  //       },
+  //       includeBase64: true,
+  //     };
+  //     launchCamera(options, res => {
+  //       if (res.didCancel) {
+  //         console.log('tắt camera');
+  //       } else if (res.assets != undefined) {
+  //         let image = {uri: 'data:image/jpeg;base64,' + res.assets[0].base64};
+  //         setImage(image);
+  //       } else console.log(res.errorCode);
+  //     });
+  //   };
+
+  const openGallery = () => {
+    const options = {
+      storageOtions: {
+        path: 'images',
+        mediaType: 'photo',
+      },
+      quality: 1,
+      maxWidth: 400,
+      maxHeight: 400,
+      //includeBase64: true,
+    };
+    launchImageLibrary(options, res => {
+      if (res.didCancel) {
+        console.log('tắt camera');
+      } else if (res.assets != undefined) {
+        console.log(res.assets);
+        let image = {uri: res.assets[0].uri};
+        console.log(image);
+        setImage(image);
+        setChange(true);
+      } else console.log(res.errorCode);
     });
   };
+  function ModalChangeAva() {
+    return (
+      <Modal animationType="fade" transparent={true} visible={change}>
+        <View
+          style={{
+            flex: 1,
 
+            backgroundColor: 'black',
+          }}>
+          <View style={{alignItems: 'flex-start'}}>
+            <Icon
+              name="close"
+              color="white"
+              style={{margin: 5}}
+              size={30}
+              onPress={() => setChange(false)}
+            />
+          </View>
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <Image
+              resizeMode="cover"
+              source={image}
+              style={{
+                width: window.width,
+                height: window.height - 150,
+              }}></Image>
+          </View>
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <Button
+              buttonStyle={{margin: 10, width: 100, borderWidth: 2}}
+              type="outline"
+              title="Hủy"
+              onPress={() => {
+                setImage(null);
+                setChange(false);
+              }}
+            />
+            <Button
+              buttonStyle={{margin: 10}}
+              title="Lưu avatar"
+              onPress={() => {
+                updateAva(image);
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
+    );
+  }
   return (
     <View>
-      <View style={{alignItems: 'center', margin: 20}}>
-        <Avatar rounded source={{uri: user.info.avatar}} size={120}>
+      <View
+        style={{
+          alignItems: 'center',
+          margin: 20,
+        }}>
+        <Avatar
+          rounded
+          source={{uri: user.info.avatar}}
+          size={120}
+          onPress={() => setOpen(true)}>
           <Avatar.Accessory
             size={30}
             color="gray"
             style={{backgroundColor: 'white'}}
-            onPress={changeAvatar}
+            onPress={openGallery}
           />
         </Avatar>
+        <ModalChangeAva />
+        <Modal animationType="fade" transparent={true} visible={open}>
+          <View
+            style={{
+              flex: 1,
+
+              backgroundColor: 'black',
+            }}>
+            <View style={{alignItems: 'flex-start'}}>
+              <Icon
+                name="close"
+                color="white"
+                style={{margin: 5}}
+                size={30}
+                onPress={() => setOpen(false)}
+              />
+            </View>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <Image
+                resizeMode="contain"
+                source={{uri: user.info.avatar}}
+                style={{
+                  width: window.width,
+                  height: window.height - 150,
+                }}></Image>
+            </View>
+          </View>
+        </Modal>
         <Text style={{fontSize: 25, marginTop: 10}}>{user.info.name}</Text>
       </View>
       <View>

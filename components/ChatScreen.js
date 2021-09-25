@@ -20,11 +20,11 @@ import {AuthContext} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {CommonActions} from '@react-navigation/native';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+//import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import ImageModal from 'react-native-image-modal';
-import {error} from 'react-native-gifted-chat/lib/utils';
 
 const window = Dimensions.get('window');
 
@@ -76,6 +76,11 @@ export function ChatScr({navigation, route}) {
     if (currentFriend.avatar != undefined) {
       avafr = currentFriend.avatar;
     }
+    let video;
+    if (snapshot.video != undefined) {
+      video = snapshot.video;
+    }
+
     if (currentFriend.isOnline) {
       received = true;
       let r =
@@ -96,6 +101,7 @@ export function ChatScr({navigation, route}) {
       text,
       user,
       image,
+      video,
       sent,
       received,
       seen,
@@ -333,9 +339,9 @@ export function ChatScr({navigation, route}) {
       waitAnimationEnd: true,
       includeExif: true,
       forceJpg: true,
-      compressImageQuality: 0.5,
+      compressImageQuality: 0.7,
       mediaType: 'image',
-      includeBase64: true,
+      // includeBase64: true,
       cropping: true,
     })
       .then(images => {
@@ -347,6 +353,9 @@ export function ChatScr({navigation, route}) {
       });
   };
 
+  const renderMessageVideo = props => {
+    return <View></View>;
+  };
   const renderMessageImage = props => {
     return (
       <View
@@ -472,18 +481,18 @@ export function ChatScr({navigation, route}) {
           }}
         />
         {images != null ? (
-          <View style={styles.container}>
-            {/* <ScrollView horizontal> */}
-            {images.map((e, i) => (
-              <Avatar
-                containerStyle={styles.imgwrap}
-                key={i}
-                size={150}
-                source={{uri: 'data:image/jpeg;base64,' + e.data}}
-              />
-            ))}
-            {/* </ScrollView> */}
-          </View>
+          <ScrollView style={{height: 200}}>
+            <View style={styles.container}>
+              {images.map((e, i) => (
+                <Avatar
+                  containerStyle={styles.imgwrap}
+                  key={i}
+                  size={150}
+                  source={{uri: e.path}}
+                />
+              ))}
+            </View>
+          </ScrollView>
         ) : null}
       </View>
     );
@@ -491,7 +500,6 @@ export function ChatScr({navigation, route}) {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     //justifyContent: 'center',
