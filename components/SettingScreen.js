@@ -12,7 +12,7 @@ import {
 import {Icon, Switch, Avatar, ListItem, Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import ImagePicker from 'react-native-image-crop-picker';
+import ImageModal from 'react-native-image-modal';
 import storage from '@react-native-firebase/storage';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
@@ -141,9 +141,7 @@ function Setting() {
       if (res.didCancel) {
         console.log('tắt camera');
       } else if (res.assets != undefined) {
-        console.log(res.assets);
         let image = {uri: res.assets[0].uri};
-        console.log(image);
         setImage(image);
         setChange(true);
       } else console.log(res.errorCode);
@@ -205,46 +203,30 @@ function Setting() {
           alignItems: 'center',
           margin: 20,
         }}>
-        <Avatar
-          rounded
-          source={{uri: user.info.avatar}}
-          size={120}
-          onPress={() => setOpen(true)}>
+        <View>
+          <ModalChangeAva />
+          <ImageModal
+            resizeMode="cover"
+            modalImageResizeMode="contain"
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: 100,
+            }}
+            source={{uri: user.info.avatar}}
+          />
           <Avatar.Accessory
             size={30}
             color="gray"
-            style={{backgroundColor: 'white'}}
+            style={{
+              backgroundColor: 'white',
+              marginRight: 10,
+              marginBottom: 5,
+            }}
             onPress={openGallery}
           />
-        </Avatar>
-        <ModalChangeAva />
-        <Modal animationType="fade" transparent={true} visible={open}>
-          <View
-            style={{
-              flex: 1,
+        </View>
 
-              backgroundColor: 'black',
-            }}>
-            <View style={{alignItems: 'flex-start'}}>
-              <Icon
-                name="close"
-                color="white"
-                style={{margin: 5}}
-                size={30}
-                onPress={() => setOpen(false)}
-              />
-            </View>
-            <View style={{alignItems: 'center', justifyContent: 'center'}}>
-              <Image
-                resizeMode="contain"
-                source={{uri: user.info.avatar}}
-                style={{
-                  width: window.width,
-                  height: window.height - 150,
-                }}></Image>
-            </View>
-          </View>
-        </Modal>
         <Text style={{fontSize: 25, marginTop: 10}}>{user.info.name}</Text>
       </View>
       <View>

@@ -159,7 +159,7 @@ export function ListChatScr({navigation, route}) {
               if (mess.user._id != idFr) {
                 if (mess.received != undefined) {
                   if (mess.received == false) {
-                    Vibration.vibrate(60);
+                    Vibration.vibrate(100);
                     if (AppState.currentState === 'active') {
                       if (!isFocused)
                         NotifyPush(id, mess.text, name, avatar, _id);
@@ -176,6 +176,7 @@ export function ListChatScr({navigation, route}) {
                 }
               } else {
                 if (mess.received == false) {
+                  Vibration.vibrate(100);
                   let ref =
                     '/users/' +
                     auth().currentUser.uid +

@@ -13,6 +13,8 @@ import {
   Alert,
   ScrollView,
   Dimensions,
+  Image,
+  Modal,
 } from 'react-native';
 import {Icon, Avatar} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
@@ -20,13 +22,68 @@ import {AuthContext} from './Context';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import {CommonActions} from '@react-navigation/native';
-//import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import ImageModal from 'react-native-image-modal';
 
 const window = Dimensions.get('window');
+let check = 0;
+export const append = (id, currentFriend, message, images) => {
+  let ref =
+    '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
+  let refup =
+    '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
+
+  let me = database().ref(ref).push(message);
+  let result = false;
+  if (currentFriend.member == undefined) {
+    let a = database()
+      .ref(refup)
+      .push(message, () => {
+        me.update({
+          sent: true,
+        });
+        if (images != null) {
+          let name = images.uri.substr(images.uri.lastIndexOf('/'));
+          const reference = storage().ref(
+            auth().currentUser.uid + '/listFriend/' + id + '/media/' + name,
+          );
+
+          const task = reference.putFile(images.uri);
+          task.on('state_changed', taskSnapshot => {
+            console.log(
+              `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
+            );
+          });
+          task.then(() => {
+            console.log('Upload hình thành công');
+            reference.getDownloadURL().then(url => {
+              me.update({image: url});
+              a.update({image: url});
+              result = true;
+              check = 1;
+              return result;
+            });
+          });
+        }
+      });
+  } else {
+    let member = Object.keys(currentFriend.member);
+    member.forEach(e => {
+      let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
+      database()
+        .ref(refmem)
+        .push(message, () => {
+          me.update({
+            sent: true,
+          }).then(console.log('Nhóm nhận tin'));
+        });
+    });
+  }
+  return result;
+};
 
 export function ChatScr({navigation, route}) {
   const [messages, setMessages] = useState([]);
@@ -233,7 +290,7 @@ export function ChatScr({navigation, route}) {
     };
   }, []);
   const [images, setImage] = useState(null);
-  const onSend = useCallback((messages, images = []) => {
+  const onSend = useCallback(async (messages, images = []) => {
     const {text, user} = messages[0];
     const mess = {
       text,
@@ -252,58 +309,11 @@ export function ChatScr({navigation, route}) {
     append(id, currentFriend, mess, images);
   }, []);
 
-  const append = (id, currentFriend, message, images) => {
-    let ref =
-      '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
-    let refup =
-      '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
-
-    let me = database().ref(ref).push(message);
-
-    if (currentFriend.member == undefined) {
-      let a = database()
-        .ref(refup)
-        .push(message, () => {
-          me.update({
-            sent: true,
-          });
-          if (images != null) {
-            let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
-            const reference = storage().ref(
-              auth().currentUser.uid + '/listFriend/' + id + '/media/' + name,
-            );
-
-            const task = reference.putFile(images[0].path);
-            task.on('state_changed', taskSnapshot => {
-              console.log(
-                `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
-              );
-            });
-            task.then(() => {
-              console.log('Upload hình thành công');
-              reference.getDownloadURL().then(url => {
-                me.update({image: url});
-                a.update({image: url});
-                setImage(null);
-              });
-            });
-          }
-        });
-    } else {
-      let member = Object.keys(currentFriend.member);
-      member.forEach(e => {
-        let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
-        database()
-          .ref(refmem)
-          .push(message, () => {
-            me.update({
-              sent: true,
-            }).then(console.log('Nhóm nhận tin'));
-          });
-      });
+  useMemo(() => {
+    if (check == 1) {
+      setImage(null);
     }
-  };
-
+  }, [check]);
   const onTextChanged = async value => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
     if (currentFriend.member == undefined) {
@@ -334,28 +344,48 @@ export function ChatScr({navigation, route}) {
   // };
   //Chọn ảnh từ thư viện
   const openGallery = () => {
-    ImagePicker.openPicker({
-      multiple: true,
-      waitAnimationEnd: true,
-      includeExif: true,
-      forceJpg: true,
-      compressImageQuality: 0.7,
-      mediaType: 'image',
-      // includeBase64: true,
-      cropping: true,
-    })
-      .then(images => {
-        // console.log(images);
-        setImage(images);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    // ImagePicker.openPicker({
+    //   multiple: true,
+    //   waitAnimationEnd: true,
+    //   includeExif: true,
+    //   forceJpg: true,
+    //   compressImageQuality: 1,
+    //   mediaType: 'image',
+    //   // includeBase64: true,
+    // })
+    //   .then(images => {
+    //     // console.log(images);
+    //     setImage(images);
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //   });
+
+    const options = {
+      storageOtions: {
+        path: 'images',
+        mediaType: 'photo',
+      },
+
+      quality: 1,
+      maxWidth: 720,
+      maxHeight: 1080,
+      //includeBase64: true,
+    };
+    launchImageLibrary(options, res => {
+      if (res.didCancel) {
+        console.log('tắt camera');
+      } else if (res.assets != undefined) {
+        let image = {uri: res.assets[0].uri};
+        setImage(image);
+      } else console.log(res.errorCode);
+    });
   };
 
   const renderMessageVideo = props => {
     return <View></View>;
   };
+
   const renderMessageImage = props => {
     return (
       <View
@@ -483,14 +513,14 @@ export function ChatScr({navigation, route}) {
         {images != null ? (
           <ScrollView style={{height: 200}}>
             <View style={styles.container}>
-              {images.map((e, i) => (
-                <Avatar
-                  containerStyle={styles.imgwrap}
-                  key={i}
-                  size={150}
-                  source={{uri: e.path}}
-                />
-              ))}
+              {/* {images.map((e, i) => ( */}
+              <Avatar
+                containerStyle={styles.imgwrap}
+                //key={i}
+                size={150}
+                source={images}
+              />
+              {/* ))} */}
             </View>
           </ScrollView>
         ) : null}
