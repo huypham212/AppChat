@@ -101,7 +101,6 @@ export default function App() {
       let ref = '/users/' + currentUser.uid;
 
       try {
-        setUser(null);
         database()
           .ref(ref + '/info')
           .update({isOnline: false})
@@ -109,6 +108,7 @@ export default function App() {
         await auth()
           .signOut()
           .then(async () => {
+            setUser(null);
             dispatch({type: 'LOGOUT'});
             database()
               .ref('/users/' + currentUser.uid)

@@ -191,16 +191,16 @@ export function ListChatScr({navigation, route}) {
           return () => database().ref(ref).off('value', a);
         }
       });
-    }
 
-    listFriend.forEach(e => {
-      parseList(e, friends[e]);
-    });
-    let filter = listChat.filter(e => {
-      if (e.messages != undefined) return e;
-    });
-    filter.sort((a, b) => b.lastTime - a.lastTime);
-    setL(filter);
+      listFriend.forEach(e => {
+        parseList(e, friends[e]);
+      });
+      let filter = listChat.filter(e => {
+        if (e.messages != undefined) return e;
+      });
+      filter.sort((a, b) => b.lastTime - a.lastTime);
+      setL(filter);
+    }
   }, [user]);
 
   useEffect(() => {

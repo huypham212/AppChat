@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import {Icon, Avatar} from 'react-native-elements';
 import {GiftedChat, Bubble, Send, InputToolbar} from 'react-native-gifted-chat';
@@ -23,38 +24,9 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import ImageModal from 'react-native-image-modal';
+import {error} from 'react-native-gifted-chat/lib/utils';
 
-export const append = (id, currentFriend, message) => {
-  let ref =
-    '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
-  let refup =
-    '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
-
-  let me = database().ref(ref).push(message);
-
-  if (currentFriend.member == undefined) {
-    let a = database()
-      .ref(refup)
-      .push(message, () => {
-        me.update({
-          sent: true,
-        });
-        //.then(console.log('đã gửi tin'));
-      });
-  } else {
-    let member = Object.keys(currentFriend.member);
-    member.forEach(e => {
-      let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
-      database()
-        .ref(refmem)
-        .push(message, () => {
-          me.update({
-            sent: true,
-          }).then(console.log('Nhóm nhận tin'));
-        });
-    });
-  }
-};
+const window = Dimensions.get('window');
 
 export function ChatScr({navigation, route}) {
   const [messages, setMessages] = useState([]);
@@ -257,57 +229,74 @@ export function ChatScr({navigation, route}) {
   const [images, setImage] = useState(null);
   const onSend = useCallback((messages, images = []) => {
     const {text, user} = messages[0];
-    if (images != null) {
-      let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
-      const reference = storage().ref(
-        auth().currentUser.uid + '/listFriend/' + id + '/media/' + name,
-      );
-
-      const task = reference.putFile(images[0].path);
-      task.on('state_changed', taskSnapshot => {
-        console.log(
-          `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
-        );
-      });
-      task.then(() => {
-        console.log('Upload hình thành công');
-        reference.getDownloadURL().then(url => {
-          const mess = {
-            text,
-            user,
-            image: url,
-            createdAt: database.ServerValue.TIMESTAMP,
-            pending: true,
-            seen: false,
-            received: false,
-          };
-          let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
-          if (currentFriend.member == undefined) {
-            database().ref(ref).update({seen: false});
-          }
-
-          append(id, currentFriend, mess);
-          setImage(null);
-        });
-      });
-    } else {
-      const mess = {
-        text,
-        user,
-        image: undefined,
-        createdAt: database.ServerValue.TIMESTAMP,
-        pending: true,
-        seen: false,
-        received: false,
-      };
-      let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
-      if (currentFriend.member == undefined) {
-        database().ref(ref).update({seen: false});
-      }
-
-      append(id, currentFriend, mess);
+    const mess = {
+      text,
+      user,
+      image: undefined,
+      createdAt: database.ServerValue.TIMESTAMP,
+      pending: true,
+      seen: false,
+      received: false,
+    };
+    let ref = '/users/' + auth().currentUser.uid + '/listFriend/' + id;
+    if (currentFriend.member == undefined) {
+      database().ref(ref).update({seen: false});
     }
+
+    append(id, currentFriend, mess, images);
   }, []);
+
+  const append = (id, currentFriend, message, images) => {
+    let ref =
+      '/users/' + auth().currentUser.uid + '/listFriend/' + id + '/messages';
+    let refup =
+      '/users/' + id + '/listFriend/' + auth().currentUser.uid + '/messages';
+
+    let me = database().ref(ref).push(message);
+
+    if (currentFriend.member == undefined) {
+      let a = database()
+        .ref(refup)
+        .push(message, () => {
+          me.update({
+            sent: true,
+          });
+          if (images != null) {
+            let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
+            const reference = storage().ref(
+              auth().currentUser.uid + '/listFriend/' + id + '/media/' + name,
+            );
+
+            const task = reference.putFile(images[0].path);
+            task.on('state_changed', taskSnapshot => {
+              console.log(
+                `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
+              );
+            });
+            task.then(() => {
+              console.log('Upload hình thành công');
+              reference.getDownloadURL().then(url => {
+                me.update({image: url});
+                a.update({image: url});
+                setImage(null);
+              });
+            });
+          }
+        });
+    } else {
+      let member = Object.keys(currentFriend.member);
+      member.forEach(e => {
+        let refmem = '/users/' + e + '/listFriend/' + id + '/messages';
+        database()
+          .ref(refmem)
+          .push(message, () => {
+            me.update({
+              sent: true,
+            }).then(console.log('Nhóm nhận tin'));
+          });
+      });
+    }
+  };
 
   const onTextChanged = async value => {
     let ref = '/users/' + id + '/listFriend/' + auth().currentUser.uid;
@@ -344,14 +333,18 @@ export function ChatScr({navigation, route}) {
       waitAnimationEnd: true,
       includeExif: true,
       forceJpg: true,
-      compressImageQuality: 0.8,
-      maxFiles: 10,
+      compressImageQuality: 0.5,
       mediaType: 'image',
       includeBase64: true,
       cropping: true,
-    }).then(async images => {
-      await setImage(images);
-    });
+    })
+      .then(images => {
+        // console.log(images);
+        setImage(images);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
 
   const renderMessageImage = props => {
@@ -362,13 +355,12 @@ export function ChatScr({navigation, route}) {
           padding: 2,
         }}>
         <ImageModal
-          resizeMode="contain"
+          resizeMode="cover"
+          modalImageResizeMode="contain"
           style={{
-            width: 200,
-            height: 200,
-            padding: 6,
-            borderRadius: 15,
-            resizeMode: 'cover',
+            width: 150,
+            height: 100,
+            borderRadius: 10,
           }}
           source={{uri: props.currentMessage.image}}
         />
@@ -376,128 +368,137 @@ export function ChatScr({navigation, route}) {
     );
   };
 
-  return (
-    <View style={{backgroundColor: 'black', flex: 1}}>
-      <StatusBar barStyle="light-content" backgroundColor="black" />
-      <GiftedChat
-        infiniteScroll
-        renderMessageImage={renderMessageImage}
-        renderLoading={() => (
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <ActivityIndicator size="large" color="white" />
-          </View>
-        )}
-        loadEarlier={fresh}
-        listViewProps={{
-          scrollEventThrottle: 400,
-          onScroll: () => {
-            setFresh(true);
-            if (fresh && stop == false) {
-              setNum(num - 10);
-              setFresh(false);
-            }
-            if (num < max * -1) {
-              setStop(true);
-              setFresh(false);
-            }
-          },
-        }}
-        infiniteScroll
-        onInputTextChanged={onTextChanged}
-        isTyping={isTyping}
-        renderUsernameOnMessage={showName}
-        isLoadingEarlier={true}
-        messages={messages}
-        onSend={messages => onSend(messages, images)}
-        user={{
-          _id: auth().currentUser.uid,
-          name: user.info.name,
-          avatar: user.info.avatar,
-        }}
-        renderSend={props => {
-          return (
-            <Send {...props}>
-              <View style={{marginRight: 10, marginBottom: 10}}>
-                <Icon name="send" type="font-awsome-5" color="white" />
-              </View>
-            </Send>
-          );
-        }}
-        renderInputToolbar={props => {
-          return (
-            <InputToolbar
-              {...props}
-              containerStyle={{
-                backgroundColor: 'black',
-                borderTopWidth: 0,
-              }}
-            />
-          );
-        }}
-        placeholder="Nhập tin nhắn..."
-        textInputStyle={{
-          color: 'white',
-          marginRight: 10,
-          borderRadius: 20,
-          borderWidth: 2,
-          borderColor: '#333333',
-        }}
-        renderBubble={props => {
-          return (
-            <Bubble
-              {...props}
-              textStyle={{
-                left: {
-                  color: 'white',
-                },
-              }}
-              wrapperStyle={{
-                right: {
-                  backgroundColor: '#333333',
-                },
-                left: {
-                  backgroundColor: '#595959',
-                },
-              }}
-            />
-          );
-        }}
-        dateFormat="DD/MM/YYYY"
-        timeFormat="HH:mm"
-        renderActions={props => {
-          return (
-            <View style={{margin: 10}}>
-              <Icon
-                name="camera"
-                type="font-awesome-5"
-                color="white"
-                onPress={openGallery}
-              />
+  if (user != null) {
+    return (
+      <View style={{backgroundColor: 'black', flex: 1}}>
+        <StatusBar barStyle="light-content" backgroundColor="black" />
+        <GiftedChat
+          infiniteScroll
+          renderMessageImage={renderMessageImage}
+          renderLoading={() => (
+            <View
+              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <ActivityIndicator size="large" color="white" />
             </View>
-          );
-        }}
-      />
-      {images != null ? (
-        <View style={{flexDirection: 'row'}}>
-          <ScrollView horizontal>
+          )}
+          loadEarlier={fresh}
+          listViewProps={{
+            scrollEventThrottle: 400,
+            onScroll: () => {
+              setFresh(true);
+              if (fresh && stop == false) {
+                setNum(num - 10);
+                setFresh(false);
+              }
+              if (num < max * -1) {
+                setStop(true);
+                setFresh(false);
+              }
+            },
+          }}
+          infiniteScroll
+          onInputTextChanged={onTextChanged}
+          isTyping={isTyping}
+          renderUsernameOnMessage={showName}
+          isLoadingEarlier={true}
+          messages={messages}
+          onSend={messages => onSend(messages, images)}
+          user={{
+            _id: auth().currentUser.uid,
+            name: user.info.name,
+            avatar: user.info.avatar,
+          }}
+          renderSend={props => {
+            return (
+              <Send {...props}>
+                <View style={{marginRight: 10, marginBottom: 10}}>
+                  <Icon name="send" type="font-awsome-5" color="white" />
+                </View>
+              </Send>
+            );
+          }}
+          renderInputToolbar={props => {
+            return (
+              <InputToolbar
+                {...props}
+                containerStyle={{
+                  backgroundColor: 'black',
+                  borderTopWidth: 0,
+                }}
+              />
+            );
+          }}
+          placeholder="Nhập tin nhắn..."
+          textInputStyle={{
+            color: 'white',
+            marginRight: 10,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: '#333333',
+          }}
+          renderBubble={props => {
+            return (
+              <Bubble
+                {...props}
+                textStyle={{
+                  left: {
+                    color: 'white',
+                  },
+                }}
+                wrapperStyle={{
+                  right: {
+                    backgroundColor: '#333333',
+                  },
+                  left: {
+                    backgroundColor: '#595959',
+                  },
+                }}
+              />
+            );
+          }}
+          dateFormat="DD/MM/YYYY"
+          timeFormat="HH:mm"
+          renderActions={props => {
+            return (
+              <View style={{margin: 10}}>
+                <Icon
+                  name="camera"
+                  type="font-awesome-5"
+                  color="white"
+                  onPress={openGallery}
+                />
+              </View>
+            );
+          }}
+        />
+        {images != null ? (
+          <View style={styles.container}>
+            {/* <ScrollView horizontal> */}
             {images.map((e, i) => (
               <Avatar
-                containerStyle={{margin: 3}}
+                containerStyle={styles.imgwrap}
                 key={i}
                 size={150}
                 source={{uri: 'data:image/jpeg;base64,' + e.data}}
               />
             ))}
-          </ScrollView>
-        </View>
-      ) : null}
-    </View>
-  );
+            {/* </ScrollView> */}
+          </View>
+        ) : null}
+      </View>
+    );
+  }
 }
 const styles = StyleSheet.create({
   container: {
-    marginTop: StatusBar.currentHeight + 150,
-    backgroundColor: 'white',
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    //justifyContent: 'center',
+  },
+  imgwrap: {
+    margin: 3,
+    height: window.width / 3 - 6,
+    width: window.width / 3 - 6,
   },
 });
