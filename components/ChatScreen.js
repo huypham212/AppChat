@@ -512,18 +512,20 @@ export function ChatScr({navigation, route}) {
           }}
         />
         {images != null ? (
-          <ScrollView style={{height: 200}}>
-            <View style={styles.container}>
-              {/* {images.map((e, i) => ( */}
-              <Avatar
-                containerStyle={styles.imgwrap}
-                //key={i}
-                size={150}
-                source={images}
-              />
-              {/* ))} */}
-            </View>
-          </ScrollView>
+          <View style={{height: window.width}}>
+            <ScrollView>
+              <View style={styles.container}>
+                {/* {images.map((e, i) => ( */}
+                <Image
+                  style={styles.imgwrap}
+                  //key={i}
+                  resizeMode="contain"
+                  source={images}
+                />
+                {/* ))} */}
+              </View>
+            </ScrollView>
+          </View>
         ) : null}
       </View>
     );
@@ -533,11 +535,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+
     //justifyContent: 'center',
   },
   imgwrap: {
     margin: 3,
-    height: window.width / 3 - 6,
-    width: window.width / 3 - 6,
+    height: window.width,
+    width: window.width,
   },
 });
