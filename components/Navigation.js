@@ -128,7 +128,7 @@ export function RootStack() {
       <Stack.Screen
         name="Signup"
         component={SignUpScreen}
-        options={{title: 'Đăng ký'}}
+        options={{headerShadowVisible: false, title: ''}}
       />
     </Stack.Navigator>
   );

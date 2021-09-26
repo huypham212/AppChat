@@ -8,37 +8,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {Input, Button} from 'react-native-elements';
-// import firebase from 'firebase';
-// import uuid from 'react-native-uuid';
-// import config from '../config/dbConfig';
 import {KeyboardAwareScrollView} from '@codler/react-native-keyboard-aware-scroll-view';
 import {AuthContext} from './Context';
 import {Icon} from 'react-native-elements/dist/icons/Icon';
-// Initialize Firebase
-// if (!firebase.apps.length) {
-//   firebase.initializeApp(config.firebaseConfig);
-// }
-
-// const userList = [
-//   {
-//     id: '9c6937e2-2324-4dc8-97a9-4661fd4ea16b',
-//     userName: 'HoangTuGio',
-//     password: 'long1234',
-//     activeState: false,
-//   },
-//   {
-//     id: 'c8b3cb69-c607-44ad-aeb1-7c7cf2385606',
-//     userName: 'GinPham',
-//     password: 'gin1234',
-//     activeState: false,
-//   },
-//   {
-//     id: '12ade2b2-5a3b-44c1-834e-e78ebdc9be74',
-//     userName: 'HaiThu',
-//     password: 'hai1234',
-//     activeState: false,
-//   },
-// ];
 
 const window = Dimensions.get('window');
 export function SignUpScreen() {
@@ -88,7 +60,7 @@ export function SignUpScreen() {
         enableOnAndroid={true}
         enableAutomaticScroll={Platform.OS === 'ios'}>
         <View style={styles.container}>
-          <Text style={styles.header}>Sign Up </Text>
+          <Text style={styles.header}>Tạo tài khoản</Text>
           <Input
             placeholder="Họ và Tên"
             containerStyle={{marginTop: 50}}
@@ -100,9 +72,9 @@ export function SignUpScreen() {
             value={userName}
             leftIcon={{
               color: '#000000',
-              type: 'font-awesome',
+              type: 'font-awesome-5',
               name: 'user',
-              style: {marginLeft: 10},
+              style: {marginLeft: 15},
             }}
           />
 
@@ -114,9 +86,9 @@ export function SignUpScreen() {
             autoCompleteType="email"
             autoCorrect={false}
             leftIcon={{
-              type: 'font-awesome',
+              type: 'font-awesome-5',
               name: 'envelope',
-              style: {marginLeft: 10},
+              style: {marginLeft: 15},
             }}
             onChangeText={setUserEmail}
             value={userEmail}
@@ -132,14 +104,16 @@ export function SignUpScreen() {
             autoCorrect={false}
             placehoder="Password"
             leftIcon={{
-              type: 'font-awesome-5',
+              size: 40,
+              type: 'evilicon',
               name: 'lock',
-              style: {marginLeft: 10},
+              style: {marginLeft: 5},
             }}
             rightIcon={
               <Icon
                 name="eye"
-                type="font-awesome-5"
+                size={40}
+                type="evilicon"
                 onPress={() => setShowPass(!showPass)}
               />
             }
@@ -155,14 +129,16 @@ export function SignUpScreen() {
             numberOfLines={1}
             placehoder="Confirm password"
             leftIcon={{
-              type: 'font-awesome-5',
+              size: 40,
+              type: 'evilicon',
               name: 'lock',
-              style: {marginLeft: 10},
+              style: {marginLeft: 5},
             }}
             rightIcon={
               <Icon
                 name="eye"
-                type="font-awesome-5"
+                size={40}
+                type="evilicon"
                 onPress={() => setShowRePass(!showRePass)}
               />
             }
@@ -174,9 +150,9 @@ export function SignUpScreen() {
           <Button
             title={'ĐĂNG KÝ'}
             buttonStyle={{
-              backgroundColor: '#6600ff',
+              backgroundColor: '#ff5050',
               borderRadius: 20,
-              marginHorizontal: 10,
+              marginHorizontal: 20,
               height: 50,
             }}
             onPress={() => SignUp(userName, userEmail, password)}
@@ -190,11 +166,10 @@ export function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
+    backgroundColor: 'white',
     alignItems: 'center',
   },
   header: {
-    marginTop: 20,
     fontSize: 35,
     color: 'black',
     fontWeight: 'bold',
@@ -221,6 +196,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     height: 60,
     opacity: 0.6,
+    marginHorizontal: 10,
   },
   // loginBtn: {
   //   margin: 25,

@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
-import {Input, Button, Icon} from 'react-native-elements';
+import {Input, Button, Icon, Image} from 'react-native-elements';
+import {KeyboardAwareScrollView} from '@codler/react-native-keyboard-aware-scroll-view';
 import {AuthContext} from './Context';
 //import firebase from 'firebase';
 
@@ -75,64 +76,91 @@ export function LoginScreen({navigation}) {
             <ActivityIndicator size={60} color="#00ff00" />
           </View>
         ) : null}
-        <Text style={styles.header}>ĐĂNG NHẬP</Text>
-        <Input
-          label="Email"
-          labelStyle={{color: 'black', fontSize: 24, fontWeight: 'normal'}}
-          textContentType="username"
-          numberOfLines={1}
-          autoCorrect={false}
-          leftIcon={{type: 'font-awesome', name: 'user'}}
-          onChangeText={setLoginName}
-          value={loginName}
-        />
-        <Input
-          label="Mật khẩu"
-          labelStyle={{
-            color: 'black',
-            fontSize: 24,
-            fontWeight: 'normal',
-          }}
-          secureTextEntry={showPass}
-          numberOfLines={1}
-          autoCorrect={false}
-          placehoder="Password"
-          leftIcon={{type: 'font-awesome', name: 'lock'}}
-          rightIcon={
-            <Icon
-              type="font-awesome"
-              name="eye"
-              onPress={() => {
-                setShowPass(!showPass);
-              }}
+        <KeyboardAwareScrollView
+          enableOnAndroid={true}
+          enableAutomaticScroll={Platform.OS === 'ios'}>
+          <View style={{alignItems: 'center'}}>
+            <Image
+              source={require('../images/icon.png')}
+              style={{height: 150, width: 150}}
             />
-          }
-          onChangeText={setPassword}
-          value={password}
-        />
-        <Text style={styles.content2}>Quên mật khẩu?</Text>
-        <View style={styles.loginBtn}>
-          <Button
-            buttonStyle={{borderRadius: 10, height: 45}}
-            title={'ĐĂNG NHẬP'}
-            type={'solid'}
-            onPress={() => Login(loginName, password)}></Button>
+          </View>
+          <Text style={styles.header}>ĐĂNG NHẬP</Text>
 
-          <View style={styles.signinBtn}>
+          <Input
+            placeholder="Email"
+            labelStyle={{color: 'black', fontSize: 24, fontWeight: 'normal'}}
+            textContentType="username"
+            numberOfLines={1}
+            autoCorrect={false}
+            leftIcon={{
+              type: 'font-awesome-5',
+              name: 'user',
+              style: {marginLeft: 20, marginRight: 8},
+            }}
+            onChangeText={setLoginName}
+            value={loginName}
+            inputContainerStyle={styles.input}
+          />
+          <Input
+            placeholder="Mật khẩu"
+            inputContainerStyle={styles.input}
+            labelStyle={{
+              color: 'black',
+              fontSize: 24,
+              fontWeight: 'normal',
+            }}
+            secureTextEntry={showPass}
+            numberOfLines={1}
+            autoCorrect={false}
+            placehoder="Password"
+            leftIcon={{
+              size: 40,
+              type: 'evilicon',
+              name: 'lock',
+              style: {marginLeft: 10},
+            }}
+            rightIcon={
+              <Icon
+                name="eye"
+                size={40}
+                type="evilicon"
+                onPress={() => {
+                  setShowPass(!showPass);
+                }}
+              />
+            }
+            onChangeText={setPassword}
+            value={password}
+          />
+
+          <View style={styles.loginBtn}>
             <Button
               buttonStyle={{
-                borderWidth: 3,
-                borderColor: '#ff3300',
                 borderRadius: 10,
+                height: 45,
+                backgroundColor: '#ff0066',
               }}
-              title={'ĐĂNG KÝ'}
-              titleStyle={{color: '#ff3300'}}
-              type={'outline'}
-              onPress={() => {
-                navigation.navigate('Signup');
-              }}></Button>
+              title={'ĐĂNG NHẬP'}
+              type={'solid'}
+              onPress={() => Login(loginName, password)}></Button>
+
+            <View style={styles.signinBtn}>
+              <Button
+                buttonStyle={{
+                  borderWidth: 3,
+                  borderColor: '#ff6666',
+                  borderRadius: 10,
+                }}
+                title={'ĐĂNG KÝ'}
+                titleStyle={{color: '#ff6666'}}
+                type={'outline'}
+                onPress={() => {
+                  navigation.navigate('Signup');
+                }}></Button>
+            </View>
           </View>
-        </View>
+        </KeyboardAwareScrollView>
       </View>
     </SafeAreaView>
   );
@@ -142,13 +170,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? 30 : 0, //giúp nội dung không bị che bởi camera trên android
     paddingLeft: 10,
     paddingRight: 10,
-    justifyContent: 'center',
   },
   header: {
-    fontSize: 35,
+    fontSize: 30,
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -171,10 +197,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   input: {
-    height: 40,
-    fontSize: 18,
-    padding: 10,
-    marginBottom: 15,
+    borderRadius: 28,
+    backgroundColor: '#e6e6e6',
+    borderBottomWidth: 0,
+    height: 60,
+    opacity: 0.6,
   },
   loginBtn: {
     margin: 25,

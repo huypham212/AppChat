@@ -312,6 +312,7 @@ export function ChatScr({navigation, route}) {
   useMemo(() => {
     if (check == 1) {
       setImage(null);
+      check = 0;
     }
   }, [check]);
   const onTextChanged = async value => {
