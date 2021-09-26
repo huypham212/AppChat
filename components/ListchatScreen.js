@@ -281,6 +281,15 @@ export function ListChatScr({navigation, route}) {
                   {l.lastMess}
                 </Text>
               </ListItem.Content>
+              {l.seen || l.idFr == auth().currentUser.uid ? null : (
+                <Icon
+                  name="circle"
+                  type="font-awesome-5"
+                  solid
+                  size={10}
+                  color="gray"
+                />
+              )}
             </ListItem>
           ))}
         </View>
