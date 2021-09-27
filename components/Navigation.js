@@ -3,7 +3,7 @@ import {Text, View, StatusBar} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import {Icon, Avatar, ListItem} from 'react-native-elements';
+import {Icon, Avatar, ListItem, Badge} from 'react-native-elements';
 import {ListChatScr} from './ListchatScreen';
 import {ChatScr} from './ChatScreen';
 import {LoginScreen} from './LoginScreen';
@@ -12,6 +12,7 @@ import {AuthContext} from './Context';
 import SettingsScreen from './SettingScreen';
 import {SearchScr} from './SearchScreen';
 import {ListFriendsScreen} from './ListFrScreen';
+import {ListFrInvite} from './ListFrInvite';
 import {Test} from './test';
 
 // header bên trái của tab navigation
@@ -111,6 +112,11 @@ export function MyStack() {
         component={SettingsScreen}
         options={{title: 'Tôi'}}
       />
+      <Stack.Screen
+        name="invite"
+        component={ListFrInvite}
+        options={{title: 'Lời mời kết bạn'}}
+      />
       <Stack.Screen name="test" component={Test} options={{title: 'Tôi'}} />
     </Stack.Navigator>
   );
@@ -186,15 +192,40 @@ export function TabMain({navigation}) {
         options={{
           headerLeft: props => headerLeft({navigation}),
           headerRight: props => (
-            <View style={{flex: 1, flexDirection: 'row'}}>
-              <Icon
-                name="address-book"
-                type="font-awesome-5"
-                color="black"
-                raised
-                size={18}
-                solid={true}
-              />
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+              }}>
+              <View style={{zIndex: 1}}>
+                <Icon
+                  name="address-book"
+                  type="font-awesome-5"
+                  color="black"
+                  raised
+                  size={18}
+                  solid={true}
+                  onPress={() => navigation.navigate('invite')}
+                />
+              </View>
+              <View
+                style={{
+                  top: 0,
+                  right: 5,
+                  zIndex: 2,
+                  position: 'absolute',
+                }}>
+                <Badge
+                  status="error"
+                  value="1"
+                  // containerStyle={{
+                  //   top: 0,
+                  //   right: 5,
+                  //   zIndex: 1,
+                  //   position: 'absolute',
+                  // }}
+                />
+              </View>
             </View>
           ),
           tabBarIcon: ({focused, color, size}) => (

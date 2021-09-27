@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
   ScrollView,
+  StyleSheet,
 } from 'react-native';
 import {
   Icon,
@@ -18,6 +19,7 @@ import {
   Input,
   SearchBar,
   Button,
+  ButtonGroup,
 } from 'react-native-elements';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
@@ -190,6 +192,7 @@ export function SearchScr({navigation}) {
               isOnline: snapshot.val().info.isOnline,
               isTyping: false,
               seen: false,
+              status: 'pending',
             });
         });
     } catch (error) {
@@ -212,6 +215,7 @@ export function SearchScr({navigation}) {
               isOnline: snapshot.val().info.isOnline,
               isTyping: false,
               seen: false,
+              status: 'pending',
             });
         });
     } catch (error) {
@@ -227,6 +231,8 @@ export function SearchScr({navigation}) {
       setTimeout(() => textInputRef.current.focus(), 200);
     }
   }, []);
+
+  const btnGroup = ['Bạn bè'];
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
@@ -259,15 +265,6 @@ export function SearchScr({navigation}) {
         {search == '' ? (
           <View style={{backgroundColor: 'white'}}>
             <Text>Bạn Bè</Text>
-            {/* {console.log('info Friend:')} */}
-            {/* {console.log(listFriend)} */}
-            {/* {console.log(lsFriend)} */}
-            {/* {console.log('Key User:')}
-            {console.log(keyAllUser)}
-            {console.log('Key Friend:')}
-            {console.log(keyFriend)} */}
-            {/* {console.log('Key Not Friend:')}
-            {console.log(keyNotFriend)} */}
             <View>
               {infoFriend.map((l, i) => (
                 <ListItem
@@ -345,14 +342,21 @@ export function SearchScr({navigation}) {
                   <ListItem.Content>
                     <ListItem.Title>{l.name}</ListItem.Title>
                   </ListItem.Content>
-                  <Icon
+                  <Button
+                    title="Kết bạn"
+                    style={styles.addFrBtn}
+                    onPress={() => {
+                      addFriend(l.id);
+                    }}
+                  />
+                  {/* <Icon
                     name="plus"
                     type="font-awesome"
                     color="#517fa4"
                     onPress={() => {
                       addFriend(l.id);
                     }}
-                  />
+                  /> */}
                 </ListItem>
               ))}
             </View>
@@ -362,3 +366,11 @@ export function SearchScr({navigation}) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  addFrBtn: {
+    backgroundColor: '#306EFF',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+});
