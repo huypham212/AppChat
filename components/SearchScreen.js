@@ -50,8 +50,10 @@ export function SearchScr({navigation}) {
   //     });
   //   });
 
-  const searchPress = () => {
-    setSearch('');
+  const loadData = () => {
+    keyAllUser.splice(0, keyAllUser.length);
+    keyFriend.splice(0, keyFriend.length);
+    keyNotFriend.splice(0, keyNotFriend.length);
 
     //lấy key của các user
     database()
@@ -124,6 +126,7 @@ export function SearchScr({navigation}) {
     setSearch(search);
 
     if (search == '') {
+      loadData();
       keyFriend.forEach(element => {
         database()
           .ref('users/' + element)
@@ -143,7 +146,7 @@ export function SearchScr({navigation}) {
         database()
           .ref('users/' + element)
           .on('value', snapshot => {
-            if (snapshot.val().info.name.includes(search)) {
+            if (snapshot.val().info.name.toLowerCase().includes(search.toLowerCase())) {
               listFriend.push({
                 id: element,
                 name: snapshot.val().info.name,
@@ -200,7 +203,7 @@ export function SearchScr({navigation}) {
       console.log(error);
     }
 
-    let uid = currentUser.uid;
+    //let uid = currentUser.uid;
     //add currentUser vào friend
     try {
       database()
@@ -224,15 +227,19 @@ export function SearchScr({navigation}) {
     }
   };
 
-  const textInputRef = React.useRef();
+  //const textInputRef = React.useRef();
 
   useEffect(() => {
-    if (textInputRef.current) {
-      setTimeout(() => textInputRef.current.focus(), 200);
-    }
+    loadData();
   }, []);
 
   const btnGroup = ['Bạn bè'];
+  console.log("Mảng các user:");
+  console.log(keyAllUser);
+  console.log("Mảng các friend:");
+  console.log(keyFriend);
+  console.log("Mảng các not friend:");
+  console.log(keyNotFriend);
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
@@ -257,10 +264,7 @@ export function SearchScr({navigation}) {
           placeholder="Tìm kiếm bạn bè..."
           onChangeText={updateSearch}
           value={search}
-          ref={textInputRef}
-          onFocus={() => {
-            searchPress();
-          }}
+          onFocus={() => setIsFocus(true)}
         />
         {search == '' ? (
           <View style={{backgroundColor: 'white'}}>
