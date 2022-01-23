@@ -252,7 +252,7 @@ export function SearchScr({navigation}) {
             });
         })
         .then(() => {
-          loadData();
+          loadData(search);
         });
     } catch (error) {
       console.log('Error from friend to currentUser');
@@ -276,6 +276,8 @@ export function SearchScr({navigation}) {
               seen: false,
               status: 'pending',
             });
+        }).then(()=>{
+          loadData(search);
         });
     } catch (error) {
       console.log('Error from currentUser to friend');
