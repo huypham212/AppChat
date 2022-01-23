@@ -60,7 +60,9 @@ export function SearchScr({navigation}) {
       .ref('users/')
       .once('value', snapshot => {
         snapshot.forEach(element => {
-          keyAllUser.push(element.key);
+          if(element.key != currentUser.uid){
+            keyAllUser.push(element.key);
+          }
         });
 
         //lấy key trong listFriend
@@ -264,7 +266,6 @@ export function SearchScr({navigation}) {
           placeholder="Tìm kiếm bạn bè..."
           onChangeText={updateSearch}
           value={search}
-          onFocus={() => setIsFocus(true)}
         />
         {search == '' ? (
           <View style={{backgroundColor: 'white'}}>
