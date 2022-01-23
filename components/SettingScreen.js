@@ -38,53 +38,11 @@ function Setting() {
         alert('haha');
       },
     },
-    {
-      icon: 'home',
-      title: 'Cài đặt',
-      action: () => {
-        alert('hihi');
-      },
-    },
   ];
 
   const [open, setOpen] = useState(false);
   const [change, setChange] = useState(false);
   const [image, setImage] = useState(null);
-  // const changeAvatar = () => {
-  //   ImagePicker.openPicker({
-  //     multiple: true,
-  //     waitAnimationEnd: true,
-  //     includeExif: true,
-  //     forceJpg: true,
-  //     compressImageQuality: 0.8,
-  //     maxFiles: 1,
-  //     mediaType: 'image',
-  //     includeBase64: true,
-  //     cropping: true,
-  //   })
-  //     .then(images =>{
-  //   let name = images[0].path.substr(images[0].path.lastIndexOf('/'));
-  //   const reference = storage().ref(
-  //     auth().currentUser.uid + '/avatar/' + name,
-  //   );
-
-  //   const task = reference.putFile(images[0].path);
-  //   task.on('state_changed', taskSnapshot => {
-  //     console.log(
-  //       `${taskSnapshot.bytesTransferred} của ${taskSnapshot.totalBytes}`,
-  //     );
-  //   });
-  //   task.then(() => {
-  //     reference.getDownloadURL().then(url => {
-  //       let ref = '/users/' + auth().currentUser.uid + '/info/';
-  //       database().ref(ref).update({avatar: url});
-  //     });
-  //   });
-  // })
-  //     .catch(e => {
-  //       console.log(e);
-  //     });
-  // };
 
   function updateAva(images) {
     {
@@ -108,23 +66,6 @@ function Setting() {
       });
     }
   }
-  // const openCamera = () => {
-  //     const options = {
-  //       storageOtions: {
-  //         path: 'images',
-  //         mediaType: 'photo',
-  //       },
-  //       includeBase64: true,
-  //     };
-  //     launchCamera(options, res => {
-  //       if (res.didCancel) {
-  //         console.log('tắt camera');
-  //       } else if (res.assets != undefined) {
-  //         let image = {uri: 'data:image/jpeg;base64,' + res.assets[0].base64};
-  //         setImage(image);
-  //       } else console.log(res.errorCode);
-  //     });
-  //   };
 
   const openGallery = () => {
     const options = {

@@ -1,8 +1,9 @@
 import {AuthContext} from './Context';
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {View, ScrollView, Dimensions} from 'react-native';
+import { View, ScrollView, Dimensions, Alert } from 'react-native';
 import {Avatar, ListItem, Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const window = Dimensions.get('window');
 
@@ -43,6 +44,32 @@ function ListForm({l, navigation}) {
   );
 }
 
+const unFriend = id => {
+  const currentUser = auth().currentUser;
+  console.log(id, currentUser.uid);
+  try {
+    database()
+      .ref('users/' + currentUser.uid + '/listFriend/' + id)
+      .update({
+        status: 'unfriend',
+      });
+  } catch (error) {
+    console.log('Error from friend to currentUser');
+    console.log(error);
+  }
+
+  try {
+    database()
+      .ref('users/' + id + '/listFriend/' + currentUser.uid)
+      .update({
+        status: 'unfriend',
+      }).then;
+  } catch (error) {
+    console.log('Error from currentUser to friend');
+    console.log(error);
+  }
+}
+
 function ShowAll({l, navigation}) {
   return (
     <ListItem
@@ -58,6 +85,10 @@ function ShowAll({l, navigation}) {
           ava: l.avatar,
           isOnline: l.isOnline,
         });
+      }}
+      onLongPress={() => {
+        unFriend(l._id);
+        Alert.alert("Thông báo", "Đã huỷ kết bạn thành công!")
       }}>
       <Avatar rounded source={{uri: l.avatar}} size={50}>
         {l.isOnline ? (
@@ -85,6 +116,7 @@ export function ListFriendsScreen({navigation}) {
 
   let listFriend = [];
   const uid = auth().currentUser.uid;
+  const currentUser = auth().currentUser;
 
   const [li, setL] = useState([]);
 

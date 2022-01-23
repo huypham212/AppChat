@@ -1,5 +1,5 @@
 import React, {useState, useMemo, useEffect, useContext} from 'react';
-import {Text, View, StatusBar} from 'react-native';
+import {Text, View, StatusBar, Modal, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -77,6 +77,7 @@ export function MyStack() {
                 alignItems: 'center',
                 marginLeft: -20,
               }}>
+                
               <Avatar
                 size={40}
                 containerStyle={{marginRight: 15}}

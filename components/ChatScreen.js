@@ -326,42 +326,8 @@ export function ChatScr({navigation, route}) {
     }
   };
 
-  // const openCamera = () => {
-  //   const options = {
-  //     storageOtions: {
-  //       path: 'images',
-  //       mediaType: 'photo',
-  //     },
-  //     includeBase64: true,
-  //   };
-  //   launchCamera(options, res => {
-  //     if (res.didCancel) {
-  //       console.log('tắt camera');
-  //     } else if (res.assets != undefined) {
-  //       let image = {uri: 'data:image/jpeg;base64,' + res.assets[0].base64};
-  //       setImage(image);
-  //     } else console.log(res.errorCode);
-  //   });
-  // };
   //Chọn ảnh từ thư viện
   const openGallery = () => {
-    // ImagePicker.openPicker({
-    //   multiple: true,
-    //   waitAnimationEnd: true,
-    //   includeExif: true,
-    //   forceJpg: true,
-    //   compressImageQuality: 1,
-    //   mediaType: 'image',
-    //   // includeBase64: true,
-    // })
-    //   .then(images => {
-    //     // console.log(images);
-    //     setImage(images);
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
-
     const options = {
       storageOtions: {
         path: 'images',

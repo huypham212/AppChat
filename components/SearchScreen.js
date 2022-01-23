@@ -62,7 +62,12 @@ export function SearchScr({navigation}) {
                         if (f.val().status == 'pending') {
                           check = 0;
                         } else {
-                          check = 1;
+                          if(f.val().status == 'friend'){
+                            check = 1;
+                          }
+                          else{
+                            check = -1;
+                          }
                         }
                       }
                     }
@@ -128,7 +133,7 @@ export function SearchScr({navigation}) {
             });
         })
         .then(() => {
-          loadData(search);
+          loadData(search.toLowerCase());
         });
     } catch (error) {
       console.log('Error from friend to currentUser');
@@ -153,7 +158,7 @@ export function SearchScr({navigation}) {
             });
         })
         .then(() => {
-          loadData(search);
+          loadData(search.toLowerCase());
         });
     } catch (error) {
       console.log('Error from currentUser to friend');
@@ -162,7 +167,7 @@ export function SearchScr({navigation}) {
   };
 
   useEffect(() => {
-    loadData();
+    loadData(search.toLowerCase());
   }, []);
 
   useMemo(() => {
@@ -301,7 +306,6 @@ export function SearchScr({navigation}) {
                       }}
                     />
                   </View>
-                    // <Button title="Chấp nhận" style={styles.addFrBtn} />
                   ) : (
                     <Button
                       title={l.status == 'pending' ? 'Đang chờ' : 'Kết bạn'}
@@ -311,9 +315,9 @@ export function SearchScr({navigation}) {
                         backgroundColor: '#306EFF'
                       }}
                       onPress={() => {
-                        if (l.status == '') {
+                        if (l.status == '' || l.status == 'unfriend') {
                           addFriend(l.id);
-                          Alert.alert('thông báo', 'đã gửi');
+                          Alert.alert('Thông báo', 'Đãn gửi lời mời kết bạn');
                         }
                       }}
                     />
