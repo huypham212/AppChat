@@ -147,6 +147,7 @@ function Setting() {
       } else console.log(res.errorCode);
     });
   };
+
   function ModalChangeAva() {
     return (
       <Modal animationType="fade" transparent={true} visible={change}>
@@ -196,6 +197,7 @@ function Setting() {
       </Modal>
     );
   }
+  
   return (
     <View>
       <View

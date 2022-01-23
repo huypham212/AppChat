@@ -28,14 +28,12 @@ import firestore from '@react-native-firebase/firestore';
 export function SearchScr({navigation}) {
   const [search, setSearch] = useState('');
   const [infoFriend, setInfoFriend] = useState([]);
-  const [infoNotFriend, setInfoNotFriend] = useState([]);
-  const [lsNotFriend, setLsNotFriend] = useState([]);
+
+  const [listSearch, setlistSearch] = useState([]);
   const [keyAllUser] = useState([]);
   const [keyFriend] = useState([]);
   const [keyNotFriend] = useState([]);
   const currentUser = auth().currentUser;
-  let listFriend = [];
-  let listNotFriend = [];
 
   //using firestore to get all users
   // firestore()
@@ -49,137 +47,190 @@ export function SearchScr({navigation}) {
   //       console.log('User ID: ', documentSnapshot.id);
   //     });
   //   });
-
-  const loadData = () => {
+  let list = [];
+  const loadData = search => {
     keyAllUser.splice(0, keyAllUser.length);
     keyFriend.splice(0, keyFriend.length);
     keyNotFriend.splice(0, keyNotFriend.length);
 
-    //lấy key của các user
     database()
       .ref('users/')
       .once('value', snapshot => {
         snapshot.forEach(element => {
-          if(element.key != currentUser.uid){
-            keyAllUser.push(element.key);
+          if (
+            element.key != currentUser.uid &&
+            typeof element.val().info.name != 'undefined'
+          ) {
+            if (element.val().info.name.toLowerCase().includes(search)) {
+              let status = '';
+              database()
+                .ref('users/' + currentUser.uid + '/listFriend')
+                .once('value', async snapshot => {
+                  let check = -1;
+
+                  snapshot.forEach(f => {
+                    if (element.key == f.key) {
+                      if (typeof f.val().status != undefined) {
+                        status = f.val().status;
+                        if (f.val().status == 'pending') {
+                          check = 0;
+                        } else {
+                          check = 1;
+                        }
+                      }
+                    }
+                  });
+                  switch (check) {
+                    case -1:
+                      console.log(element.val().info.name + ' không phải bạn');
+                      break;
+                    case 0:
+                      console.log(element.val().info.name + ' đang chờ');
+                      break;
+                    case 1:
+                      console.log(element.val().info.name + ' là bạn');
+                      break;
+                  }
+                  let info = element.val().info;
+                  info.id = element.key;
+                  info.status = status;
+                  list.push(info);
+                  setTimeout(() => {
+                    setlistSearch(list);
+                  }, 100);
+                  console.log(list);
+                });
+            }
           }
         });
-
-        //lấy key trong listFriend
-        database()
-          .ref('users/' + currentUser.uid + '/listFriend')
-          .once('value', snapshot => {
-            snapshot.forEach(element => {
-              keyAllUser.forEach(key => {
-                if (key == element.key) {
-                  keyFriend.push(element.key);
-                }
-              });
-            });
-
-            //push key của các user vào keyNotFriend
-            keyAllUser.forEach(user => {
-              keyNotFriend.push(user);
-            });
-
-            //pop các key trùng với key trong keyFriend
-            keyFriend.forEach(friend => {
-              keyNotFriend.forEach(not_friend => {
-                if (not_friend == friend || not_friend == currentUser.uid) {
-                  keyNotFriend.splice(keyNotFriend.indexOf(friend), 1);
-                }
-              });
-            });
-
-            //lấy info các user không phải là bạn
-            keyNotFriend.forEach(element => {
-              database()
-                .ref('users/' + element)
-                .once('value', snapshot => {
-                  listNotFriend.push({
-                    id: element,
-                    name: snapshot.val().info.name,
-                    avatar: snapshot.val().info.avatar,
-                    isOnline: snapshot.val().info.isOnline,
-                  });
-                  setInfoNotFriend(listNotFriend);
-                });
-            });
-
-            //lấy info theo key
-            keyFriend.forEach(element => {
-              database()
-                .ref('users/' + element)
-                .once('value', snapshot => {
-                  listFriend.push({
-                    id: element,
-                    name: snapshot.val().info.name,
-                    avatar: snapshot.val().info.avatar,
-                    isOnline: snapshot.val().info.isOnline,
-                  });
-                  setInfoFriend(listFriend);
-                });
-            });
-          });
       });
+
+    //lấy key trong listFriend
+    // database()
+    //   .ref('users/' + currentUser.uid + '/listFriend')
+    //   .once('value', snapshot => {
+    //     snapshot.forEach(element => {
+    //       keyAllUser.forEach(key => {
+    //         if (key == element.key) {
+    //           keyFriend.push(element.key);
+    //         }
+    //       });
+    //     });
+
+    //push key của các user vào keyNotFriend
+    // keyAllUser.forEach(user => {
+    //   keyNotFriend.push(user);
+    // });
+
+    //pop các key trùng với key trong keyFriend
+    // keyFriend.forEach(friend => {
+    //   keyNotFriend.forEach(not_friend => {
+    //     if (not_friend == friend || not_friend == currentUser.uid) {
+    //       keyNotFriend.splice(keyNotFriend.indexOf(friend), 1);
+    //     }
+    //   });
+    // });
+
+    //lấy info các user không phải là bạn
+    // keyNotFriend.forEach(element => {
+    //   database()
+    //     .ref('users/' + element)
+    //     .once('value', snapshot => {
+    //       listNotFriend.push({
+    //         id: element,
+    //         name: snapshot.val().info.name,
+    //         avatar: snapshot.val().info.avatar,
+    //         isOnline: snapshot.val().info.isOnline,
+    //       });
+    //       setInfoNotFriend(listNotFriend);
+    //     });
+    // });
+
+    //lấy info theo key
+    //       keyFriend.forEach(element => {
+    //         database()
+    //           .ref('users/' + element)
+    //           .once('value', snapshot => {
+    //             listFriend.push({
+    //               id: element,
+    //               name: snapshot.val().info.name,
+    //               avatar: snapshot.val().info.avatar,
+    //               isOnline: snapshot.val().info.isOnline,
+    //             });
+    //             setInfoFriend(listFriend);
+    //           });
+    //       });
+    //     });
+    // });
   };
 
   const updateSearch = search => {
     setSearch(search);
+    setlistSearch([]);
 
-    if (search == '') {
-      loadData();
-      keyFriend.forEach(element => {
-        database()
-          .ref('users/' + element)
-          .once('value', snapshot => {
-            listFriend.push({
-              id: element,
-              name: snapshot.val().info.name,
-              avatar: snapshot.val().info.avatar,
-              isOnline: snapshot.val().info.isOnline,
-            });
-            setInfoFriend(listFriend);
-          });
-      });
+    if (search != '') {
+      loadData(search.toLowerCase());
+      // keyFriend.forEach(element => {
+      //   database()
+      //     .ref('users/' + element)
+      //     .once('value', snapshot => {
+      //       listFriend.push({
+      //         id: element,
+      //         name: snapshot.val().info.name,
+      //         avatar: snapshot.val().info.avatar,
+      //         isOnline: snapshot.val().info.isOnline,
+      //       });
+      //       setInfoFriend(listFriend);
+      //     });
+      // });
     } else {
-      //Tìm friend có tên trong seacrch bar
-      keyFriend.forEach(element => {
-        database()
-          .ref('users/' + element)
-          .on('value', snapshot => {
-            if (snapshot.val().info.name.toLowerCase().includes(search.toLowerCase())) {
-              listFriend.push({
-                id: element,
-                name: snapshot.val().info.name,
-                avatar: snapshot.val().info.avatar,
-                isOnline: snapshot.val().info.isOnline,
-              });
-
-              setInfoFriend(listFriend);
-              //console.log(snapshot.val().info.name);
-            }
-            //console.log('List Friend: ' + listUser);
-          });
-      });
-
-      //Tìm các user không phải bạn có tên trong search bar
-      keyNotFriend.forEach(element => {
-        database()
-          .ref('users/' + element)
-          .once('value', snapshot => {
-            if (snapshot.val().info.name.includes(search)) {
-              listNotFriend.push({
-                id: element,
-                name: snapshot.val().info.name,
-                avatar: snapshot.val().info.avatar,
-                isOnline: snapshot.val().info.isOnline,
-              });
-              setInfoNotFriend(listNotFriend);
-            }
-          });
-      });
+      setlistSearch([]);
     }
+    // else {
+    //   //Tìm friend có tên trong seacrch bar
+    //   keyFriend.forEach(element => {
+    //     database()
+    //       .ref('users/' + element)
+    //       .on('value', snapshot => {
+    //         if (typeof(snapshot.val().info.name) != "undefined") {
+    //           if (
+    //             snapshot
+    //               .val()
+    //               .info.name.toLowerCase()
+    //               .includes(search.toLowerCase())
+    //           ) {
+    //             listFriend.push({
+    //               id: element,
+    //               name: snapshot.val().info.name,
+    //               avatar: snapshot.val().info.avatar,
+    //               isOnline: snapshot.val().info.isOnline,
+    //             });
+
+    //             setInfoFriend(listFriend);
+    //             //console.log(snapshot.val().info.name);
+    //           }
+    //         }
+    //         console.log('List Friend: ' ,snapshot.val().info);
+    //       });
+    //   });
+
+    //   //Tìm các user không phải bạn có tên trong search bar
+    //   keyNotFriend.forEach(element => {
+    //     database()
+    //       .ref('users/' + element)
+    //       .once('value', snapshot => {
+    //         if (snapshot.val().info.name.includes(search)) {
+    //           listNotFriend.push({
+    //             id: element,
+    //             name: snapshot.val().info.name,
+    //             avatar: snapshot.val().info.avatar,
+    //             isOnline: snapshot.val().info.isOnline,
+    //           });
+    //           setInfoNotFriend(listNotFriend);
+    //         }
+    //       });
+    //   });
+    // }
   };
 
   const addFriend = id => {
@@ -199,6 +250,9 @@ export function SearchScr({navigation}) {
               seen: false,
               status: 'pending',
             });
+        })
+        .then(() => {
+          loadData();
         });
     } catch (error) {
       console.log('Error from friend to currentUser');
@@ -236,13 +290,18 @@ export function SearchScr({navigation}) {
   }, []);
 
   const btnGroup = ['Bạn bè'];
-  console.log("Mảng các user:");
-  console.log(keyAllUser);
-  console.log("Mảng các friend:");
-  console.log(keyFriend);
-  console.log("Mảng các not friend:");
-  console.log(keyNotFriend);
-
+  // console.log('Mảng các user:');
+  // console.log(keyAllUser);
+  // console.log('Mảng các friend:');
+  // console.log(keyFriend);
+  // console.log('Mảng các not friend:');
+  // console.log(keyNotFriend);
+  useMemo(() => {
+    if (search == '' && listSearch.length > 0) {
+      setlistSearch([]);
+    }
+    console.log(listSearch);
+  }, [listSearch]);
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
       <ScrollView>
@@ -271,7 +330,7 @@ export function SearchScr({navigation}) {
           <View style={{backgroundColor: 'white'}}>
             <Text>Bạn Bè</Text>
             <View>
-              {infoFriend.map((l, i) => (
+              {listSearch.map((l, i) => (
                 <ListItem
                   key={i}
                   onPress={() =>
@@ -332,7 +391,7 @@ export function SearchScr({navigation}) {
             </View>
             <Text>Những người khác</Text>
             <View>
-              {infoNotFriend.map((l, i) => (
+              {listSearch.map((l, i) => (
                 <ListItem key={i}>
                   <Avatar rounded source={{uri: l.avatar}} size={50}>
                     {l.isOnline ? (
@@ -348,10 +407,13 @@ export function SearchScr({navigation}) {
                     <ListItem.Title>{l.name}</ListItem.Title>
                   </ListItem.Content>
                   <Button
-                    title="Kết bạn"
+                    title={l.status == 'pending' ? 'Đang chờ' : 'Kết bạn'}
                     style={styles.addFrBtn}
                     onPress={() => {
-                      addFriend(l.id);
+                      if (l.status == '') {
+                        addFriend(l.id);
+                        Alert.alert('thông báo', 'đã gửi');
+                      }
                     }}
                   />
                   {/* <Icon
