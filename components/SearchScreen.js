@@ -47,12 +47,12 @@ export function SearchScr({navigation}) {
   //       console.log('User ID: ', documentSnapshot.id);
   //     });
   //   });
-  let list = [];
+
   const loadData = search => {
     keyAllUser.splice(0, keyAllUser.length);
     keyFriend.splice(0, keyFriend.length);
     keyNotFriend.splice(0, keyNotFriend.length);
-
+    let list = [];
     database()
       .ref('users/')
       .once('value', snapshot => {
