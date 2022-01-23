@@ -7,25 +7,8 @@ import auth from '@react-native-firebase/auth';
 
 export function ListFrInvite({navigation}) {
   const currentUser = auth().currentUser;
-  const data = [
-    {
-      avatar:
-        'https://dongthanhphat.vn//userfiles/images/Partner/anh-dai-dien-FB-200.jpg',
-      name: 'Gin Nguyễn',
-    },
-    {
-      avatar:
-        'https://dongthanhphat.vn//userfiles/images/Partner/anh-dai-dien-FB-200.jpg',
-      name: 'Christiano Ronaldo',
-    },
-    {
-      avatar:
-        'https://dongthanhphat.vn//userfiles/images/Partner/anh-dai-dien-FB-200.jpg',
-      name: 'Phạm Nguyễn Thanh Huy',
-    },
-  ];
-
   const [list, setList] = useState([]);
+
   const loadData = () => {
     setList([]);
     database()
@@ -43,9 +26,11 @@ export function ListFrInvite({navigation}) {
         });
       });
   };
+
   useEffect(() => {
     loadData();
   }, []);
+  
   const acceptInvite = id => {
     console.log(id);
     try {

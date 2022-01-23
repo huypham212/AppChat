@@ -27,32 +27,19 @@ import firestore from '@react-native-firebase/firestore';
 
 export function SearchScr({navigation}) {
   const [search, setSearch] = useState('');
-  const [infoFriend, setInfoFriend] = useState([]);
-
+  const [listFriend, setListFriend] = useState([]);
   const [listSearch, setlistSearch] = useState([]);
   const [keyAllUser] = useState([]);
   const [keyFriend] = useState([]);
   const [keyNotFriend] = useState([]);
   const currentUser = auth().currentUser;
 
-  //using firestore to get all users
-  // firestore()
-  //   .collection('users')
-  //   .where('info.name', '==', 'H')
-  //   .get()
-  //   .then(querySnapshot => {
-  //     console.log('Total users: ', querySnapshot.size);
-
-  //     querySnapshot.forEach(documentSnapshot => {
-  //       console.log('User ID: ', documentSnapshot.id);
-  //     });
-  //   });
-
   const loadData = search => {
     keyAllUser.splice(0, keyAllUser.length);
     keyFriend.splice(0, keyFriend.length);
     keyNotFriend.splice(0, keyNotFriend.length);
     let list = [];
+    let listFrd = [];
     database()
       .ref('users/')
       .once('value', snapshot => {
@@ -80,6 +67,14 @@ export function SearchScr({navigation}) {
                       }
                     }
                   });
+
+                  let info = element.val().info;
+                  info.id = element.key;
+                  info.status = status;
+                  list.push(info);
+                  
+                  //console.log(list);
+
                   switch (check) {
                     case -1:
                       console.log(element.val().info.name + ' không phải bạn');
@@ -91,77 +86,16 @@ export function SearchScr({navigation}) {
                       console.log(element.val().info.name + ' là bạn');
                       break;
                   }
-                  let info = element.val().info;
-                  info.id = element.key;
-                  info.status = status;
-                  list.push(info);
+
                   setTimeout(() => {
                     setlistSearch(list);
                   }, 100);
-                  console.log(list);
+                  
                 });
             }
           }
         });
-      });
-
-    //lấy key trong listFriend
-    // database()
-    //   .ref('users/' + currentUser.uid + '/listFriend')
-    //   .once('value', snapshot => {
-    //     snapshot.forEach(element => {
-    //       keyAllUser.forEach(key => {
-    //         if (key == element.key) {
-    //           keyFriend.push(element.key);
-    //         }
-    //       });
-    //     });
-
-    //push key của các user vào keyNotFriend
-    // keyAllUser.forEach(user => {
-    //   keyNotFriend.push(user);
-    // });
-
-    //pop các key trùng với key trong keyFriend
-    // keyFriend.forEach(friend => {
-    //   keyNotFriend.forEach(not_friend => {
-    //     if (not_friend == friend || not_friend == currentUser.uid) {
-    //       keyNotFriend.splice(keyNotFriend.indexOf(friend), 1);
-    //     }
-    //   });
-    // });
-
-    //lấy info các user không phải là bạn
-    // keyNotFriend.forEach(element => {
-    //   database()
-    //     .ref('users/' + element)
-    //     .once('value', snapshot => {
-    //       listNotFriend.push({
-    //         id: element,
-    //         name: snapshot.val().info.name,
-    //         avatar: snapshot.val().info.avatar,
-    //         isOnline: snapshot.val().info.isOnline,
-    //       });
-    //       setInfoNotFriend(listNotFriend);
-    //     });
-    // });
-
-    //lấy info theo key
-    //       keyFriend.forEach(element => {
-    //         database()
-    //           .ref('users/' + element)
-    //           .once('value', snapshot => {
-    //             listFriend.push({
-    //               id: element,
-    //               name: snapshot.val().info.name,
-    //               avatar: snapshot.val().info.avatar,
-    //               isOnline: snapshot.val().info.isOnline,
-    //             });
-    //             setInfoFriend(listFriend);
-    //           });
-    //       });
-    //     });
-    // });
+      });  
   };
 
   const updateSearch = search => {
@@ -170,67 +104,9 @@ export function SearchScr({navigation}) {
 
     if (search != '') {
       loadData(search.toLowerCase());
-      // keyFriend.forEach(element => {
-      //   database()
-      //     .ref('users/' + element)
-      //     .once('value', snapshot => {
-      //       listFriend.push({
-      //         id: element,
-      //         name: snapshot.val().info.name,
-      //         avatar: snapshot.val().info.avatar,
-      //         isOnline: snapshot.val().info.isOnline,
-      //       });
-      //       setInfoFriend(listFriend);
-      //     });
-      // });
     } else {
       setlistSearch([]);
     }
-    // else {
-    //   //Tìm friend có tên trong seacrch bar
-    //   keyFriend.forEach(element => {
-    //     database()
-    //       .ref('users/' + element)
-    //       .on('value', snapshot => {
-    //         if (typeof(snapshot.val().info.name) != "undefined") {
-    //           if (
-    //             snapshot
-    //               .val()
-    //               .info.name.toLowerCase()
-    //               .includes(search.toLowerCase())
-    //           ) {
-    //             listFriend.push({
-    //               id: element,
-    //               name: snapshot.val().info.name,
-    //               avatar: snapshot.val().info.avatar,
-    //               isOnline: snapshot.val().info.isOnline,
-    //             });
-
-    //             setInfoFriend(listFriend);
-    //             //console.log(snapshot.val().info.name);
-    //           }
-    //         }
-    //         console.log('List Friend: ' ,snapshot.val().info);
-    //       });
-    //   });
-
-    //   //Tìm các user không phải bạn có tên trong search bar
-    //   keyNotFriend.forEach(element => {
-    //     database()
-    //       .ref('users/' + element)
-    //       .once('value', snapshot => {
-    //         if (snapshot.val().info.name.includes(search)) {
-    //           listNotFriend.push({
-    //             id: element,
-    //             name: snapshot.val().info.name,
-    //             avatar: snapshot.val().info.avatar,
-    //             isOnline: snapshot.val().info.isOnline,
-    //           });
-    //           setInfoNotFriend(listNotFriend);
-    //         }
-    //       });
-    //   });
-    // }
   };
 
   const addFriend = id => {
@@ -259,7 +135,6 @@ export function SearchScr({navigation}) {
       console.log(error);
     }
 
-    //let uid = currentUser.uid;
     //add currentUser vào friend
     try {
       database()
@@ -286,25 +161,72 @@ export function SearchScr({navigation}) {
     }
   };
 
-  //const textInputRef = React.useRef();
-
   useEffect(() => {
     loadData();
   }, []);
 
-  const btnGroup = ['Bạn bè'];
-  // console.log('Mảng các user:');
-  // console.log(keyAllUser);
-  // console.log('Mảng các friend:');
-  // console.log(keyFriend);
-  // console.log('Mảng các not friend:');
-  // console.log(keyNotFriend);
   useMemo(() => {
     if (search == '' && listSearch.length > 0) {
       setlistSearch([]);
     }
-    console.log(listSearch);
   }, [listSearch]);
+
+  const acceptInvite = id => {
+    console.log(id);
+    try {
+      database()
+        .ref('users/' + currentUser.uid + '/listFriend/' + id)
+        .update({
+          status: 'friend',
+        })
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from friend to currentUser');
+      console.log(error);
+    }
+
+    try {
+      database()
+        .ref('users/' + id + '/listFriend/' + currentUser.uid)
+        .update({
+          status: 'friend',
+        })
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from currentUser to friend');
+      console.log(error);
+    }
+  };
+  const declineiInvite = id => {
+    try {
+      database()
+        .ref('users/' + currentUser.uid + '/listFriend/' + id)
+        .remove()
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from friend to currentUser');
+      console.log(error);
+    }
+
+    try {
+      database()
+        .ref('users/' + id + '/listFriend/' + currentUser.uid)
+        .remove()
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from currentUser to friend');
+      console.log(error);
+    }
+  };
+
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
       <ScrollView>
@@ -329,73 +251,19 @@ export function SearchScr({navigation}) {
           onChangeText={updateSearch}
           value={search}
         />
-        {search == '' ? (
-          <View style={{backgroundColor: 'white'}}>
-            <Text>Bạn Bè</Text>
-            <View>
-              {listSearch.map((l, i) => (
-                <ListItem
-                  key={i}
-                  onPress={() =>
-                    navigation.navigate('chat', {
-                      name: l.name,
-                      id: l.id,
-                      ava: l.avatar,
-                      isOnline: l.isOnline,
-                    })
-                  }>
-                  <Avatar rounded source={{uri: l.avatar}} size={50}>
-                    {l.isOnline ? (
-                      <Avatar.Accessory
-                        name="circle"
-                        size={15}
-                        color="#00b300"
-                        style={{backgroundColor: 'white'}}
-                      />
-                    ) : null}
-                  </Avatar>
-                  <ListItem.Content>
-                    <ListItem.Title>{l.name}</ListItem.Title>
-                  </ListItem.Content>
-                </ListItem>
-              ))}
-            </View>
-          </View>
-        ) : (
+        {search == '' ? null : (
           <View>
-            <Text>Bạn Bè</Text>
-            <View>
-              {infoFriend.map((l, i) => (
-                <ListItem
-                  key={i}
-                  onPress={() =>
-                    navigation.navigate('chat', {
-                      name: l.name,
-                      id: l.id,
-                      ava: l.avatar,
-                      isOnline: l.isOnline,
-                    })
-                  }>
-                  <Avatar rounded source={{uri: l.avatar}} size={50}>
-                    {l.isOnline ? (
-                      <Avatar.Accessory
-                        name="circle"
-                        size={15}
-                        color="#00b300"
-                        style={{backgroundColor: 'white'}}
-                      />
-                    ) : null}
-                  </Avatar>
-                  <ListItem.Content>
-                    <ListItem.Title>{l.name}</ListItem.Title>
-                  </ListItem.Content>
-                </ListItem>
-              ))}
-            </View>
-            <Text>Những người khác</Text>
+            <Text 
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                paddingLeft: 15,
+                paddingTop: 10
+              }}>Những người khác</Text>
             <View>
               {listSearch.map((l, i) => (
-                <ListItem key={i}>
+                l.status != 'friend' ? (
+                  <ListItem key={i}>
                   <Avatar rounded source={{uri: l.avatar}} size={50}>
                     {l.isOnline ? (
                       <Avatar.Accessory
@@ -409,12 +277,39 @@ export function SearchScr({navigation}) {
                   <ListItem.Content>
                     <ListItem.Title>{l.name}</ListItem.Title>
                   </ListItem.Content>
-                  {l.status == 'friend' ? (
-                    <Button title="Bạn bè" style={styles.addFrBtn} />
+                  {l.status == 'invited' ? (
+                    <View
+                    style={{flex: 1, flexDirection: 'row', alignContent: 'flex-start'}}>
+                    <Button
+                      title="Chấp nhận"
+                      buttonStyle={{
+                        backgroundColor: '#306EFF',
+                        fontWeight: 'bold',
+                        borderRadius: 100,
+                        marginLeft: 5,
+                      }}
+                      onPress={() => acceptInvite(l.id)}
+                    />
+                    <Button
+                      onPress={() => declineiInvite(l.id)}
+                      title="Từ chối"
+                      titleStyle={{color: 'black'}}
+                      buttonStyle={{
+                        backgroundColor: '#CFCFCF',
+                        borderRadius: 100,
+                        marginLeft: 5,
+                      }}
+                    />
+                  </View>
+                    // <Button title="Chấp nhận" style={styles.addFrBtn} />
                   ) : (
                     <Button
                       title={l.status == 'pending' ? 'Đang chờ' : 'Kết bạn'}
                       style={styles.addFrBtn}
+                      buttonStyle={{
+                        borderRadius: 100,
+                        backgroundColor: '#306EFF'
+                      }}
                       onPress={() => {
                         if (l.status == '') {
                           addFriend(l.id);
@@ -423,16 +318,46 @@ export function SearchScr({navigation}) {
                       }}
                     />
                   )}
-                  {/* <Icon
-                    name="plus"
-                    type="font-awesome"
-                    color="#517fa4"
-                    onPress={() => {
-                      addFriend(l.id);
-                    }}
-                  /> */}
                 </ListItem>
-              ))}
+                
+              ) : null))}
+            </View>
+            <Text 
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                paddingLeft: 15,
+                paddingTop: 10
+              }}>Bạn Bè</Text>
+            <View>
+              {listSearch.map((l, i) => (
+                l.status == 'friend' ? (
+                  <ListItem
+                  key={i}
+                  onPress={() =>
+                    navigation.navigate('chat', {
+                      name: l.name,
+                      id: l.id,
+                      ava: l.avatar,
+                      isOnline: l.isOnline,
+                    })
+                  }>
+                  <Avatar rounded source={{uri: l.avatar}} size={50}>
+                    {l.isOnline ? (
+                      <Avatar.Accessory
+                        name="circle"
+                        size={15}
+                        color="#00b300"
+                        style={{backgroundColor: 'white'}}
+                      />
+                    ) : null}
+                  </Avatar>
+                  <ListItem.Content>
+                    <ListItem.Title>{l.name}</ListItem.Title>
+                  </ListItem.Content>
+                </ListItem>
+                
+                ) : null))}
             </View>
           </View>
         )}
