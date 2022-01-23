@@ -143,6 +143,22 @@ export function RootStack() {
 //Tab navigation
 const Tab = createBottomTabNavigator();
 export function TabMain({navigation}) {
+  const [count,setCount] = useState(0);
+  const {user} = useContext(AuthContext);
+  useEffect(() => {
+    let c = 0
+    setCount( 0)
+    Object.values( user.listFriend).forEach(e =>{
+      if( e.status == 'invited')
+      {
+         c +=1;
+        setCount(c);
+        console.log(count);
+        
+      }
+    })
+    
+  }, [user.listFriend]);
   return (
     <Tab.Navigator screenOptions={{tabBarShowLabel: false}}>
       <Tab.Screen
@@ -217,7 +233,7 @@ export function TabMain({navigation}) {
                 }}>
                 <Badge
                   status="error"
-                  value="1"
+                  value={count}
                   // containerStyle={{
                   //   top: 0,
                   //   right: 5,
