@@ -92,9 +92,10 @@ export function ListFriendsScreen({navigation}) {
 
   const parseList = (key, value) => {
     //console.log(value);
-    let avatar, name, isOnline, messages, lastMess;
+    let avatar, name, isOnline, messages, lastMess,status;
     avatar = value.avatar;
     name = value.name;
+    status = value.status
     isOnline = value.isOnline;
     if (value.messages != undefined) {
       messages = value.messages;
@@ -112,6 +113,7 @@ export function ListFriendsScreen({navigation}) {
       isOnline,
       lastMess,
       messages,
+      status
     };
     listChat.push(item);
     // console.log('Item:', item);
@@ -125,7 +127,7 @@ export function ListFriendsScreen({navigation}) {
       list = Object.values(friends);
       listFriend = Object.keys(friends).sort();
       list.forEach(e => {
-        if (e.isOnline == true) {
+        if (e.isOnline == true && e.status =='friend') {
           a++;
         }
       });
@@ -189,11 +191,15 @@ export function ListFriendsScreen({navigation}) {
         <View>
           {li.map((l, i) => (
             <View key={i}>
-              {showAll ? (
-                <ShowAll l={l} navigation={navigation} />
-              ) : (
-                <ListForm l={l} navigation={navigation} />
-              )}
+             {l.status == "friend" ?(
+                <View>
+                  {showAll ? (
+                    <ShowAll l={l} navigation={navigation} />
+                  ) : (
+                    <ListForm l={l} navigation={navigation} />
+                  )}
+                </View>
+              ):null}
             </View>
           ))}
         </View>

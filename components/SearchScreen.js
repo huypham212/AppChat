@@ -65,7 +65,7 @@ export function SearchScr({navigation}) {
               let status = '';
               database()
                 .ref('users/' + currentUser.uid + '/listFriend')
-                .once('value', async snapshot => {
+                .once('value', snapshot => {
                   let check = -1;
 
                   snapshot.forEach(f => {
@@ -274,9 +274,10 @@ export function SearchScr({navigation}) {
               isOnline: snapshot.val().info.isOnline,
               isTyping: false,
               seen: false,
-              status: 'pending',
+              status: 'invited',
             });
-        }).then(()=>{
+        })
+        .then(() => {
           loadData(search);
         });
     } catch (error) {
@@ -408,16 +409,20 @@ export function SearchScr({navigation}) {
                   <ListItem.Content>
                     <ListItem.Title>{l.name}</ListItem.Title>
                   </ListItem.Content>
-                  <Button
-                    title={l.status == 'pending' ? 'Đang chờ' : 'Kết bạn'}
-                    style={styles.addFrBtn}
-                    onPress={() => {
-                      if (l.status == '') {
-                        addFriend(l.id);
-                        Alert.alert('thông báo', 'đã gửi');
-                      }
-                    }}
-                  />
+                  {l.status == 'friend' ? (
+                    <Button title="Bạn bè" style={styles.addFrBtn} />
+                  ) : (
+                    <Button
+                      title={l.status == 'pending' ? 'Đang chờ' : 'Kết bạn'}
+                      style={styles.addFrBtn}
+                      onPress={() => {
+                        if (l.status == '') {
+                          addFriend(l.id);
+                          Alert.alert('thông báo', 'đã gửi');
+                        }
+                      }}
+                    />
+                  )}
                   {/* <Icon
                     name="plus"
                     type="font-awesome"

@@ -369,8 +369,8 @@ export function ChatScr({navigation, route}) {
       },
 
       quality: 1,
-      maxWidth: 720,
-      maxHeight: 1080,
+      maxWidth: 2160,
+      maxHeight: 2160,
       //includeBase64: true,
     };
     launchImageLibrary(options, res => {
@@ -512,7 +512,7 @@ export function ChatScr({navigation, route}) {
           }}
         />
         {images != null ? (
-          <View style={{height: window.width}}>
+          <View style={{height: window.width-200}}>
             <ScrollView>
               <View style={styles.container}>
                 {/* {images.map((e, i) => ( */}
@@ -536,11 +536,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
 
-    //justifyContent: 'center',
+    //justifyContent: ' center',
   },
   imgwrap: {
     margin: 3,
     height: window.width,
-    width: window.width,
+    width:"100%",
   },
 });

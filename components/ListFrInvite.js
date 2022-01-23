@@ -1,8 +1,12 @@
-import React from 'react';
+import React, {useState, useMemo, useEffect, useContext} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {ListItem, Avatar, Button} from 'react-native-elements';
+import {Icon} from 'react-native-elements/dist/icons/Icon';
+import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 
 export function ListFrInvite({navigation}) {
+  const currentUser = auth().currentUser;
   const data = [
     {
       avatar:
@@ -21,9 +25,85 @@ export function ListFrInvite({navigation}) {
     },
   ];
 
+  const [list, setList] = useState([]);
+  const loadData = () => {
+    setList([]);
+    database()
+      .ref('users/' + currentUser.uid + '/listFriend')
+      .once('value', snapshot => {
+        snapshot.forEach(e => {
+          if (e.val().status == 'invited') {
+            let info = e.val();
+            info.id = e.key;
+            if (!list.includes(info)) {
+              setList(old => old.concat(info));
+            }
+            console.log(list);
+          }
+        });
+      });
+  };
+  useEffect(() => {
+    loadData();
+  }, []);
+  const acceptInvite = id => {
+    console.log(id);
+    try {
+      database()
+        .ref('users/' + currentUser.uid + '/listFriend/' + id)
+        .update({
+          status: 'friend',
+        })
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from friend to currentUser');
+      console.log(error);
+    }
+
+    try {
+      database()
+        .ref('users/' + id + '/listFriend/' + currentUser.uid)
+        .update({
+          status: 'friend',
+        })
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from currentUser to friend');
+      console.log(error);
+    }
+  };
+  const declineiInvite = id => {
+    try {
+      database()
+        .ref('users/' + currentUser.uid + '/listFriend/' + id)
+        .remove()
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from friend to currentUser');
+      console.log(error);
+    }
+
+    try {
+      database()
+        .ref('users/' + id + '/listFriend/' + currentUser.uid)
+        .remove()
+        .then(() => {
+          loadData();
+        });
+    } catch (error) {
+      console.log('Error from currentUser to friend');
+      console.log(error);
+    }
+  };
   return (
     <View>
-      {data.map((l, i) => (
+      {list.map((l, i) => (
         <ListItem key={i}>
           <Avatar rounded source={{uri: l.avatar}} size={40} />
           <ListItem.Content>
@@ -32,23 +112,36 @@ export function ListFrInvite({navigation}) {
           <View
             style={{flex: 1, flexDirection: 'row', alignContent: 'flex-start'}}>
             <Button
-              title="Chấp nhận"
+              icon={
+                <Icon
+                  name="check-circle"
+                  size={30}
+                  color="white"
+                  type="font-awesome-5"
+                />
+              }
               buttonStyle={{
                 backgroundColor: '#306EFF',
                 fontWeight: 'bold',
                 borderRadius: 100,
-                width: 80,
-                marginLeft: 0,
+                marginLeft: 30,
               }}
+              onPress={() => acceptInvite(l.id)}
             />
             <Button
-              title="Từ chối"
+              onPress={() => declineiInvite(l.id)}
+              icon={
+                <Icon
+                  name="times-circle"
+                  size={30}
+                  color="white"
+                  type="font-awesome-5"
+                />
+              }
               titleStyle={{color: 'black'}}
               buttonStyle={{
                 backgroundColor: '#CFCFCF',
-                fontWeight: 'bold',
                 borderRadius: 100,
-                width: 80,
                 marginLeft: 5,
               }}
             />
