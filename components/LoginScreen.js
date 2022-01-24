@@ -132,6 +132,7 @@ export function LoginScreen({navigation}) {
             }
             onChangeText={setPassword}
             value={password}
+            onSubmitEditing={() => Login(loginName, password)}
           />
 
           <View style={styles.loginBtn}>

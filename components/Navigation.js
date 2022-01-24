@@ -77,7 +77,6 @@ export function MyStack() {
                 alignItems: 'center',
                 marginLeft: -20,
               }}>
-                
               <Avatar
                 size={40}
                 containerStyle={{marginRight: 15}}
@@ -144,21 +143,20 @@ export function RootStack() {
 //Tab navigation
 const Tab = createBottomTabNavigator();
 export function TabMain({navigation}) {
-  const [count,setCount] = useState(0);
+  const [count, setCount] = useState(0);
   const {user} = useContext(AuthContext);
   useEffect(() => {
-    let c = 0
-    setCount( 0)
-    Object.values( user.listFriend).forEach(e =>{
-      if( e.status == 'invited')
-      {
-         c +=1;
-        setCount(c);
-        console.log(count);
-        
-      }
-    })
-    
+    let c = 0;
+    setCount(0);
+    if (typeof user.listFriend != 'undefined') {
+      Object.values(user.listFriend).forEach(e => {
+        if (e.status == 'invited') {
+          c += 1;
+          setCount(c);
+          console.log(count);
+        }
+      });
+    }
   }, [user.listFriend]);
   return (
     <Tab.Navigator screenOptions={{tabBarShowLabel: false}}>
