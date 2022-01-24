@@ -27,6 +27,7 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import ImageModal from 'react-native-image-modal';
+import { Button } from 'react-native-elements/dist/buttons/Button';
 
 const window = Dimensions.get('window');
 let check = 0;
@@ -363,6 +364,7 @@ export function ChatScr({navigation, route}) {
         <ImageModal
           resizeMode="cover"
           modalImageResizeMode="contain"
+          modalImageStyle ={{width:10,height:20}}
           style={{
             width: 150,
             height: 100,
@@ -480,11 +482,16 @@ export function ChatScr({navigation, route}) {
         {images != null ? (
           <View style={{height: window.width-200}}>
             <ScrollView>
+              <Button
+              title="Hủy"
+              onPress={()=>{setImage(null)}}
+              />
               <View style={styles.container}>
                 {/* {images.map((e, i) => ( */}
                 <Image
                   style={styles.imgwrap}
                   //key={i}
+                  resizeMethod ="scale"
                   resizeMode="contain"
                   source={images}
                 />
@@ -506,7 +513,7 @@ const styles = StyleSheet.create({
   },
   imgwrap: {
     margin: 3,
-    height: window.width,
+    height: window.width-200,
     width:"100%",
   },
 });

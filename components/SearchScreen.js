@@ -185,7 +185,7 @@ export function SearchScr({navigation}) {
           status: 'friend',
         })
         .then(() => {
-          loadData();
+          loadData(search.toLowerCase());
         });
     } catch (error) {
       console.log('Error from friend to currentUser');
@@ -199,7 +199,7 @@ export function SearchScr({navigation}) {
           status: 'friend',
         })
         .then(() => {
-          loadData();
+          loadData(search.toLowerCase());
         });
     } catch (error) {
       console.log('Error from currentUser to friend');
@@ -212,7 +212,7 @@ export function SearchScr({navigation}) {
         .ref('users/' + currentUser.uid + '/listFriend/' + id)
         .remove()
         .then(() => {
-          loadData();
+          loadData(search.toLowerCase());
         });
     } catch (error) {
       console.log('Error from friend to currentUser');
@@ -224,7 +224,7 @@ export function SearchScr({navigation}) {
         .ref('users/' + id + '/listFriend/' + currentUser.uid)
         .remove()
         .then(() => {
-          loadData();
+          loadData(search.toLowerCase());
         });
     } catch (error) {
       console.log('Error from currentUser to friend');
@@ -279,19 +279,20 @@ export function SearchScr({navigation}) {
                       />
                     ) : null}
                   </Avatar>
-                  <ListItem.Content>
+                  <ListItem.Content style={{flex:1}} >
                     <ListItem.Title>{l.name}</ListItem.Title>
                   </ListItem.Content>
                   {l.status == 'invited' ? (
                     <View
-                    style={{flex: 1, flexDirection: 'row', alignContent: 'flex-start'}}>
+                    style={{flex: 1, flexDirection: 'column', alignContent: 'flex-start'}}>
                     <Button
                       title="Chấp nhận"
                       buttonStyle={{
                         backgroundColor: '#306EFF',
                         fontWeight: 'bold',
                         borderRadius: 100,
-                        marginLeft: 5,
+                        marginBottom: 5,
+                        width: "80%"
                       }}
                       onPress={() => acceptInvite(l.id)}
                     />
@@ -302,7 +303,7 @@ export function SearchScr({navigation}) {
                       buttonStyle={{
                         backgroundColor: '#CFCFCF',
                         borderRadius: 100,
-                        marginLeft: 5,
+                        width: "80%"
                       }}
                     />
                   </View>
